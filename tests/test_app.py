@@ -133,9 +133,10 @@ def test_seo_canonical_and_admin_noindex() -> None:
 
 
 def test_favicon_routes_render() -> None:
-    fallback = client.get("/favicon.ico", follow_redirects=False)
-    assert fallback.status_code == 307
-    assert fallback.headers["location"] == "/assets/brand/favicon.svg"
+    fallback = client.get("/favicon.ico")
+    assert fallback.status_code == 200
+    assert "image/svg+xml" in fallback.headers["content-type"]
+    assert "<svg" in fallback.text
 
     favicon = client.get("/assets/brand/favicon.svg")
     assert favicon.status_code == 200

@@ -2,7 +2,7 @@ from typing import Annotated
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -315,8 +315,8 @@ async def robots_txt() -> Response:
 
 
 @router.get("/favicon.ico", include_in_schema=False)
-async def favicon_ico() -> RedirectResponse:
-    return RedirectResponse(url="/assets/brand/favicon.svg", status_code=307)
+async def favicon_ico() -> FileResponse:
+    return FileResponse("assets/brand/favicon.svg", media_type="image/svg+xml")
 
 
 @router.get("/sitemap.xml")

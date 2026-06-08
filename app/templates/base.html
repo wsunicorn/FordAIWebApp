@@ -10,8 +10,8 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ base_url }}{{ current_path or '/' }}" />
     <link rel="canonical" href="{{ base_url }}{{ current_path or '/' }}" />
-    <link rel="icon" href="{{ url_for('assets', path='/brand/favicon.svg') }}" type="image/svg+xml" />
-    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="icon" href="{{ url_for('assets', path='/brand/favicon.svg') }}?v=20260608" type="image/svg+xml" />
+    <link rel="shortcut icon" href="/favicon.ico?v=20260608" />
     <meta name="theme-color" content="#0f2e4a" />
     {% if ga_measurement_id %}
       <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
