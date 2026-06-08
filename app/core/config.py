@@ -2,8 +2,11 @@ from functools import lru_cache
 
 from pydantic import AnyUrl, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
 
 INSECURE_SECRET_MARKERS = ("change-me", "dev-only", "admin-dev")
+PLACEHOLDER_MARKERS = ("<", ">", "paste-", "render-postgres-internal-database-url")
 
 
 class Settings(BaseSettings):
@@ -51,11 +54,18 @@ class Settings(BaseSettings):
     @field_validator("database_url")
     @classmethod
     def normalize_database_url(cls, value: str) -> str:
+        normalized_value = value.strip()
+        if any(marker in normalized_value.lower() for marker in PLACEHOLDER_MARKERS):
+            raise ValueError("DATABASE_URL still contains a placeholder")
         if value.startswith("postgres://"):
-            return value.replace("postgres://", "postgresql+psycopg://", 1)
+            normalized_value = value.replace("postgres://", "postgresql+psycopg://", 1)
         if value.startswith("postgresql://"):
-            return value.replace("postgresql://", "postgresql+psycopg://", 1)
-        return value
+            normalized_value = value.replace("postgresql://", "postgresql+psycopg://", 1)
+        try:
+            make_url(normalized_value)
+        except ArgumentError as exc:
+            raise ValueError("DATABASE_URL must be a valid SQLAlchemy database URL") from exc
+        return normalized_value
 
     @model_validator(mode="after")
     def validate_production_settings(self) -> "Settings":

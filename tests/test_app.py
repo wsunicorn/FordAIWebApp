@@ -58,6 +58,11 @@ def test_production_settings_reject_insecure_defaults() -> None:
         )
 
 
+def test_database_url_rejects_placeholders() -> None:
+    with pytest.raises(ValidationError):
+        Settings(database_url="<render-postgres-internal-database-url>")
+
+
 def test_home_renders() -> None:
     response = client.get("/")
     assert response.status_code == 200

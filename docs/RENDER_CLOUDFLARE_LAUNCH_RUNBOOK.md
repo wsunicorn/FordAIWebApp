@@ -90,8 +90,12 @@ Do not share your Cloudflare password.
    - Postgres: `huy-ford-dong-thap-db`
 7. Render will ask for secret values marked `sync: false`.
 8. Open local file `.env.production.local` and copy values into Render env vars.
-9. For `DATABASE_URL`, use Render's database connection string from the Blueprint.
-10. Deploy.
+9. Do not paste a placeholder into `DATABASE_URL`.
+10. If you deployed with the Blueprint, Render should set `DATABASE_URL`
+   automatically from the managed Postgres database.
+11. If you deployed manually, open the Render Postgres database and copy its
+   **Internal Database URL** into the web service `DATABASE_URL`.
+12. Deploy.
 
 Important env vars:
 
@@ -101,7 +105,7 @@ APP_DEBUG=false
 APP_URL=https://huy-ford-dong-thap.onrender.com
 CANONICAL_REDIRECT=false
 SECRET_KEY=<from .env.production.local>
-DATABASE_URL=<Render Postgres internal database URL>
+DATABASE_URL=<Render Postgres Internal Database URL, not a placeholder>
 REVALIDATION_SECRET=<from .env.production.local>
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=<from .env.production.local>
@@ -116,11 +120,38 @@ The Gemini key must not live in `.env.example`.
 
 Use one of these:
 
-- Paste the existing Gemini key into `.env.production.local`, then Render
-  `AI_API_KEY`.
-- Or create a new key in Google AI Studio and use the new value.
+- Create a new key in Google AI Studio and use the new value.
+- Paste it into Render `AI_API_KEY`.
 
 If `AI_API_KEY` is empty, the app still runs with the internal grounded fallback.
+
+Do not reuse a Gemini key that was previously committed, pasted into chat or
+shown in logs. Treat it as exposed and rotate it.
+
+## Common Render Error: DATABASE_URL Placeholder
+
+If Render logs end with:
+
+```text
+sqlalchemy.exc.ArgumentError: Could not parse SQLAlchemy URL from given URL string
+```
+
+the web service probably has `DATABASE_URL` set to a placeholder such as:
+
+```text
+<render-postgres-internal-database-url>
+```
+
+Fix:
+
+1. Open Render Dashboard.
+2. Open the `huy-ford-dong-thap` web service.
+3. Go to **Environment**.
+4. Find `DATABASE_URL`.
+5. Delete the placeholder value.
+6. If using Blueprint, let the `fromDatabase` value populate it.
+7. If using manual deploy, paste the Render Postgres **Internal Database URL**.
+8. Save and redeploy.
 
 ## GA4 Setup
 

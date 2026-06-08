@@ -138,3 +138,21 @@ Do not public-launch for SEO traffic until these are done:
 - Admin password and secret keys are changed.
 - UAT script is accepted by anh Huy.
 - Backup/export path is confirmed.
+
+## Render Startup Failure Seen On 2026-06-08
+
+Observed log:
+
+```text
+sqlalchemy.exc.ArgumentError: Could not parse SQLAlchemy URL from given URL string
+```
+
+Cause:
+
+- `DATABASE_URL` was not a real database URL, most likely copied as a placeholder.
+
+Fix:
+
+- Use Render Blueprint `fromDatabase` env binding, or copy the Render Postgres
+  **Internal Database URL** into `DATABASE_URL`.
+- Do not paste `<render-postgres-internal-database-url>`.
