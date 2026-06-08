@@ -1,0 +1,53 @@
+{% extends "admin/base.html" %}
+
+{% block admin_body %}
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Xe va bang gia</h2>
+      <p>Seed tu source hien tai, sau do cap nhat approval, freshness va review due.</p>
+    </div>
+    <form action="/admin/vehicles/seed" method="post">
+      <button class="btn btn-primary" type="submit">Seed xe va gia</button>
+    </form>
+  </div>
+
+  {% if vehicles %}
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Dong xe</th>
+            <th>Nhom</th>
+            <th>Phien ban</th>
+            <th>Gia</th>
+            <th>Duyet</th>
+            <th>Freshness</th>
+            <th>Review</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vehicle in vehicles %}
+            <tr>
+              <td>
+                <a href="/admin/vehicles/{{ vehicle.id }}">{{ vehicle.name }}</a>
+                <small>{{ vehicle.slug }}</small>
+              </td>
+              <td>{{ vehicle.category }}</td>
+              <td>{{ vehicle.variants|length }}</td>
+              <td>{{ vehicle.prices|length }}</td>
+              <td><span class="status-badge status-{{ vehicle.approval_status }}">{{ vehicle.approval_status }}</span></td>
+              <td><span class="status-badge status-{{ vehicle.freshness_status }}">{{ vehicle.freshness_status }}</span></td>
+              <td>{{ vehicle.review_due_at.isoformat() if vehicle.review_due_at else "Chua dat" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="admin-empty">
+      Chua co xe trong database admin. Bam "Seed xe va gia" de nap du lieu tu Phase 4 seed.
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

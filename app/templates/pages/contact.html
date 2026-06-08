@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "components/forms.html" import lead_form %}
+
+{% block body %}
+<main class="bg-surface pt-20">
+  <section class="mx-auto max-w-7xl px-5 md:px-8 pt-8 pb-12">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <span class="badge badge-primary mb-4">
+          <span class="material-symbols-outlined text-[16px]">contact_support</span>
+          Liên hệ
+        </span>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">Kết nối với anh Huy.</h1>
+        <p class="text-lg text-muted mb-8 text-balance">
+          Ưu tiên liên hệ trực tiếp nếu anh/chị cần giá lăn bánh, màu xe, lịch lái thử, ưu đãi tiền mặt hoặc giải pháp trả góp.
+        </p>
+        
+        <div class="grid gap-4">
+          <a href="tel:{{ sales.phone }}" class="flex items-center gap-4 p-4 rounded-2xl border border-border bg-white hover:border-primary/30 transition-[transform,border-color,box-shadow] duration-300 shadow-sm hover:shadow-card active:scale-[0.98]">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <span class="material-symbols-outlined">call</span>
+            </div>
+            <div>
+              <span class="block text-sm font-semibold text-ink">Điện thoại</span>
+              <span class="block text-muted">{{ sales.phone }}</span>
+            </div>
+          </a>
+          
+          <a href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer" class="flex items-center gap-4 p-4 rounded-2xl border border-border bg-white hover:border-primary/30 transition-[transform,border-color,box-shadow] duration-300 shadow-sm hover:shadow-card active:scale-[0.98]">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <span class="material-symbols-outlined">chat</span>
+            </div>
+            <div>
+              <span class="block text-sm font-semibold text-ink">Zalo (Ưu tiên)</span>
+              <span class="block text-muted">{{ sales.zalo }}</span>
+            </div>
+          </a>
+          
+          <a href="mailto:{{ sales.email }}" class="flex items-center gap-4 p-4 rounded-2xl border border-border bg-white hover:border-primary/30 transition-colors shadow-sm">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <span class="material-symbols-outlined">mail</span>
+            </div>
+            <div>
+              <span class="block text-sm font-semibold text-ink">Email công việc</span>
+              <span class="block text-muted">{{ sales.email }}</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Abstract Decor -->
+      <div class="hidden md:flex justify-center relative">
+        <div class="absolute inset-0 bg-primary/5 rounded-[3rem] -rotate-6 transform"></div>
+        <div class="relative bg-white border border-border p-8 rounded-[3rem] shadow-soft max-w-sm text-center">
+          <div class="w-32 h-32 mx-auto rounded-full bg-surface-muted border-4 border-white shadow-sm overflow-hidden mb-6">
+            <img src="{{ url_for('assets', path='/images/people/huy-dang-huy.jpg') }}" alt="{{ sales.name }}" class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-xl font-bold text-ink mb-1">{{ sales.name }}</h3>
+          <p class="text-sm text-muted uppercase tracking-wider font-semibold">{{ sales.title }}</p>
+          <div class="w-12 h-1 bg-action mx-auto my-4 rounded-full"></div>
+          <p class="text-sm text-ink font-medium">Đồng Tháp Ford</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-surface-muted border-t border-border">
+    <div class="mx-auto max-w-4xl px-5 md:px-8">
+      <div class="glass-panel light">
+        {{ lead_form(
+          title="Gửi thông tin để anh Huy gọi lại", 
+          need_type="contact", 
+          current_path=current_path, 
+          vehicles=vehicles, 
+          button_label="Gửi liên hệ"
+        ) }}
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

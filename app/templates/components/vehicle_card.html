@@ -1,0 +1,48 @@
+{% macro vehicle_card(vehicle, format_vnd) %}
+<article class="vehicle-card" data-vehicle-card data-category="{{ vehicle.category }}" data-name="{{ vehicle.name | lower }}" data-price="{{ vehicle.price_from }}">
+  
+  <a class="vehicle-image-wrap" href="/xe/{{ vehicle.slug }}" aria-label="Xem {{ vehicle.name }}">
+    {% if vehicle.image_path %}
+      <img src="{{ '/assets' ~ vehicle.image_path }}" alt="{{ vehicle.name }}" loading="lazy" />
+    {% else %}
+      <div class="flex h-full min-h-52 w-full items-center justify-center bg-surface-muted text-primary">
+        <span class="material-symbols-outlined text-[64px]" aria-hidden="true">directions_car</span>
+        <span class="sr-only">Chưa có ảnh cho {{ vehicle.name }}</span>
+      </div>
+    {% endif %}
+    <span class="absolute top-4 left-4 badge badge-glass backdrop-blur-md">{{ vehicle.category }}</span>
+    {% if vehicle.promotions %}
+      <span class="absolute bottom-4 left-4 badge badge-success flex items-center gap-1 shadow-sm">
+        <span class="material-symbols-outlined text-[14px]">local_offer</span> 
+        Có ưu đãi
+      </span>
+    {% endif %}
+  </a>
+
+  <div class="vehicle-content">
+    <div class="vehicle-header">
+      <h3 class="line-clamp-1"><a href="/xe/{{ vehicle.slug }}">{{ vehicle.name }}</a></h3>
+    </div>
+    
+    <p class="text-sm text-muted line-clamp-2 mb-4 flex-1">{{ vehicle.summary }}</p>
+    
+    <div class="flex flex-wrap gap-2 mb-4">
+      {% for tag in vehicle.tags[:3] %}
+        <span class="inline-flex rounded-md bg-surface-muted px-2 py-1 text-xs font-medium text-ink">{{ tag }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="vehicle-price">
+      <span>Giá từ (tham khảo)</span>
+      <strong>{{ format_vnd(vehicle.price_from) }}</strong>
+    </div>
+
+    <div class="vehicle-actions">
+      <a class="btn btn-primary flex-1" href="/xe/{{ vehicle.slug }}">Xem chi tiết</a>
+      <a class="btn btn-secondary flex-none px-3" href="/bao-gia?vehicle={{ vehicle.slug }}" title="Nhận báo giá" aria-label="Nhận báo giá">
+        <span class="material-symbols-outlined text-[20px]">request_quote</span>
+      </a>
+    </div>
+  </div>
+</article>
+{% endmacro %}

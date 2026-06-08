@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% from "components/vehicle_card.html" import vehicle_card %}
+
+{% block body %}
+<main class="bg-surface pb-24 pt-20">
+  <section class="vehicles-hero">
+    <div class="absolute inset-0 z-0 overflow-hidden">
+      <img src="{{ url_for('assets', path='/images/vehicles/ford-everest.jpg') }}" alt="" class="vehicles-hero-bg" aria-hidden="true" />
+      <div class="vehicles-hero-overlay"></div>
+    </div>
+    <div class="relative z-10 grid gap-8 md:grid-cols-[1fr_320px] md:items-end">
+      <div>
+        <span class="badge badge-glass mb-4">
+          <span class="material-symbols-outlined text-[16px]">directions_car</span>
+          Danh sách xe
+        </span>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">Khám phá các dòng xe Ford.</h1>
+        <p class="text-lg text-white/80 max-w-2xl">Kiến tạo hành trình vững chắc. Lọc nhanh theo tên hoặc nhóm xe. Giá hiển thị là giá tham khảo theo nguồn đã ghi nhận.</p>
+      </div>
+      
+      <div class="vehicles-search-shell">
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/70">search</span>
+          <label class="sr-only" for="vehicle-search">Tìm xe Ford theo tên hoặc nhóm xe</label>
+          <input id="vehicle-search" class="w-full rounded-2xl border border-white/20 bg-black/20 pl-12 pr-4 py-3 text-base text-white placeholder-white/50 shadow-sm transition-colors focus:border-white/50 focus:bg-black/40 focus:outline-none focus:ring-4 focus:ring-white/10" data-vehicle-search placeholder="Everest, Ranger, Transit..." />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-5 md:px-8 mt-16">
+    <!-- Filters (Visual only for now, logic in JS if needed) -->
+    <div class="variant-tabs mb-8 inline-flex">
+      <button class="variant-tab active" type="button">Tất cả</button>
+      <button class="variant-tab" type="button">SUV</button>
+      <button class="variant-tab" type="button">Bán tải</button>
+      <button class="variant-tab" type="button">Thương mại</button>
+    </div>
+
+    <div class="bento-grid">
+      {% for vehicle in vehicles %}
+        <!-- Distribute sizes based on typical catalog importance -->
+        <div class="{% if vehicle.slug == 'everest' %}bento-item-medium lg:row-span-2{% elif vehicle.slug == 'ranger' %}bento-item-medium{% else %}{% endif %}">
+          {{ vehicle_card(vehicle, format_vnd) }}
+        </div>
+      {% endfor %}
+    </div>
+    
+    <div class="mt-8 rounded-2xl border border-border bg-surface-muted p-8 text-center" data-empty-vehicles style="display: none;">
+      <span class="material-symbols-outlined text-4xl text-muted mb-3">search_off</span>
+      <h3 class="text-lg font-bold text-ink mb-2">Không thấy xe phù hợp</h3>
+      <p class="text-muted">Bộ lọc không khớp với dòng xe nào. Hãy gọi anh Huy để được tư vấn trực tiếp.</p>
+      <a class="btn btn-primary mt-4" href="tel:{{ sales.phone }}">Gọi anh Huy</a>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Simple tab filter logic for vehicles page
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.variant-tab');
+    const searchInput = document.querySelector('[data-vehicle-search]');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Update active state
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Filter logic
+        const category = tab.textContent.trim().toLowerCase();
+        const cards = document.querySelectorAll('[data-vehicle-card]');
+        let hasVisible = false;
+        
+        cards.forEach(card => {
+          const cardCategory = (card.dataset.category || "").toLowerCase();
+          const matchSearch = searchInput.value ? (card.dataset.name || "").toLowerCase().includes(searchInput.value.toLowerCase()) : true;
+          
+          if ((category === 'tất cả' || cardCategory.includes(category)) && matchSearch) {
+            card.style.display = "";
+            hasVisible = true;
+          } else {
+            card.style.display = "none";
+          }
+        });
+        
+        const emptyState = document.querySelector('[data-empty-vehicles]');
+        if (emptyState) {
+          emptyState.style.display = hasVisible ? 'none' : 'block';
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

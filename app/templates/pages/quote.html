@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "components/forms.html" import lead_form %}
+
+{% block body %}
+<main class="bg-surface pt-20">
+  <section class="mx-auto max-w-7xl px-5 md:px-8 pt-8 pb-12">
+    <div class="max-w-2xl">
+      <span class="badge badge-primary mb-4">
+        <span class="material-symbols-outlined text-[16px]">request_quote</span>
+        Báo giá
+      </span>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">Nhận báo giá trực tiếp từ anh Huy.</h1>
+      <p class="text-lg text-muted">
+        Gửi dòng xe anh/chị quan tâm và số điện thoại. Anh Huy sẽ kiểm tra giá chốt, ưu đãi hiện hành, tồn kho và gọi lại ngay.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-20 bg-surface-muted border-t border-border">
+    <div class="mx-auto max-w-4xl px-5 md:px-8">
+      <div class="glass-panel light">
+        {{ lead_form(
+          title="Yêu cầu báo giá lăn bánh", 
+          need_type="quote", 
+          current_path=current_path, 
+          vehicles=vehicles, 
+          button_label="Gửi yêu cầu báo giá"
+        ) }}
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

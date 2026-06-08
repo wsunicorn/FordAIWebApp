@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block body %}
+<main class="bg-surface pt-20">
+  <section class="mx-auto max-w-7xl px-5 md:px-8 pt-8 pb-12">
+    <div class="max-w-2xl mx-auto text-center">
+      <span class="badge badge-primary mb-4">
+        <span class="material-symbols-outlined text-[16px]">help</span>
+        FAQ
+      </span>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4 text-balance">Câu hỏi thường gặp.</h1>
+      <p class="text-lg text-muted">
+        Giải đáp thắc mắc cơ bản trước khi mua xe. Các câu hỏi liên quan đến giá chốt, tồn kho, duyệt vay và lịch giao xe sẽ được anh Huy trả lời trực tiếp.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-3xl px-5 md:px-8 mb-24">
+    <div class="space-y-4">
+      {% for item in faqs %}
+        <details class="group rounded-2xl border border-border bg-white shadow-sm [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex cursor-pointer items-center justify-between gap-4 p-5 md:p-6 font-semibold text-ink transition-colors hover:text-primary">
+            <span class="text-base md:text-lg">{{ item.question }}</span>
+            <span class="material-symbols-outlined text-muted transition-transform duration-300 group-open:rotate-180">expand_more</span>
+          </summary>
+          <div class="border-t border-border px-5 py-4 md:px-6 md:pb-6 text-muted leading-relaxed text-sm md:text-base">
+            {{ item.answer }}
+          </div>
+        </details>
+      {% endfor %}
+    </div>
+    
+    <div class="mt-12 text-center">
+      <p class="text-ink font-medium mb-4">Chưa tìm thấy câu trả lời của bạn?</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="/tro-ly-ai" class="btn btn-secondary">Hỏi Trợ Lý AI</a>
+        <a href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer" class="btn btn-action">Chat Zalo với anh Huy</a>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

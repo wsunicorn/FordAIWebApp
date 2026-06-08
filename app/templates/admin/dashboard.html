@@ -1,0 +1,95 @@
+{% extends "admin/base.html" %}
+
+{% block admin_body %}
+<section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  {% for status in lead_statuses %}
+    <article class="bg-white rounded-2xl p-5 border border-border shadow-sm flex flex-col">
+      <span class="text-sm text-muted font-medium mb-2">Lead {{ status }}</span>
+      <strong class="text-3xl font-bold text-ink">{{ lead_counts.get(status, 0) }}</strong>
+    </article>
+  {% endfor %}
+</section>
+
+<section class="grid md:grid-cols-2 gap-6 mb-8">
+  <article class="admin-panel shadow-sm border-border">
+    <div class="flex items-start justify-between mb-6 pb-4 border-b border-border">
+      <div>
+        <h2 class="text-lg font-bold text-ink mb-1">Freshness</h2>
+        <p class="text-sm text-muted">Xe, giá và nội dung cần có nguồn và ngày cập nhật.</p>
+      </div>
+      <a class="btn btn-secondary text-sm" href="/admin/vehicles">Quản lý</a>
+    </div>
+    <div class="flex gap-4">
+      {% for status in freshness_statuses %}
+        <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-surface">
+          <span class="badge {{ 'badge-success' if status == 'fresh' else ('badge-primary' if status == 'stale' else 'bg-danger/10 text-danger') }}">{{ status }}</span>
+          <strong class="text-lg font-bold text-ink">{{ freshness_counts.get(status, 0) }}</strong>
+        </div>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="admin-panel shadow-sm border-border">
+    <div class="mb-6 pb-4 border-b border-border">
+      <h2 class="text-lg font-bold text-ink mb-1">Hành động nhanh</h2>
+      <p class="text-sm text-muted">Seed dữ liệu từ source hoặc kiểm tra AI.</p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <form action="/admin/vehicles/seed" method="post">
+        <button class="btn btn-outline border-border text-ink hover:bg-surface-muted text-sm px-3" type="submit">Seed Xe & Giá</button>
+      </form>
+      <form action="/admin/content/seed" method="post">
+        <button class="btn btn-outline border-border text-ink hover:bg-surface-muted text-sm px-3" type="submit">Seed Ưu đãi & FAQ</button>
+      </form>
+      <a class="btn btn-primary text-sm px-3" href="/admin/leads">Mở Lead Inbox</a>
+      <a class="btn btn-secondary text-sm px-3" href="/admin/ai">Kiểm tra AI</a>
+    </div>
+  </article>
+</section>
+
+<section class="admin-panel shadow-sm border-border mb-8 p-0 overflow-hidden">
+  <div class="p-6 border-b border-border flex items-center justify-between bg-white">
+    <div>
+      <h2 class="text-lg font-bold text-ink mb-1">Lead mới nhất</h2>
+      <p class="text-sm text-muted">Ưu tiên gọi/Zalo lead mới, sau đó cập nhật trạng thái.</p>
+    </div>
+    <a class="btn btn-secondary text-sm" href="/admin/leads/export.csv">Export CSV</a>
+  </div>
+  
+  {% if recent_leads %}
+    <div class="data-table-wrapper border-0 rounded-none">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Khách hàng</th>
+            <th>Nhu cầu</th>
+            <th>Xe quan tâm</th>
+            <th>Trạng thái</th>
+            <th>Ngày tạo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lead in recent_leads %}
+            <tr>
+              <td class="font-medium text-primary hover:underline">
+                <a href="/admin/leads/{{ lead.id }}" class="block">{{ lead.full_name }}</a>
+                <small class="text-muted block mt-0.5 font-normal">{{ lead.phone }}</small>
+              </td>
+              <td>{{ lead.need_type }}</td>
+              <td>{{ lead.vehicle_interest or "Chưa rõ" }}</td>
+              <td>
+                <span class="badge {{ 'badge-success' if lead.status == 'won' else ('badge-primary' if lead.status == 'new' else 'bg-surface-muted border border-border text-muted') }}">
+                  {{ lead.status }}
+                </span>
+              </td>
+              <td class="text-sm text-muted">{{ lead.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="p-12 text-center text-muted">Chưa có lead nào.</div>
+  {% endif %}
+</section>
+{% endblock %}

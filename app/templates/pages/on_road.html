@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% from "components/forms.html" import lead_form %}
+
+{% block body %}
+<main class="bg-surface pt-20">
+  <section class="mx-auto max-w-7xl px-5 md:px-8 pt-8 pb-12">
+    <div class="max-w-2xl">
+      <span class="badge badge-primary mb-4">
+        <span class="material-symbols-outlined text-[16px]">calculate</span>
+        Dự toán lăn bánh
+      </span>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">Ước tính chi phí chuẩn bị ban đầu.</h1>
+      <p class="text-lg text-muted">
+        Đồng Tháp hiện dùng nhóm khu vực Khác theo quy định. Kết quả chỉ là tham khảo. Giá cuối cùng và lệ phí chính xác sẽ được báo sau khi thống nhất phiên bản.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-5 md:px-8 mb-20" data-on-road-calculator>
+    <div class="grid md:grid-cols-[1.5fr_1fr] gap-8">
+      <!-- Calculator Inputs -->
+      <div class="admin-panel">
+        <h3 class="text-lg font-bold text-ink mb-6">Thông số dự toán</h3>
+        
+        <div class="space-y-5">
+          <div class="form-group">
+            <label class="form-label" for="on-road-vehicle">Chọn xe tham khảo</label>
+            <select id="on-road-vehicle" class="form-select" data-calc-price>
+              {% for option in vehicle_options %}
+                <option value="{{ option.price }}">{{ option.name }} từ {{ option.price_label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="physical-insurance">Bảo hiểm vật chất dự kiến (VNĐ)</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted">shield</span>
+              <input id="physical-insurance" class="form-input pl-12" data-physical-insurance type="number" min="0" step="1000000" value="15000000" />
+            </div>
+            <p class="text-xs text-muted mt-1">Gợi ý: ~1.2% - 1.5% giá trị xe.</p>
+          </div>
+          
+          <button class="btn btn-primary w-full mt-2" type="button" data-calc-run>
+            <span class="material-symbols-outlined text-[20px]">refresh</span>
+            Tính lại
+          </button>
+        </div>
+      </div>
+
+      <!-- Result Panel -->
+      <div class="calc-panel flex flex-col justify-between">
+        <div>
+          <span class="text-white/80 font-semibold mb-2 block">Tổng chi phí dự kiến</span>
+          <strong class="calc-total block mb-8" data-on-road-total>Đang tính...</strong>
+          
+          <div class="space-y-3 text-sm text-white/90">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+              <span>Lệ phí trước bạ (~7.2% / 10% / 12%)</span>
+              <strong data-registration-fee></strong>
+            </div>
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+              <span>Phí đăng kiểm</span>
+              <strong>{{ format_vnd(assumptions.inspection_fee) }}</strong>
+            </div>
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+              <span>Phí đường bộ (1 năm)</span>
+              <strong>{{ format_vnd(assumptions.road_fee) }}</strong>
+            </div>
+            <div class="flex justify-between items-center pb-2">
+              <span>Bảo hiểm TNDS (bắt buộc)</span>
+              <strong>{{ format_vnd(assumptions.civil_insurance) }}</strong>
+            </div>
+          </div>
+        </div>
+        
+        <p class="text-xs text-white/60 mt-6 pt-4 border-t border-white/10 leading-relaxed">
+          Nguồn phí tham khảo, kiểm tra {{ source_checked_at }}. Anh Huy sẽ gửi bảng tính chi tiết bằng PDF sau khi tư vấn.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lead Form Section -->
+  <section class="py-20 bg-surface-muted border-t border-border">
+    <div class="mx-auto max-w-4xl px-5 md:px-8">
+      <div class="glass-panel light">
+        {{ lead_form(
+          title="Gửi bảng tính lăn bánh chi tiết", 
+          need_type="on_road", 
+          current_path=current_path, 
+          vehicles=vehicles, 
+          button_label="Yêu cầu gửi bảng tính",
+          note_label="Ghi chú thêm (khu vực đăng ký chính xác, trả góp...)"
+        ) }}
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

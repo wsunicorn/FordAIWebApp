@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% from "components/forms.html" import lead_form %}
+
+{% block body %}
+<main class="bg-surface pt-20">
+  <section class="mx-auto max-w-7xl px-5 md:px-8 pt-8 pb-12">
+    <div class="grid md:grid-cols-[1fr_auto] gap-12 items-center">
+      <div>
+        <span class="badge badge-primary mb-4">
+          <span class="material-symbols-outlined text-[16px]">badge</span>
+          Chuyên viên Tư vấn
+        </span>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-6">Anh Huỳnh Đang Huy<br><span class="text-muted text-3xl md:text-4xl">Đồng Tháp Ford.</span></h1>
+        <p class="text-lg text-muted mb-8 leading-relaxed max-w-2xl">
+          Chào anh/chị, tôi là Huỳnh Đang Huy, tư vấn bán hàng tại Đồng Tháp Ford. Tôi là người trực tiếp hỗ trợ anh/chị chọn xe, lên phương án tài chính và hẹn lịch làm việc phù hợp.
+        </p>
+        <div class="flex gap-4">
+          <a class="btn btn-primary" href="tel:{{ sales.phone }}">
+            <span class="material-symbols-outlined text-[20px]">call</span>
+            Gọi trực tiếp
+          </a>
+          <a class="btn btn-secondary" href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer">
+            <span class="material-symbols-outlined text-[20px]">chat</span>
+            Zalo: {{ sales.zalo }}
+          </a>
+        </div>
+      </div>
+      
+      <div class="relative max-w-sm mx-auto w-full md:w-[320px]">
+        <div class="absolute inset-0 bg-primary/10 rounded-2xl transform rotate-3 scale-105"></div>
+        <img src="{{ url_for('assets', path='/images/people/huy-dang-huy.jpg') }}" alt="Chân dung anh Huỳnh Đang Huy" class="relative rounded-2xl shadow-card w-full aspect-[3/4] object-cover" />
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-white border-t border-border">
+    <div class="mx-auto max-w-7xl px-5 md:px-8">
+      <div class="grid md:grid-cols-[1fr_1.5fr] gap-12 items-start">
+        <div class="sticky top-24">
+          <h2 class="text-3xl font-bold text-ink mb-4">Vai trò của Website</h2>
+          <p class="text-muted leading-relaxed">
+            Nền tảng này được xây dựng để giúp khách hàng tham khảo thông tin xe Ford một cách minh bạch, trực quan trước khi liên hệ. 
+          </p>
+        </div>
+        
+        <div class="grid sm:grid-cols-2 gap-6">
+          <div class="p-6 rounded-2xl bg-surface-muted border border-border">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-primary shadow-sm mb-4">
+              <span class="material-symbols-outlined">manage_search</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink mb-2">Thông tin minh bạch</h3>
+            <p class="text-sm text-muted">Giá và ưu đãi luôn hiển thị rõ nguồn và ngày kiểm tra để khách hàng chủ động ngân sách.</p>
+          </div>
+          
+          <div class="p-6 rounded-2xl bg-surface-muted border border-border">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-primary shadow-sm mb-4">
+              <span class="material-symbols-outlined">smart_toy</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink mb-2">Trợ lý AI hỗ trợ</h3>
+            <p class="text-sm text-muted">AI giúp giải đáp thông số nhanh chóng 24/7. Tuy nhiên, AI không chốt giá thay anh Huy.</p>
+          </div>
+          
+          <div class="p-6 rounded-2xl bg-surface-muted border border-border">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-primary shadow-sm mb-4">
+              <span class="material-symbols-outlined">block</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink mb-2">Không giao dịch online</h3>
+            <p class="text-sm text-muted">Website không nhận đặt cọc, thanh toán hay giữ xe trực tuyến để đảm bảo an toàn tối đa.</p>
+          </div>
+          
+          <div class="p-6 rounded-2xl bg-surface-muted border border-border">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-primary shadow-sm mb-4">
+              <span class="material-symbols-outlined">security</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink mb-2">Bảo mật thông tin</h3>
+            <p class="text-sm text-muted">Thông tin cá nhân để lại trên form chỉ dùng duy nhất mục đích để anh Huy tư vấn.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-surface-muted border-t border-border">
+    <div class="mx-auto max-w-4xl px-5 md:px-8">
+      <div class="glass-panel light">
+        {{ lead_form(
+          title="Để anh Huy gọi lại tư vấn", 
+          need_type="contact", 
+          current_path=current_path, 
+          vehicles=vehicles, 
+          button_label="Gửi yêu cầu gọi lại"
+        ) }}
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "admin/base.html" %}
+
+{% block admin_body %}
+<section class="metric-grid">
+  <article class="metric-card">
+    <span>Tai lieu AI</span>
+    <strong>{{ stats.documents }}</strong>
+  </article>
+  <article class="metric-card">
+    <span>Hoi thoai</span>
+    <strong>{{ stats.conversations }}</strong>
+  </article>
+  <article class="metric-card">
+    <span>Tin nhan</span>
+    <strong>{{ stats.messages }}</strong>
+  </article>
+  <article class="metric-card">
+    <span>Feedback</span>
+    <strong>{{ stats.feedback }}</strong>
+  </article>
+</section>
+
+<section class="admin-grid">
+  <article class="admin-panel ai-admin-brief">
+    <div class="panel-head">
+      <div>
+        <h2>Grounded AI</h2>
+        <p>AI chi tra loi tu tai lieu da duyet, calculator noi bo va guardrail handoff.</p>
+      </div>
+      <form action="/admin/ai/seed" method="post">
+        <button class="btn btn-primary" type="submit">Seed knowledge base</button>
+      </form>
+    </div>
+    <div class="ai-rule-grid">
+      <span>Khong chot gia</span>
+      <span>Khong xac nhan ton kho</span>
+      <span>Khong nhan dat coc</span>
+      <span>Khong cam ket duyet vay</span>
+    </div>
+  </article>
+
+  <article class="admin-panel">
+    <div class="panel-head">
+      <div>
+        <h2>Provider</h2>
+        <p>Gemini chi duoc goi sau retrieval va guardrail; loi provider se fallback ve cau tra loi noi bo.</p>
+      </div>
+    </div>
+    <dl class="detail-list">
+      <div>
+        <dt>Mode</dt>
+        <dd>{{ settings.ai_provider }}</dd>
+      </div>
+      <div>
+        <dt>Model</dt>
+        <dd>{{ settings.ai_model }}</dd>
+      </div>
+      <div>
+        <dt>Daily quota</dt>
+        <dd>{{ settings.ai_daily_quota }}</dd>
+      </div>
+    </dl>
+  </article>
+</section>
+
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Knowledge base</h2>
+      <p>Moi tai lieu can co owner, source, approval va freshness ro rang.</p>
+    </div>
+  </div>
+  {% if documents %}
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Tai lieu</th>
+            <th>Risk</th>
+            <th>Approval</th>
+            <th>Freshness</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for document in documents %}
+            <tr>
+              <td>
+                <strong>{{ document.title }}</strong>
+                <small>{{ document.owner }}</small>
+              </td>
+              <td>{{ document.risk_level }}</td>
+              <td><span class="status-badge status-{{ document.approval_status }}">{{ document.approval_status }}</span></td>
+              <td><span class="status-badge status-{{ document.freshness_status }}">{{ document.freshness_status }}</span></td>
+              <td>
+                {% if document.source_url %}
+                  <a href="{{ document.source_url }}" target="_blank" rel="noreferrer">Mo source</a>
+                {% else %}
+                  <span class="muted">Noi bo</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="admin-empty">Chua co tai lieu AI. Bam seed knowledge base de tao bo du lieu ban dau.</div>
+  {% endif %}
+</section>
+
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Hoi thoai gan day</h2>
+      <p>Theo doi session AI va cac lead tao tu handoff.</p>
+    </div>
+    <a class="btn btn-secondary" href="/tro-ly-ai" target="_blank" rel="noreferrer">Mo AI public</a>
+  </div>
+  {% if conversations %}
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Khach</th>
+            <th>Xe</th>
+            <th>Status</th>
+            <th>Tao luc</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for conversation in conversations %}
+            <tr>
+              <td>{{ conversation.session_id[:12] }}</td>
+              <td>{{ conversation.customer_name or conversation.phone or "An danh" }}</td>
+              <td>{{ conversation.vehicle_interest or "Chua ro" }}</td>
+              <td><span class="status-badge status-{{ conversation.status }}">{{ conversation.status }}</span></td>
+              <td>{{ conversation.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="admin-empty">Chua co hoi thoai AI nao.</div>
+  {% endif %}
+</section>
+{% endblock %}

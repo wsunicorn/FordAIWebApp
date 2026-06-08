@@ -1,0 +1,13 @@
+{
+  "name": "ford-ai-webapp-assets",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "css:build": "tailwindcss -i ./app/static/css/input.css -o ./app/static/css/styles.css --minify",
+    "css:watch": "tailwindcss -i ./app/static/css/input.css -o ./app/static/css/styles.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
+  }
+}

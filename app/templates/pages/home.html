@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% from "components/vehicle_card.html" import vehicle_card %}
+{% from "components/forms.html" import lead_form %}
+
+{% block body %}
+<main>
+  <!-- Hero Section -->
+  <section class="hero-home relative">
+    <img src="{{ url_for('assets', path='/images/vehicles/dong-thap-showroom.png') }}" alt="Showroom Đồng Tháp Ford" class="hero-home-bg opacity-35 mix-blend-luminosity" aria-hidden="true" data-parallax="0.25" />
+    <div class="hero-home-overlay"></div>
+    
+    <div class="hero-home-content z-10 relative">
+      <div class="hero-copy">
+        <span class="badge badge-glass mb-6">
+          <span class="material-symbols-outlined text-[16px]">verified</span>
+          Kênh tư vấn cá nhân của anh Huy
+        </span>
+        <h1>Tư Vấn Tận Tâm.<br>Đồng Hành Dài Lâu.</h1>
+        <p>
+          Xin chào, tôi là Huỳnh Đang Huy, tư vấn bán hàng tại Đồng Tháp Ford. Tôi hỗ trợ anh/chị chọn xe phù hợp nhu cầu, dự toán chi phí và kết nối trực tiếp khi cần xác nhận giá, ưu đãi hoặc lịch lái thử.
+        </p>
+        
+        <div class="hero-actions">
+          <a class="btn btn-action btn-shine" href="tel:{{ sales.phone }}">
+            <span class="material-symbols-outlined text-[20px]">call</span>
+            Hotline: {{ sales.phone }}
+          </a>
+          <a class="btn btn-outline btn-shine" href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer">
+            <span class="material-symbols-outlined text-[20px]">chat</span>
+            Chat Zalo
+          </a>
+        </div>
+        <p class="mt-4 text-sm text-white/60">Giá tham khảo từ nguồn {{ source_period }}, kiểm tra {{ source_checked_at }}. Không phải giá chốt.</p>
+      </div>
+
+      <aside class="w-full max-w-sm mx-auto">
+        <div class="hero-profile-card">
+          <img src="{{ url_for('assets', path='/images/people/huy-dang-huy.jpg') }}" alt="Anh Huỳnh Đang Huy, tư vấn bán hàng Đồng Tháp Ford" />
+          <div class="hero-profile-info">
+            <strong class="text-2xl font-bold block mb-1">{{ sales.name }}</strong>
+            <span class="text-sm text-white/80 uppercase tracking-wide">{{ sales.title }}, {{ sales.dealership }}</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Featured Vehicles Section -->
+  <section class="py-20 px-5 md:px-8 bg-surface">
+    <div class="mx-auto max-w-7xl">
+      <div class="section-title">
+        <h2>Dòng Xe Nổi Bật</h2>
+        <p>Tham khảo các dòng xe Ford đang được khách hàng hỏi nhiều. Mỗi giá đều là tham khảo và có nguồn để kiểm tra lại.</p>
+      </div>
+      
+      <div class="bento-grid">
+        {% for vehicle in featured_vehicles %}
+          <div class="{% if loop.index == 1 %}bento-item-medium{% elif loop.index == 2 %}bento-item-large{% else %}{% endif %}">
+            {{ vehicle_card(vehicle, format_vnd) }}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Assistant Banner Section -->
+  <section class="py-20 px-5 md:px-8 bg-surface-muted">
+    <div class="mx-auto max-w-7xl">
+      <div class="relative overflow-hidden rounded-[2rem] bg-primary-container text-white p-8 md:p-12 shadow-card">
+        <div class="relative z-10 grid gap-10 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <div class="flex items-center gap-2 mb-4 text-action font-semibold text-sm tracking-wider uppercase">
+              <span class="material-symbols-outlined text-[20px]">smart_toy</span>
+              Trợ lý thông minh
+            </div>
+            <h2 class="text-3xl md:text-5xl font-bold mb-4">Hỏi AI về xe Ford</h2>
+            <p class="text-white/80 max-w-[60ch] text-lg leading-relaxed">
+              Hỏi nhanh về dòng xe, phiên bản hoặc chi phí dự kiến. AI chỉ trả lời trong phạm vi dữ liệu đã duyệt và chuyển sang anh Huy khi cần xác nhận trực tiếp.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-4">
+              <a href="/tro-ly-ai" class="btn bg-white text-primary hover:bg-surface-muted">
+                Bắt đầu trò chuyện
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </a>
+              <a href="/du-toan-lan-banh" class="btn btn-outline border-white/20">Dự toán lăn bánh</a>
+            </div>
+          </div>
+          
+          <div class="hidden md:flex h-48 w-48 items-center justify-center rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
+            <span class="material-symbols-outlined text-[80px] text-white/50">forum</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process Steps Section -->
+  <section class="py-24 px-5 md:px-8 bg-surface">
+    <div class="mx-auto max-w-7xl">
+      <div class="section-title">
+        <h2>Quy Trình Mua Xe Đơn Giản</h2>
+        <p>Các bước được trình bày rõ để anh/chị biết khi nào đang tham khảo, khi nào cần anh Huy xác nhận trực tiếp.</p>
+      </div>
+      
+      <div class="process-steps mt-16">
+        <div class="process-step">
+          <div class="step-number"><span class="material-symbols-outlined text-[28px]">support_agent</span></div>
+          <h3>1. Tư Vấn</h3>
+          <p>Lắng nghe nhu cầu và đề xuất dòng xe phù hợp nhất với ngân sách.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-number"><span class="material-symbols-outlined text-[28px]">directions_car</span></div>
+          <h3>2. Lái Thử</h3>
+          <p>Trải nghiệm thực tế xe ngay tại nhà hoặc tại showroom Đồng Tháp Ford.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-number"><span class="material-symbols-outlined text-[28px]">request_quote</span></div>
+          <h3>3. Báo Giá & Trả Góp</h3>
+          <p>Phương án tài chính minh bạch, chi tiết lăn bánh và lãi suất ưu đãi.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-number"><span class="material-symbols-outlined text-[28px]">verified</span></div>
+          <h3>4. Giao Xe</h3>
+          <p>Giao xe tận nơi, hỗ trợ thủ tục đăng ký trọn gói và nhanh chóng.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lead Form Section -->
+  <section class="py-20 px-5 md:px-8 bg-surface-muted" id="lead-form">
+    <div class="mx-auto max-w-4xl">
+      <div class="glass-panel light">
+        {{ lead_form("Nhận tư vấn từ anh Huy", "quote", current_path, vehicles, button_label="Gửi thông tin") }}
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

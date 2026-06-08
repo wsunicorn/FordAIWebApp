@@ -1,0 +1,98 @@
+{% extends "admin/base.html" %}
+
+{% block admin_body %}
+<section class="admin-grid lead-detail-grid">
+  <article class="admin-panel">
+    <div class="panel-head">
+      <div>
+        <h2>{{ lead.full_name }}</h2>
+        <p>{{ lead.need_type }}{% if lead.vehicle_interest %} cho {{ lead.vehicle_interest }}{% endif %}</p>
+      </div>
+      <span class="status-badge status-{{ lead.status }}">{{ lead.status }}</span>
+    </div>
+
+    <dl class="detail-list">
+      <div>
+        <dt>Dien thoai</dt>
+        <dd><a href="tel:{{ lead.phone }}">{{ lead.phone }}</a></dd>
+      </div>
+      <div>
+        <dt>Xe quan tam</dt>
+        <dd>{{ lead.vehicle_interest or "Chua ro" }}</dd>
+      </div>
+      <div>
+        <dt>Khu vuc</dt>
+        <dd>{{ lead.area or "Chua ro" }}</dd>
+      </div>
+      <div>
+        <dt>Ngay tao</dt>
+        <dd>{{ lead.created_at.strftime("%Y-%m-%d %H:%M") }}</dd>
+      </div>
+      <div>
+        <dt>Ghi chu khach</dt>
+        <dd>{{ lead.note or "Khach chua de lai ghi chu." }}</dd>
+      </div>
+    </dl>
+
+    <div class="quick-actions">
+      <a class="btn btn-primary" href="tel:{{ lead.phone }}">Goi khach</a>
+      <a class="btn btn-secondary" href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer">Mo Zalo anh Huy</a>
+      <a class="btn btn-secondary" href="/admin/leads">Quay lai inbox</a>
+    </div>
+  </article>
+
+  <article class="admin-panel">
+    <div class="panel-head">
+      <div>
+        <h2>Cham soc lead</h2>
+        <p>Cap nhat sau moi lan goi, Zalo hoac gui bao gia.</p>
+      </div>
+    </div>
+    <form action="/admin/leads/{{ lead.id }}" method="post" class="admin-form">
+      <label class="field">
+        Trang thai
+        <select name="lead_status">
+          {% for status in lead_statuses %}
+            <option value="{{ status }}" {{ "selected" if lead.status == status else "" }}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
+        Lich follow-up
+        <input name="follow_up_at" type="datetime-local" value="{{ lead.follow_up_at.strftime('%Y-%m-%dT%H:%M') if lead.follow_up_at else '' }}" />
+      </label>
+      <label class="field">
+        Lan lien he gan nhat
+        <input name="last_contacted_at" type="datetime-local" value="{{ lead.last_contacted_at.strftime('%Y-%m-%dT%H:%M') if lead.last_contacted_at else '' }}" />
+      </label>
+      <label class="field full">
+        Ghi chu noi bo
+        <textarea name="admin_note" rows="7">{{ lead.admin_note or "" }}</textarea>
+      </label>
+      <button class="btn btn-primary" type="submit">Luu cham soc</button>
+    </form>
+  </article>
+</section>
+
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Audit cua lead</h2>
+      <p>Log gan nhat lien quan den lead nay.</p>
+    </div>
+  </div>
+  {% if related_logs %}
+    <div class="audit-list">
+      {% for log in related_logs %}
+        <div>
+          <strong>{{ log.action }}</strong>
+          <span>{{ log.metadata_json }}</span>
+          <small>{{ log.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="admin-empty">Chua co log rieng ngoai thong tin lead hien tai.</div>
+  {% endif %}
+</section>
+{% endblock %}

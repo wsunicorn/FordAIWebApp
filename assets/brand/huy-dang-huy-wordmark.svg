@@ -1,0 +1,12 @@
+<svg width="520" height="148" viewBox="0 0 520 148" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Huynh Dang Huy wordmark</title>
+  <desc id="desc">Custom wordmark for Huynh Dang Huy, Tu Van Ban Hang tai Dong Thap Ford. This is not the Ford logo.</desc>
+  <rect width="520" height="148" rx="18" fill="#F7F9FC"/>
+  <rect x="14" y="14" width="120" height="120" rx="14" fill="#0C234B"/>
+  <path d="M42 96V51H51V69H76V51H85V96H76V78H51V96H42Z" fill="white"/>
+  <path d="M95 96V51H107C124 51 134 60 134 73.5C134 87 124 96 107 96H95ZM104 88H108C118 88 125 82 125 73.5C125 65 118 59 108 59H104V88Z" fill="#F39A2B"/>
+  <path d="M33 112H115" stroke="#F39A2B" stroke-width="6" stroke-linecap="round"/>
+  <text x="156" y="56" fill="#111827" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="800" letter-spacing="0">Huỳnh Đang Huy</text>
+  <text x="156" y="86" fill="#0C234B" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Tư Vấn Bán Hàng</text>
+  <text x="156" y="114" fill="#4B5563" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500">Đồng Tháp Ford · 0766994952 · Zalo 0818655369</text>
+</svg>

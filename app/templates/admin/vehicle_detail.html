@@ -1,0 +1,147 @@
+{% extends "admin/base.html" %}
+
+{% block admin_body %}
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>{{ vehicle.name }}</h2>
+      <p>Cap nhat thong tin nguon, trang thai duyet va freshness cho public data.</p>
+    </div>
+    <a class="btn btn-secondary" href="/admin/vehicles">Tat ca xe</a>
+  </div>
+
+  <form action="/admin/vehicles/{{ vehicle.id }}" method="post" class="admin-form admin-form-grid">
+    <label class="field">
+      Ten xe
+      <input name="name" value="{{ vehicle.name }}" required />
+    </label>
+    <label class="field">
+      Nhom xe
+      <input name="category" value="{{ vehicle.category }}" required />
+    </label>
+    <label class="field full">
+      Tom tat
+      <textarea name="summary" rows="4">{{ vehicle.summary or "" }}</textarea>
+    </label>
+    <label class="field">
+      Source URL
+      <input name="source_url" value="{{ vehicle.source_url or '' }}" />
+    </label>
+    <label class="field">
+      Source updated
+      <input name="source_updated_at" type="date" value="{{ vehicle.source_updated_at.isoformat() if vehicle.source_updated_at else '' }}" />
+    </label>
+    <label class="field">
+      Review due
+      <input name="review_due_at" type="date" value="{{ vehicle.review_due_at.isoformat() if vehicle.review_due_at else '' }}" />
+    </label>
+    <label class="field">
+      Approval
+      <select name="approval_status">
+        {% for status in approval_statuses %}
+          <option value="{{ status }}" {{ "selected" if vehicle.approval_status == status else "" }}>{{ status }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      Freshness
+      <select name="freshness_status">
+        {% for status in freshness_statuses %}
+          <option value="{{ status }}" {{ "selected" if vehicle.freshness_status == status else "" }}>{{ status }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div class="form-actions full">
+      <button class="btn btn-primary" type="submit">Luu xe</button>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Phien ban</h2>
+      <p>Ten phien ban va dong co hien trong admin, public dang doc seed cho Phase 4.</p>
+    </div>
+  </div>
+  {% if vehicle.variants %}
+    <div class="stack-list">
+      {% for variant in vehicle.variants|sort(attribute="sort_order") %}
+        <form action="/admin/vehicles/{{ vehicle.id }}/variants/{{ variant.id }}" method="post" class="admin-row-form">
+          <label class="field">
+            Ten phien ban
+            <input name="name" value="{{ variant.name }}" required />
+          </label>
+          <label class="field">
+            Dong co
+            <input name="engine" value="{{ variant.engine or '' }}" />
+          </label>
+          <label class="field small-field">
+            Thu tu
+            <input name="sort_order" type="number" value="{{ variant.sort_order }}" />
+          </label>
+          <button class="btn btn-secondary" type="submit">Luu</button>
+        </form>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="admin-empty">Chua co phien ban. Hay seed tu source truoc.</div>
+  {% endif %}
+</section>
+
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Gia tham khao</h2>
+      <p>Moi gia can co source, ngay cap nhat, han hieu luc va ngay review.</p>
+    </div>
+  </div>
+  {% if vehicle.prices %}
+    <div class="stack-list">
+      {% for price in vehicle.prices %}
+        <form action="/admin/vehicles/{{ vehicle.id }}/prices/{{ price.id }}" method="post" class="admin-row-form price-row-form">
+          <div class="price-variant-name">
+            {% for variant in vehicle.variants %}
+              {% if variant.id == price.variant_id %}
+                <strong>{{ variant.name }}</strong>
+              {% endif %}
+            {% endfor %}
+            <small>{{ price.id[:8] }}</small>
+          </div>
+          <label class="field">
+            Gia VND
+            <input name="price_vnd" type="number" min="0" step="1000000" value="{{ price.price_vnd }}" required />
+          </label>
+          <label class="field">
+            Source updated
+            <input name="source_updated_at" type="date" value="{{ price.source_updated_at.isoformat() if price.source_updated_at else '' }}" />
+          </label>
+          <label class="field">
+            Effective to
+            <input name="effective_to" type="date" value="{{ price.effective_to.isoformat() if price.effective_to else '' }}" />
+          </label>
+          <label class="field">
+            Review due
+            <input name="review_due_at" type="date" value="{{ price.review_due_at.isoformat() if price.review_due_at else '' }}" />
+          </label>
+          <label class="field">
+            Freshness
+            <select name="freshness_status">
+              {% for status in freshness_statuses %}
+                <option value="{{ status }}" {{ "selected" if price.freshness_status == status else "" }}>{{ status }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label class="field full">
+            Source URL
+            <input name="source_url" value="{{ price.source_url or '' }}" />
+          </label>
+          <button class="btn btn-secondary" type="submit">Luu gia</button>
+        </form>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="admin-empty">Chua co gia. Hay seed tu source truoc.</div>
+  {% endif %}
+</section>
+{% endblock %}

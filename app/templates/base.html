@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="vi" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ page_title or settings.app_name }}</title>
+    <meta name="description" content="{{ page_description or 'Kênh tham khảo xe Ford, dự toán chi phí và liên hệ tư vấn trực tiếp với anh Huỳnh Đang Huy tại Đồng Tháp Ford.' }}" />
+    <meta property="og:title" content="{{ page_title or settings.app_name }}" />
+    <meta property="og:description" content="{{ page_description or 'Tham khảo xe Ford và liên hệ anh Huy để xác nhận giá, ưu đãi, tồn kho.' }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ base_url }}{{ current_path or '/' }}" />
+    <link rel="canonical" href="{{ base_url }}{{ current_path or '/' }}" />
+    {% if ga_measurement_id %}
+      <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ ga_measurement_id }}');
+      </script>
+    {% endif %}
+    
+    <!-- Fonts and Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}" />
+    <script src="{{ url_for('static', path='/js/app.js') }}" defer></script>
+  </head>
+  <body class="min-h-screen bg-background text-ink font-sans antialiased">
+    <div class="site-noise" aria-hidden="true"></div>
+    <header class="site-header" id="site-header">
+      <div class="site-brand-wrap">
+        <a class="brand-lockup" href="/" aria-label="Trang chủ Huỳnh Đang Huy Ford">
+          <img src="{{ url_for('assets', path='/brand/huy-dang-huy-logo.svg') }}" alt="" class="brand-mark" />
+          <span class="ml-2 border-l border-border pl-3">
+            <strong class="text-base font-bold tracking-tight text-ink uppercase">Huỳnh Đang Huy</strong>
+            <small class="text-[10px] text-muted font-semibold tracking-wider uppercase block mt-0.5">Đồng Tháp Ford</small>
+          </span>
+        </a>
+      </div>
+      
+      <nav id="primary-nav" class="primary-nav" aria-label="Desktop menu">
+        {% set nav_items = [
+          ('/xe', 'Xe Ford'),
+          ('/bang-gia', 'Bảng giá'),
+          ('/du-toan-lan-banh', 'Lăn bánh'),
+          ('/du-toan-tra-gop', 'Trả góp'),
+          ('/tro-ly-ai', 'AI tư vấn'),
+          ('/uu-dai', 'Ưu đãi'),
+          ('/faq', 'FAQ')
+        ] %}
+        {% for href, label in nav_items %}
+          <a class="{{ 'active' if current_path == href else '' }}" href="{{ href }}">{{ label }}</a>
+        {% endfor %}
+      </nav>
+      
+      <div class="header-actions">
+        <a class="btn btn-ghost" href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer">
+          <span class="material-symbols-outlined text-[18px]">chat</span> Zalo
+        </a>
+        <a class="btn btn-primary" href="tel:{{ sales.phone }}">
+          <span class="material-symbols-outlined text-[18px]">call</span> Gọi anh Huy
+        </a>
+      </div>
+
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav">
+        <span class="material-symbols-outlined">menu</span>
+        <span data-nav-toggle-label>Menu</span>
+      </button>
+    </header>
+
+    <!-- Mobile Header Menu Dropdown -->
+    <nav id="mobile-nav" class="nav-menu-mobile" data-nav aria-label="Mobile menu">
+      {% for href, label in nav_items %}
+        <a class="{{ 'text-primary bg-surface-muted' if current_path == href else '' }}" href="{{ href }}">{{ label }}</a>
+      {% endfor %}
+      <div class="mt-4 grid grid-cols-2 gap-2 border-t border-border pt-4">
+        <a class="btn btn-secondary justify-center" href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer">Zalo</a>
+        <a class="btn btn-primary justify-center" href="tel:{{ sales.phone }}">Gọi điện</a>
+      </div>
+    </nav>
+
+    {% block body %}{% endblock %}
+
+    <nav class="mobile-bottom-nav" aria-label="Liên hệ nhanh">
+      <a href="/" class="mobile-nav-item {{ 'active' if current_path == '/' else '' }}">
+        <span class="material-symbols-outlined">home</span>
+        Trang chủ
+      </a>
+      <a href="/xe" class="mobile-nav-item {{ 'active' if current_path == '/xe' else '' }}">
+        <span class="material-symbols-outlined">directions_car</span>
+        Chọn xe
+      </a>
+      <a href="/tro-ly-ai" class="mobile-nav-item {{ 'active' if current_path == '/tro-ly-ai' else '' }}">
+        <span class="material-symbols-outlined">smart_toy</span>
+        Hỏi AI
+      </a>
+      <a href="tel:{{ sales.phone }}" class="mobile-nav-item">
+        <span class="material-symbols-outlined">call</span>
+        Gọi anh Huy
+      </a>
+    </nav>
+
+      <!-- Floating AI Assistant Button (Desktop) -->
+  <a class="floating-ai-btn" href="/tro-ly-ai" aria-label="Mở Trợ Lý AI">
+    <span class="material-symbols-outlined text-[28px]">smart_toy</span>
+  </a>
+
+    <footer class="mt-auto border-t border-border bg-white pt-12 pb-8">
+      <div class="mx-auto grid w-full max-w-7xl gap-10 px-5 md:grid-cols-3 md:px-8">
+        <div class="flex flex-col gap-4">
+          <a class="brand-lockup" href="/">
+            <img src="{{ url_for('assets', path='/brand/huy-dang-huy-logo.svg') }}" alt="Huy Dang Huy" class="h-10 w-10 rounded-md border border-border bg-white object-contain p-0.5 shadow-sm" />
+            <span>
+              <strong>Huỳnh Đang Huy</strong>
+              <small class="text-muted">Đồng Tháp Ford</small>
+            </span>
+          </a>
+          <p class="text-sm leading-relaxed text-muted mt-2 max-w-sm">
+            Kênh tư vấn cá nhân để khách tham khảo thông tin xe Ford và liên hệ trực tiếp anh Huy tại Đồng Tháp Ford. Mọi thông tin giá, ưu đãi và tình trạng xe cần được xác nhận lại trước khi quyết định.
+          </p>
+        </div>
+        
+        <div>
+          <h4 class="mb-4 font-bold text-ink">Liên hệ tư vấn</h4>
+          <ul class="space-y-3 text-sm text-muted">
+            <li class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-base">call</span>
+              <a href="tel:{{ sales.phone }}" class="font-medium hover:text-primary transition-colors">{{ sales.phone }}</a>
+            </li>
+            <li class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-base">chat</span>
+              <a href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer" class="font-medium hover:text-primary transition-colors">{{ sales.zalo }}</a>
+            </li>
+            <li class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-base">mail</span>
+              <a href="mailto:{{ sales.email }}" class="font-medium hover:text-primary transition-colors">{{ sales.email }}</a>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-base mt-0.5">location_on</span>
+              <span class="leading-relaxed">Đồng Tháp Ford<br>QL 30, An Định, phường Mỹ Trà, Tỉnh Đồng Tháp</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="mb-4 font-bold text-ink">Về thông tin tham khảo</h4>
+          <p class="text-sm leading-relaxed text-muted mb-3">
+            Giá bán, thông số và ưu đãi mang tính chất tham khảo. Được cập nhật từ <a href="{{ price_source_url }}" target="_blank" rel="noreferrer" class="text-primary hover:underline font-medium">Đồng Tháp Ford</a> vào kỳ {{ source_period }} (kiểm tra {{ source_checked_at }}).
+          </p>
+          <div class="rounded-xl bg-surface-muted p-4 text-xs font-medium text-ink">
+            <span class="material-symbols-outlined text-primary mb-1 block">info</span>
+            Vui lòng liên hệ trực tiếp anh Huy để xác nhận giá chốt, tồn kho và lịch lái thử thực tế.
+          </div>
+        </div>
+      </div>
+      <div class="mx-auto mt-12 w-full max-w-7xl border-t border-border px-5 pt-6 md:px-8 text-center text-xs text-muted">
+        <p>&copy; 2026 Huynh Dang Huy - Ford Dong Thap. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

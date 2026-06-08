@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block body %}
+<main class="bg-surface pt-20">
+  <section class="mx-auto max-w-7xl px-5 md:px-8 pt-8 pb-12">
+    <div class="grid gap-12 lg:grid-cols-[1fr_400px] items-center">
+      <div>
+        <span class="badge badge-primary mb-4">
+          <span class="material-symbols-outlined text-[16px]">smart_toy</span>
+          Trợ lý AI 24/7
+        </span>
+        <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-ink mb-6">Hỏi AI trước khi liên hệ.</h1>
+        <p class="text-lg text-muted mb-8 leading-relaxed">
+          Trợ lý AI giúp khách tham khảo dòng xe, giá, lăn bánh và trả góp nhanh chóng. Những nội dung
+          cần cam kết như giá chốt, tồn kho, màu xe sẽ được chuyển sang anh Huy xử lý trực tiếp.
+        </p>
+        <div class="flex gap-4">
+          <a class="btn btn-primary" href="#chat-section">Bắt đầu chat</a>
+          <a class="btn btn-secondary" href="tel:{{ sales.phone }}">Gọi trực tiếp</a>
+        </div>
+      </div>
+      
+      <!-- Abstract AI Graphic -->
+      <div class="relative mx-auto w-full max-w-sm aspect-square rounded-full bg-primary-container p-8 flex items-center justify-center overflow-hidden shadow-float">
+        <div class="absolute inset-0 bg-gradient-to-tr from-primary via-primary-strong to-action/80 opacity-90"></div>
+        
+        <!-- Animated Rings -->
+        <div class="absolute inset-4 rounded-full border border-white/20 animate-[spin_10s_linear_infinite]"></div>
+        <div class="absolute inset-12 rounded-full border border-white/30 animate-[spin_15s_linear_infinite_reverse]"></div>
+        <div class="absolute inset-20 rounded-full border border-white/40 animate-[spin_20s_linear_infinite]"></div>
+        
+        <div class="relative z-10 flex h-32 w-32 items-center justify-center rounded-full bg-white shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+          <span class="material-symbols-outlined text-[64px] text-primary">forum</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-surface-muted py-16" id="chat-section">
+    <div class="mx-auto max-w-7xl px-5 md:px-8">
+      <div class="ai-container">
+        <!-- Main Chat Interface -->
+        <div class="ai-chat-window" data-ai-chat>
+          <div class="ai-chat-header">
+            <div class="flex items-center gap-3">
+              <div class="ai-avatar">
+                <span class="material-symbols-outlined text-[20px]">smart_toy</span>
+                <span class="ai-status-dot"></span>
+              </div>
+              <div>
+                <h2 class="text-base font-bold text-ink leading-none mb-1">Trợ lý Ford AI</h2>
+                <p class="text-xs text-muted">Trực tuyến - Dữ liệu {{ source_period }}</p>
+              </div>
+            </div>
+            <span class="badge badge-success bg-success/10 text-success text-[10px] uppercase tracking-wide">Gemini Grounded</span>
+          </div>
+          
+          <div class="ai-messages-area" data-ai-messages aria-live="polite">
+            <div class="message-bubble message-assistant">
+              <p>Xin chào! Tôi là trợ lý AI của anh Huỳnh Đang Huy - Đồng Tháp Ford.</p>
+              <p class="mt-2">Bạn có thể hỏi tôi về:</p>
+              <ul class="mt-2 ml-4 list-disc space-y-1">
+                <li>So sánh các dòng xe (vd: Everest khác Territory thế nào?)</li>
+                <li>Dự toán lăn bánh & Trả góp</li>
+                <li>Thông số kỹ thuật</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="ai-input-area">
+            <div class="ai-quick-actions mb-3">
+              <button class="ai-chip" type="button" onclick="document.getElementById('ai-message').value='Ranger lăn bánh khoảng bao nhiêu?'; document.getElementById('ai-message').focus();">Ranger lăn bánh?</button>
+              <button class="ai-chip" type="button" onclick="document.getElementById('ai-message').value='So sánh Everest Titanium và Sport'; document.getElementById('ai-message').focus();">So sánh Everest</button>
+              <button class="ai-chip" type="button" onclick="document.getElementById('ai-message').value='Thủ tục mua trả góp?'; document.getElementById('ai-message').focus();">Trả góp</button>
+            </div>
+            
+            <form data-ai-form class="flex flex-col gap-2">
+              <div class="ai-input-wrapper">
+                <label class="sr-only" for="ai-message">Câu hỏi gửi trợ lý AI</label>
+                <textarea id="ai-message" name="message" placeholder="Nhập câu hỏi của bạn..." required></textarea>
+                <button type="submit" class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white hover:bg-primary-strong transition-colors active:scale-95" title="Gửi tin nhắn" aria-label="Gửi tin nhắn cho trợ lý AI">
+                  <span class="material-symbols-outlined text-[20px]">send</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Side Panel (Handoff) -->
+        <aside class="flex flex-col gap-6">
+          <div class="admin-panel border-action/20 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10">
+              <span class="material-symbols-outlined text-[80px] text-action">support_agent</span>
+            </div>
+            
+            <h3 class="text-lg font-bold text-ink mb-2 relative z-10">Liên hệ trực tiếp anh Huy</h3>
+            <p class="text-sm text-muted mb-6 relative z-10">
+              AI không chốt giá, tồn kho hay đặt cọc. Gửi thông tin để anh Huy hỗ trợ chính xác nhất.
+            </p>
+            
+            <form class="flex flex-col gap-4 relative z-10" action="/lead" method="post">
+              <input type="hidden" name="need_type" value="ai_handoff" />
+              <input type="hidden" name="redirect_to" value="/tro-ly-ai" />
+              
+              <div class="form-group">
+                <label class="sr-only" for="ai-handoff-name">Họ tên của bạn</label>
+                <input id="ai-handoff-name" class="form-input text-sm py-2.5" name="full_name" placeholder="Họ tên của bạn" required autocomplete="name" />
+              </div>
+              <div class="form-group">
+                <label class="sr-only" for="ai-handoff-phone">Số điện thoại</label>
+                <input id="ai-handoff-phone" class="form-input text-sm py-2.5" name="phone" placeholder="Số điện thoại" required autocomplete="tel" inputmode="tel" />
+              </div>
+              <div class="form-group">
+                <label class="sr-only" for="ai-handoff-note">Câu hỏi hoặc yêu cầu thêm</label>
+                <textarea id="ai-handoff-note" class="form-textarea min-h-[80px] text-sm py-2.5" name="note" placeholder="Câu hỏi hoặc yêu cầu thêm..." rows="2"></textarea>
+              </div>
+              
+              <button class="btn btn-action w-full" type="submit">Gửi thông tin</button>
+            </form>
+          </div>
+          
+          <div class="admin-panel bg-transparent border-dashed">
+            <h4 class="text-sm font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-action text-[18px]">verified_user</span>
+              AI sẽ chuyển người thật khi hỏi về:
+            </h4>
+            <ul class="space-y-2 text-sm text-muted">
+              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>Giá chốt & Ưu đãi riêng</li>
+              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>Tồn kho & Màu xe thực tế</li>
+              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>Đặt cọc hoặc giữ xe</li>
+              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>Duyệt hồ sơ vay chắc chắn</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Check if there's a predefined message in URL (e.g. from vehicle detail page)
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const message = params.get('message');
+    if (message) {
+      const input = document.getElementById('ai-message');
+      if (input) {
+        input.value = message;
+        // Optionally auto-submit if desired, but letting user review is safer
+        input.focus();
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "admin/base.html" %}
+
+{% block admin_body %}
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Lead inbox</h2>
+      <p>Loc lead theo trang thai, tim theo ten, so dien thoai, xe hoac khu vuc.</p>
+    </div>
+    <a class="btn btn-secondary" href="/admin/leads/export.csv?status_filter={{ status_filter or '' }}&q={{ q or '' }}">Export CSV</a>
+  </div>
+
+  <form class="admin-toolbar" method="get" action="/admin/leads">
+    <label class="field">
+      Trang thai
+      <select name="status_filter">
+        <option value="">Tat ca</option>
+        {% for status in lead_statuses %}
+          <option value="{{ status }}" {{ "selected" if status_filter == status else "" }}>{{ status }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      Tim kiem
+      <input name="q" value="{{ q }}" placeholder="Ten, so dien thoai, xe..." />
+    </label>
+    <button class="btn btn-primary" type="submit">Loc lead</button>
+  </form>
+
+  <div class="status-tabs">
+    <a class="{{ 'active' if not status_filter else '' }}" href="/admin/leads">Tat ca</a>
+    {% for status in lead_statuses %}
+      <a class="{{ 'active' if status_filter == status else '' }}" href="/admin/leads?status_filter={{ status }}">
+        {{ status }} <span>{{ counts.get(status, 0) }}</span>
+      </a>
+    {% endfor %}
+  </div>
+
+  {% if leads %}
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Khach hang</th>
+            <th>Nhu cau</th>
+            <th>Xe quan tam</th>
+            <th>Follow-up</th>
+            <th>Trang thai</th>
+            <th>Tao luc</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lead in leads %}
+            <tr>
+              <td>
+                <a href="/admin/leads/{{ lead.id }}">{{ lead.full_name }}</a>
+                <small><a href="tel:{{ lead.phone }}">{{ lead.phone }}</a></small>
+              </td>
+              <td>{{ lead.need_type }}</td>
+              <td>{{ lead.vehicle_interest or "Chua ro" }}</td>
+              <td>
+                {% if lead.follow_up_at %}
+                  {{ lead.follow_up_at.strftime("%Y-%m-%d %H:%M") }}
+                {% else %}
+                  <span class="muted">Chua hen</span>
+                {% endif %}
+              </td>
+              <td><span class="status-badge status-{{ lead.status }}">{{ lead.status }}</span></td>
+              <td>{{ lead.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="admin-empty">Khong co lead khop bo loc hien tai.</div>
+  {% endif %}
+</section>
+{% endblock %}

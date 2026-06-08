@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% from "components/forms.html" import lead_form %}
+
+{% block body %}
+<main class="bg-surface">
+  <!-- Immersive Hero Section -->
+  <section class="vehicle-detail-hero">
+    {% set detail_image_src = url_for('assets', path=vehicle.image_path) if vehicle.image_path else url_for('assets', path='/brand/huy-dang-huy-logo.svg') %}
+    <img src="{{ detail_image_src }}" alt="" class="vehicle-detail-hero-bg" aria-hidden="true" />
+    <img src="{{ detail_image_src }}" alt="{{ vehicle.name }}" class="vehicle-detail-hero-car" data-parallax="0.08" />
+    <div class="vehicle-detail-hero-overlay"></div>
+    <div class="vehicle-detail-hero-pattern" aria-hidden="true"></div>
+
+    <div class="vehicle-detail-inner">
+      <div class="vehicle-detail-copy">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+          <span class="badge badge-glass bg-white/14 text-white shadow-lg">{{ vehicle.category }}</span>
+          {% if vehicle.promotions %}
+            <span class="badge badge-success bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shadow-sm">
+              <span class="material-symbols-outlined text-[14px]">local_offer</span> 
+              Có ưu đãi
+            </span>
+          {% endif %}
+        </div>
+
+        <h1 class="vehicle-detail-title">{{ vehicle.name }}</h1>
+        <p class="vehicle-detail-summary">{{ vehicle.summary }}</p>
+
+        <div class="vehicle-detail-actions">
+          <div class="vehicle-price-panel">
+            <div>
+              <span class="text-xs text-white/70 uppercase tracking-wide font-semibold block mb-0.5">Giá từ</span>
+              <strong class="text-2xl md:text-3xl font-bold text-white">{{ format_vnd(vehicle.price_from) }}</strong>
+            </div>
+          </div>
+
+          <a class="btn vehicle-hero-cta-primary btn-shine" href="#quote-form">
+            Nhận báo giá
+          </a>
+          <a class="btn vehicle-hero-cta-secondary btn-shine" href="/du-toan-lan-banh?vehicle={{ vehicle.slug }}">
+            Tự tính chi phí
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Specs Grid -->
+  <section class="py-16 bg-white border-b border-border">
+    <div class="mx-auto max-w-7xl px-5 md:px-8">
+      <div class="spec-grid max-w-4xl mx-auto">
+        <div class="spec-item shadow-sm">
+          <div class="spec-icon"><span class="material-symbols-outlined">settings_applications</span></div>
+          <span>Động cơ</span>
+          <small>{{ vehicle.variants[0].engine if vehicle.variants else 'Tùy phiên bản' }}</small>
+        </div>
+        <div class="spec-item shadow-sm">
+          <div class="spec-icon"><span class="material-symbols-outlined">directions_car</span></div>
+          <span>Dẫn động</span>
+          <small>{{ vehicle.variants[0].drivetrain if vehicle.variants else 'Tùy phiên bản' }}</small>
+        </div>
+        <div class="spec-item shadow-sm">
+          <div class="spec-icon"><span class="material-symbols-outlined">groups</span></div>
+          <span>Phù hợp</span>
+          <small>{{ vehicle.fit }}</small>
+        </div>
+        <div class="spec-item shadow-sm">
+          <div class="spec-icon"><span class="material-symbols-outlined">verified</span></div>
+          <span>Bảo hành</span>
+          <small>3 năm hoặc 100.000km</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Variants Table Section -->
+  <section class="py-20 bg-surface">
+    <div class="mx-auto max-w-7xl px-5 md:px-8">
+      <div class="section-title left">
+        <h2>Phiên bản & Giá tham khảo</h2>
+        <p>Giá chốt, màu xe, ưu đãi và thời gian giao xe cần anh Huy xác nhận. Giá hiển thị là giá tham khảo nguồn {{ source_period }}.</p>
+      </div>
+      
+      <div class="admin-panel mt-10">
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="w-1/3">Phiên bản</th>
+                <th>Giá niêm yết</th>
+                <th>Động cơ</th>
+                <th>Dẫn động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for variant in vehicle.variants %}
+                <tr>
+                  <td class="font-medium text-ink">{{ variant.name }}</td>
+                  <td class="font-bold text-action">{{ format_vnd(variant.price_vnd) }}</td>
+                  <td>{{ variant.engine }}</td>
+                  <td>{{ variant.drivetrain }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="mt-6 flex items-center justify-between flex-wrap gap-4 p-4 bg-surface-muted rounded-xl border border-border">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary">info</span>
+          <p class="text-sm text-ink font-medium">Bạn phân vân chưa biết chọn bản nào?</p>
+        </div>
+        <a href="/tro-ly-ai?message={{ 'So sánh các phiên bản ' ~ vehicle.name | urlencode }}" class="btn btn-ghost text-sm">
+          <span class="material-symbols-outlined text-[18px]">smart_toy</span>
+          Hỏi AI So Sánh
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lead Form Section -->
+  <section class="py-24 bg-primary-container relative overflow-hidden" id="quote-form">
+    <div class="mx-auto max-w-3xl px-5 md:px-8 relative z-10">
+      <div class="glass-panel light">
+        {{ lead_form(
+            title="Nhận báo giá " ~ vehicle.name, 
+            need_type="quote", 
+            current_path=current_path, 
+            vehicles=vehicles, 
+            selected_vehicle=vehicle.name, 
+            button_label="Gửi cho anh Huy",
+            note_label="Ghi chú thêm (màu sắc, trả góp...)"
+        ) }}
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

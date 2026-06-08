@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "components/forms.html" import lead_form %}
+
+{% block body %}
+<main class="bg-surface pt-20">
+  <section class="mx-auto max-w-7xl px-5 md:px-8 pt-8 pb-12">
+    <div class="max-w-2xl">
+      <span class="badge badge-primary mb-4">
+        <span class="material-symbols-outlined text-[16px]">key</span>
+        Lái thử
+      </span>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">Đăng ký lịch lái thử xe Ford.</h1>
+      <p class="text-lg text-muted">
+        Chọn xe quan tâm, khu vực và thời gian mong muốn. Lịch thực tế phụ thuộc vào tình trạng xe sẵn có và khu vực hỗ trợ. Anh Huy sẽ liên hệ để chốt lịch.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-20 bg-surface-muted border-t border-border">
+    <div class="mx-auto max-w-4xl px-5 md:px-8">
+      <div class="glass-panel light">
+        {{ lead_form(
+          title="Đăng ký trải nghiệm lái thử", 
+          need_type="test_drive", 
+          current_path=current_path, 
+          vehicles=vehicles, 
+          button_label="Gửi đăng ký", 
+          note_label="Thời gian và địa điểm mong muốn lái thử"
+        ) }}
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

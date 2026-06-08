@@ -1,0 +1,173 @@
+{% extends "admin/base.html" %}
+
+{% block admin_body %}
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Noi dung va freshness</h2>
+      <p>Quan ly uu dai, FAQ va bai viet voi nguon, han hieu luc va trang thai duyet.</p>
+    </div>
+    <form action="/admin/content/seed" method="post">
+      <button class="btn btn-primary" type="submit">Seed uu dai va FAQ</button>
+    </form>
+  </div>
+
+  <form class="admin-toolbar" method="get" action="/admin/content">
+    <label class="field">
+      Loai noi dung
+      <select name="kind">
+        <option value="">Tat ca</option>
+        {% for kind in content_kinds %}
+          <option value="{{ kind }}" {{ "selected" if kind_filter == kind else "" }}>{{ kind }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="btn btn-secondary" type="submit">Loc noi dung</button>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Tao noi dung moi</h2>
+      <p>Dung cho FAQ moi, uu dai can xac nhan hoac bai viet sau nay.</p>
+    </div>
+  </div>
+  <form action="/admin/content" method="post" class="admin-form admin-form-grid">
+    <label class="field">
+      Loai
+      <select name="kind">
+        {% for kind in content_kinds %}
+          <option value="{{ kind }}">{{ kind }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      Tieu de
+      <input name="title" required />
+    </label>
+    <label class="field full">
+      Noi dung
+      <textarea name="body" rows="5"></textarea>
+    </label>
+    <label class="field">
+      Source URL
+      <input name="source_url" />
+    </label>
+    <label class="field">
+      Source updated
+      <input name="source_updated_at" type="date" />
+    </label>
+    <label class="field">
+      Effective to
+      <input name="effective_to" type="date" />
+    </label>
+    <label class="field">
+      Review due
+      <input name="review_due_at" type="date" />
+    </label>
+    <label class="field">
+      Approval
+      <select name="approval_status">
+        {% for status in approval_statuses %}
+          <option value="{{ status }}">{{ status }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      Freshness
+      <select name="freshness_status">
+        {% for status in freshness_statuses %}
+          <option value="{{ status }}">{{ status }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div class="form-actions full">
+      <button class="btn btn-primary" type="submit">Tao noi dung</button>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Danh sach noi dung</h2>
+      <p>Cap nhat trang thai ngay khi thong tin het han hoac can anh Huy xac nhan.</p>
+    </div>
+  </div>
+
+  {% if items %}
+    <div class="stack-list">
+      {% for item in items %}
+        <form action="/admin/content/{{ item.id }}" method="post" class="content-edit-form">
+          <div class="content-form-head">
+            <div>
+              <strong>{{ item.title }}</strong>
+              <small>{{ item.kind }} / {{ item.id[:8] }}</small>
+            </div>
+            <div class="status-pair">
+              <span class="status-badge status-{{ item.approval_status }}">{{ item.approval_status }}</span>
+              <span class="status-badge status-{{ item.freshness_status }}">{{ item.freshness_status }}</span>
+            </div>
+          </div>
+          <div class="admin-form-grid">
+            <label class="field">
+              Loai
+              <select name="kind">
+                {% for kind in content_kinds %}
+                  <option value="{{ kind }}" {{ "selected" if item.kind == kind else "" }}>{{ kind }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="field">
+              Tieu de
+              <input name="title" value="{{ item.title }}" required />
+            </label>
+            <label class="field full">
+              Noi dung
+              <textarea name="body" rows="4">{{ item.body or "" }}</textarea>
+            </label>
+            <label class="field">
+              Source URL
+              <input name="source_url" value="{{ item.source_url or '' }}" />
+            </label>
+            <label class="field">
+              Source updated
+              <input name="source_updated_at" type="date" value="{{ item.source_updated_at.isoformat() if item.source_updated_at else '' }}" />
+            </label>
+            <label class="field">
+              Effective to
+              <input name="effective_to" type="date" value="{{ item.effective_to.isoformat() if item.effective_to else '' }}" />
+            </label>
+            <label class="field">
+              Review due
+              <input name="review_due_at" type="date" value="{{ item.review_due_at.isoformat() if item.review_due_at else '' }}" />
+            </label>
+            <label class="field">
+              Approval
+              <select name="approval_status">
+                {% for status in approval_statuses %}
+                  <option value="{{ status }}" {{ "selected" if item.approval_status == status else "" }}>{{ status }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="field">
+              Freshness
+              <select name="freshness_status">
+                {% for status in freshness_statuses %}
+                  <option value="{{ status }}" {{ "selected" if item.freshness_status == status else "" }}>{{ status }}</option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-secondary" type="submit">Luu noi dung</button>
+          </div>
+        </form>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="admin-empty">Chua co noi dung trong database admin.</div>
+  {% endif %}
+</section>
+{% endblock %}
