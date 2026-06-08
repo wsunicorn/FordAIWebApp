@@ -9,21 +9,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.templates import common_context, templates
 from app.data.site_content import (
-    FAQS,
     ON_ROAD_ASSUMPTIONS,
     PRICE_SOURCE_URL,
-    PROMOTIONS,
     PUBLIC_ROUTES,
     SOURCE_CHECKED_AT,
     SOURCE_PERIOD,
     VEHICLES,
     format_vnd,
-    get_vehicle,
-    vehicle_options,
 )
 from app.db.session import get_session
 from app.schemas import LeadCreate
 from app.services.lead_service import create_lead
+from app.services.public_content_service import (
+    public_faqs,
+    public_promotions,
+    public_vehicle,
+    public_vehicle_options,
+    public_vehicles,
+)
 
 router = APIRouter(tags=["pages"])
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
@@ -35,13 +38,41 @@ def page_context(request: Request, **extra: object) -> dict[str, object]:
         "request": request,
         "current_path": request.url.path,
         "vehicles": VEHICLES,
-        "vehicle_options": vehicle_options(),
+        "vehicle_options": public_vehicle_options(VEHICLES),
         "format_vnd": format_vnd,
         "source_period": SOURCE_PERIOD,
         "source_checked_at": SOURCE_CHECKED_AT,
         "price_source_url": PRICE_SOURCE_URL,
         **extra,
     }
+
+
+async def public_page_context(
+    request: Request,
+    session: AsyncSession,
+    **extra: object,
+) -> dict[str, object]:
+    vehicles = await public_vehicles(session)
+    return page_context(
+        request,
+        vehicles=vehicles,
+        vehicle_options=public_vehicle_options(vehicles),
+        **extra,
+    )
+
+
+def selected_vehicle_name(request: Request, vehicles: object) -> str:
+    selected = request.query_params.get("vehicle")
+    if not selected:
+        return ""
+    return next(
+        (
+            vehicle.name
+            for vehicle in vehicles
+            if vehicle.slug == selected or vehicle.name == selected
+        ),
+        "",
+    )
 
 
 def safe_success_redirect(path: str) -> str:
@@ -56,31 +87,37 @@ async def home_head() -> Response:
 
 
 @router.get("/", response_class=HTMLResponse)
-async def home(request: Request):
+async def home(request: Request, session: SessionDep):
+    vehicles = await public_vehicles(session)
+    promotions = await public_promotions(session)
+    faqs = await public_faqs(session)
     return templates.TemplateResponse(
         request,
         "pages/home.html",
         page_context(
             request,
+            vehicles=vehicles,
+            vehicle_options=public_vehicle_options(vehicles),
             page_title="Huỳnh Đang Huy - Tư vấn Ford Đồng Tháp",
             page_description=(
                 "Tham khảo xe Ford, dự toán chi phí và liên hệ anh Huỳnh Đang Huy "
                 "tại Đồng Tháp Ford để nhận tư vấn trực tiếp."
             ),
-            featured_vehicles=VEHICLES[:4],
-            promotions=PROMOTIONS,
-            faqs=FAQS[:3],
+            featured_vehicles=vehicles[:4],
+            promotions=promotions,
+            faqs=faqs[:3],
         ),
     )
 
 
 @router.get("/anh-huy", response_class=HTMLResponse)
-async def about_huy(request: Request):
+async def about_huy(request: Request, session: SessionDep):
     return templates.TemplateResponse(
         request,
         "pages/about.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             page_title="Anh Huỳnh Đang Huy - Tư vấn bán hàng Ford",
             page_description=(
                 "Thông tin liên hệ, vai trò và cách anh Huy hỗ trợ "
@@ -91,12 +128,13 @@ async def about_huy(request: Request):
 
 
 @router.get("/xe", response_class=HTMLResponse)
-async def vehicles(request: Request):
+async def vehicles(request: Request, session: SessionDep):
     return templates.TemplateResponse(
         request,
         "pages/vehicles.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             page_title="Danh sách xe Ford tham khảo",
             page_description=(
                 "Xem các dòng xe Ford, giá tham khảo và gửi yêu cầu báo giá "
@@ -107,16 +145,17 @@ async def vehicles(request: Request):
 
 
 @router.get("/xe/{slug}", response_class=HTMLResponse)
-async def vehicle_detail(request: Request, slug: str):
-    vehicle = get_vehicle(slug)
+async def vehicle_detail(request: Request, slug: str, session: SessionDep):
+    vehicle = await public_vehicle(session, slug)
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
 
     return templates.TemplateResponse(
         request,
         "pages/vehicle_detail.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             vehicle=vehicle,
             page_title=f"{vehicle.name} - Giá tham khảo và tư vấn",
             page_description=(
@@ -128,12 +167,13 @@ async def vehicle_detail(request: Request, slug: str):
 
 
 @router.get("/so-sanh", response_class=HTMLResponse)
-async def compare(request: Request):
+async def compare(request: Request, session: SessionDep):
     return templates.TemplateResponse(
         request,
         "pages/compare.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             page_title="So sánh nhanh xe Ford",
             page_description="So sánh nhanh các dòng xe Ford theo giá, nhóm xe và nhu cầu sử dụng.",
         ),
@@ -141,12 +181,13 @@ async def compare(request: Request):
 
 
 @router.get("/bang-gia", response_class=HTMLResponse)
-async def price_table(request: Request):
+async def price_table(request: Request, session: SessionDep):
     return templates.TemplateResponse(
         request,
         "pages/prices.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             page_title="Bảng giá Ford tham khảo",
             page_description=(
                 "Bảng giá Ford tham khảo có nguồn và ngày kiểm tra, "
@@ -157,12 +198,13 @@ async def price_table(request: Request):
 
 
 @router.get("/du-toan-lan-banh", response_class=HTMLResponse)
-async def on_road_calculator(request: Request):
+async def on_road_calculator(request: Request, session: SessionDep):
     return templates.TemplateResponse(
         request,
         "pages/on_road.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             page_title="Dự toán chi phí lăn bánh Ford",
             page_description="Ước tính chi phí lăn bánh tham khảo và gửi phương án cho anh Huy.",
             assumptions=ON_ROAD_ASSUMPTIONS,
@@ -171,12 +213,13 @@ async def on_road_calculator(request: Request):
 
 
 @router.get("/du-toan-tra-gop", response_class=HTMLResponse)
-async def loan_calculator(request: Request):
+async def loan_calculator(request: Request, session: SessionDep):
     return templates.TemplateResponse(
         request,
         "pages/loan.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             page_title="Dự toán trả góp xe Ford",
             page_description="Ước tính trả góp xe Ford, không phải cam kết duyệt vay.",
         ),
@@ -184,40 +227,45 @@ async def loan_calculator(request: Request):
 
 
 @router.get("/uu-dai", response_class=HTMLResponse)
-async def promotions(request: Request):
+async def promotions(request: Request, session: SessionDep):
+    promotions = await public_promotions(session)
     return templates.TemplateResponse(
         request,
         "pages/promotions.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             page_title="Ưu đãi Ford cần xác nhận",
             page_description="Xem các nhóm ưu đãi tham khảo và gửi yêu cầu để anh Huy xác nhận.",
-            promotions=PROMOTIONS,
+            promotions=promotions,
         ),
     )
 
 
 @router.get("/faq", response_class=HTMLResponse)
-async def faq(request: Request):
+async def faq(request: Request, session: SessionDep):
+    faqs = await public_faqs(session)
     return templates.TemplateResponse(
         request,
         "pages/faq.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             page_title="Câu hỏi thường gặp khi mua xe Ford",
             page_description="FAQ về giá, lăn bánh, trả góp, lái thử và liên hệ anh Huy.",
-            faqs=FAQS,
+            faqs=faqs,
         ),
     )
 
 
 @router.get("/tro-ly-ai", response_class=HTMLResponse)
-async def ai_assistant(request: Request):
+async def ai_assistant(request: Request, session: SessionDep):
     return templates.TemplateResponse(
         request,
         "pages/ai_assistant.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             page_title="Trợ lý AI tư vấn Ford",
             page_description=(
                 "Hỏi AI về xe Ford, giá tham khảo, lăn bánh, trả góp và chuyển yêu cầu "
@@ -228,12 +276,13 @@ async def ai_assistant(request: Request):
 
 
 @router.get("/lien-he", response_class=HTMLResponse)
-async def contact(request: Request):
+async def contact(request: Request, session: SessionDep):
     return templates.TemplateResponse(
         request,
         "pages/contact.html",
-        page_context(
+        await public_page_context(
             request,
+            session,
             page_title="Liên hệ anh Huy Ford Đồng Tháp",
             page_description="Gọi, Zalo, email, Facebook hoặc gửi form để anh Huy liên hệ lại.",
         ),
@@ -241,12 +290,16 @@ async def contact(request: Request):
 
 
 @router.get("/lai-thu", response_class=HTMLResponse)
-async def test_drive(request: Request):
+async def test_drive(request: Request, session: SessionDep):
+    vehicles = await public_vehicles(session)
     return templates.TemplateResponse(
         request,
         "pages/test_drive.html",
         page_context(
             request,
+            vehicles=vehicles,
+            vehicle_options=public_vehicle_options(vehicles),
+            selected_vehicle=selected_vehicle_name(request, vehicles),
             page_title="Đăng ký lái thử Ford",
             page_description=(
                 "Để lại thông tin xe, khu vực và thời gian mong muốn "
@@ -257,12 +310,16 @@ async def test_drive(request: Request):
 
 
 @router.get("/bao-gia", response_class=HTMLResponse)
-async def quote(request: Request):
+async def quote(request: Request, session: SessionDep):
+    vehicles = await public_vehicles(session)
     return templates.TemplateResponse(
         request,
         "pages/quote.html",
         page_context(
             request,
+            vehicles=vehicles,
+            vehicle_options=public_vehicle_options(vehicles),
+            selected_vehicle=selected_vehicle_name(request, vehicles),
             page_title="Nhận báo giá Ford từ anh Huy",
             page_description=(
                 "Gửi xe quan tâm và số điện thoại để anh Huy kiểm tra giá, "

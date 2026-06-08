@@ -12,18 +12,16 @@
   </head>
   <body class="admin-login-body">
     <div class="admin-ambience" aria-hidden="true"></div>
-    <div class="site-noise" aria-hidden="true"></div>
     <main class="admin-login-card">
-      <img class="mx-auto h-20 w-20 rounded-lg border border-border bg-white object-contain p-1 shadow-sm" src="{{ url_for('assets', path='/brand/huy-dang-huy-logo.svg') }}" alt="" />
-      <p class="admin-kicker">Quan tri noi bo</p>
+      <img src="{{ url_for('assets', path='/brand/huy-dang-huy-logo.svg') }}" alt="" />
+      <p class="admin-kicker">Noi bo</p>
       <h1>Dang nhap admin</h1>
-      <p>
-        Khu vuc nay dung de xem lead, cap nhat trang thai cham soc va quan ly du lieu
-        xe/gia truoc khi public.
-      </p>
+      <p>Quan ly lead, gia tham khao, noi dung va tri thuc AI truoc khi hien thi tren website.</p>
+
       {% if error %}
-        <div class="admin-error">{{ error }}</div>
+        <div class="admin-login-error" role="alert">{{ error }}</div>
       {% endif %}
+
       <form action="/admin/login" method="post" class="admin-form">
         <input type="hidden" name="next_path" value="{{ next_path or '/admin' }}" />
         <label class="field">
@@ -36,9 +34,8 @@
         </label>
         <button class="btn btn-primary" type="submit">Dang nhap</button>
       </form>
-      <p class="admin-muted">
-        Doi `ADMIN_PASSWORD` va `SECRET_KEY` truoc khi dua len production.
-      </p>
+
+      <p class="admin-muted">Hay rotate ADMIN_PASSWORD va SECRET_KEY sau moi lan bi lo secret.</p>
     </main>
   </body>
 </html>

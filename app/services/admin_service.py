@@ -24,6 +24,14 @@ APPROVAL_STATUSES = ("draft", "needs_confirmation", "approved", "archived")
 FRESHNESS_STATUSES = ("fresh", "review_due", "expired")
 
 
+def content_public_paths(kind: str) -> list[str]:
+    if kind == "faq":
+        return ["/faq"]
+    if kind == "promotion":
+        return ["/uu-dai"]
+    return ["/uu-dai", "/faq"]
+
+
 def slugify(value: str) -> str:
     normalized = unicodedata.normalize("NFKD", value)
     ascii_value = normalized.encode("ascii", "ignore").decode("ascii")
@@ -300,6 +308,12 @@ async def update_variant(
         entity_id=variant.id,
         metadata={"vehicle_id": variant.vehicle_id},
     )
+    await write_audit_log(
+        session,
+        action="cache.revalidate",
+        entity_table="cache",
+        metadata={"paths": ["/xe", "/bang-gia", "/so-sanh"], "reason": "admin_variant_update"},
+    )
     return variant
 
 
@@ -459,6 +473,15 @@ async def create_content_item(
         entity_id=content_item.id,
         metadata={"kind": content_item.kind},
     )
+    await write_audit_log(
+        session,
+        action="cache.revalidate",
+        entity_table="cache",
+        metadata={
+            "paths": content_public_paths(content_item.kind),
+            "reason": "admin_content_create",
+        },
+    )
     return content_item
 
 
@@ -498,6 +521,9 @@ async def update_content_item(
         session,
         action="cache.revalidate",
         entity_table="cache",
-        metadata={"paths": ["/uu-dai", "/faq"], "reason": "admin_content_update"},
+        metadata={
+            "paths": content_public_paths(content_item.kind),
+            "reason": "admin_content_update",
+        },
     )
     return content_item

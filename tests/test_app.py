@@ -9,7 +9,7 @@ from sqlalchemy import select
 from app.core.config import Settings, settings
 from app.db.session import AsyncSessionLocal
 from app.main import app
-from app.models import AuditLog
+from app.models import AuditLog, ContentItem, Vehicle, VehiclePrice, VehicleVariant
 
 client = TestClient(app)
 
@@ -23,6 +23,88 @@ def latest_audit_log(action: str) -> AuditLog | None:
                 .order_by(AuditLog.created_at.desc())
                 .limit(1)
             )
+            return result.scalars().first()
+
+    return asyncio.run(_get())
+
+
+def upsert_public_admin_content() -> None:
+    async def _upsert() -> None:
+        async with AsyncSessionLocal() as session:
+            faq_result = await session.execute(
+                select(ContentItem).where(ContentItem.title == "Pytest admin FAQ bridge")
+            )
+            faq = faq_result.scalars().first()
+            if not faq:
+                faq = ContentItem(kind="faq", title="Pytest admin FAQ bridge")
+                session.add(faq)
+
+            faq.body = "Public FAQ rendered from approved admin content."
+            faq.approval_status = "approved"
+            faq.freshness_status = "fresh"
+
+            vehicle_result = await session.execute(
+                select(Vehicle).where(Vehicle.slug == "pytest-public-bridge")
+            )
+            vehicle = vehicle_result.scalars().first()
+            if not vehicle:
+                vehicle = Vehicle(
+                    slug="pytest-public-bridge",
+                    name="Pytest Public Bridge",
+                    category="SUV",
+                )
+                session.add(vehicle)
+                await session.flush()
+
+            vehicle.name = "Pytest Public Bridge"
+            vehicle.category = "SUV"
+            vehicle.summary = "Approved admin vehicle visible on public catalog."
+            vehicle.approval_status = "approved"
+            vehicle.freshness_status = "fresh"
+
+            variant_result = await session.execute(
+                select(VehicleVariant).where(
+                    VehicleVariant.vehicle_id == vehicle.id,
+                    VehicleVariant.slug == "pytest-public-bridge-base",
+                )
+            )
+            variant = variant_result.scalars().first()
+            if not variant:
+                variant = VehicleVariant(
+                    vehicle_id=vehicle.id,
+                    slug="pytest-public-bridge-base",
+                    name="Bridge Base",
+                )
+                session.add(variant)
+                await session.flush()
+
+            variant.name = "Bridge Base"
+            variant.engine = "Test engine"
+            variant.sort_order = 0
+
+            price_result = await session.execute(
+                select(VehiclePrice).where(VehiclePrice.variant_id == variant.id)
+            )
+            price = price_result.scalars().first()
+            if not price:
+                price = VehiclePrice(
+                    vehicle_id=vehicle.id,
+                    variant_id=variant.id,
+                    price_vnd=999_000_000,
+                )
+                session.add(price)
+
+            price.price_vnd = 999_000_000
+            price.freshness_status = "fresh"
+            await session.commit()
+
+    asyncio.run(_upsert())
+
+
+def first_vehicle_id() -> str | None:
+    async def _get() -> str | None:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(select(Vehicle.id).limit(1))
             return result.scalars().first()
 
     return asyncio.run(_get())
@@ -234,6 +316,20 @@ def test_admin_login_dashboard_and_seed_routes() -> None:
     ai_seed = admin_client.post("/admin/ai/seed", follow_redirects=False)
     assert ai_seed.status_code == 303
 
+    vehicles_admin = admin_client.get("/admin/vehicles")
+    assert vehicles_admin.status_code == 200
+    assert "Xe va bang gia" in vehicles_admin.text
+
+    vehicle_id = first_vehicle_id()
+    assert vehicle_id is not None
+    vehicle_detail = admin_client.get(f"/admin/vehicles/{vehicle_id}")
+    assert vehicle_detail.status_code == 200
+    assert "Luu xe" in vehicle_detail.text
+
+    content_admin = admin_client.get("/admin/content")
+    assert content_admin.status_code == 200
+    assert "Noi dung va freshness" in content_admin.text
+
     ai_admin = admin_client.get("/admin/ai")
     assert ai_admin.status_code == 200
     assert "Knowledge base" in ai_admin.text
@@ -241,6 +337,23 @@ def test_admin_login_dashboard_and_seed_routes() -> None:
     export = admin_client.get("/admin/leads/export.csv")
     assert export.status_code == 200
     assert "full_name" in export.text
+
+
+def test_admin_public_content_bridge_renders_approved_db_items() -> None:
+    upsert_public_admin_content()
+
+    vehicles = client.get("/xe")
+    assert vehicles.status_code == 200
+    assert "Pytest Public Bridge" in vehicles.text
+
+    vehicle_detail = client.get("/xe/pytest-public-bridge")
+    assert vehicle_detail.status_code == 200
+    assert "Bridge Base" in vehicle_detail.text
+    assert "999" in vehicle_detail.text
+
+    faq = client.get("/faq")
+    assert faq.status_code == 200
+    assert "Pytest admin FAQ bridge" in faq.text
 
 
 def test_admin_can_update_lead_status() -> None:
@@ -383,6 +496,15 @@ def test_admin_rejects_invalid_status_choice() -> None:
         data={"lead_status": "invalid", "admin_note": "pytest"},
     )
     assert rejected.status_code == 400
+
+    rejected_list_filter = admin_client.get("/admin/leads?status_filter=invalid")
+    assert rejected_list_filter.status_code == 400
+
+    rejected_export_filter = admin_client.get("/admin/leads/export.csv?status_filter=invalid")
+    assert rejected_export_filter.status_code == 400
+
+    rejected_content_filter = admin_client.get("/admin/content?kind=invalid")
+    assert rejected_content_filter.status_code == 400
 
 
 def test_ai_chat_calculator_and_guardrail() -> None:

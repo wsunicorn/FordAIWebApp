@@ -54,6 +54,32 @@ router = APIRouter(tags=["admin"])
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 AdminDep = Annotated[str, Depends(require_admin)]
 
+STATUS_LABELS = {
+    "new": "Moi",
+    "contacted": "Da lien he",
+    "quoted": "Da bao gia",
+    "test_drive": "Hen lai thu",
+    "won": "Da chot",
+    "lost": "Khong phu hop",
+    "draft": "Ban nhap",
+    "needs_confirmation": "Can xac nhan",
+    "approved": "Da duyet",
+    "archived": "Luu tru",
+    "fresh": "Moi",
+    "review_due": "Can review",
+    "expired": "Het han",
+}
+
+
+def admin_status_label(status_value: str | None) -> str:
+    if not status_value:
+        return "Chua ro"
+    return STATUS_LABELS.get(status_value, status_value.replace("_", " ").title())
+
+
+def admin_status_class(status_value: str | None) -> str:
+    return (status_value or "unknown").replace("_", "-")
+
 
 def admin_context(
     request: Request,
@@ -69,6 +95,8 @@ def admin_context(
         "content_kinds": CONTENT_KINDS,
         "approval_statuses": APPROVAL_STATUSES,
         "freshness_statuses": FRESHNESS_STATUSES,
+        "admin_status_label": admin_status_label,
+        "admin_status_class": admin_status_class,
         **extra,
     }
 
@@ -83,6 +111,16 @@ def validate_choice(value: str, allowed: tuple[str, ...], field_name: str) -> st
     if value not in allowed:
         raise HTTPException(status_code=400, detail=f"Invalid {field_name}")
     return value
+
+
+def validate_optional_choice(
+    value: str | None,
+    allowed: tuple[str, ...],
+    field_name: str,
+) -> str | None:
+    if not value:
+        return None
+    return validate_choice(value, allowed, field_name)
 
 
 @router.get("/admin/login", response_class=HTMLResponse)
@@ -158,8 +196,11 @@ async def admin_leads(
     status_filter: str | None = None,
     q: str | None = None,
 ):
+    status_filter = validate_optional_choice(status_filter, LEAD_STATUSES, "lead status")
+    q = q.strip() if q else None
     leads = await list_leads(session, status=status_filter, query=q)
     counts = await lead_status_counts(session)
+    export_query = urlencode({"status_filter": status_filter or "", "q": q or ""})
     return templates.TemplateResponse(
         request,
         "admin/leads.html",
@@ -171,6 +212,7 @@ async def admin_leads(
             counts=counts,
             status_filter=status_filter,
             q=q or "",
+            export_query=export_query,
         ),
     )
 
@@ -182,6 +224,8 @@ async def admin_leads_export(
     status_filter: str | None = None,
     q: str | None = None,
 ):
+    status_filter = validate_optional_choice(status_filter, LEAD_STATUSES, "lead status")
+    q = q.strip() if q else None
     leads = await list_leads(session, status=status_filter, query=q, limit=10_000)
     output = StringIO()
     writer = csv.writer(output)
@@ -409,6 +453,7 @@ async def admin_content(
     admin_user: AdminDep,
     kind: str | None = None,
 ):
+    kind = validate_optional_choice(kind, CONTENT_KINDS, "content kind")
     items = await list_content_items(session, kind=kind)
     return templates.TemplateResponse(
         request,

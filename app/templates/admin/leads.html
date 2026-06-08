@@ -5,9 +5,12 @@
   <div class="panel-head">
     <div>
       <h2>Lead inbox</h2>
-      <p>Loc lead theo trang thai, tim theo ten, so dien thoai, xe hoac khu vuc.</p>
+      <p>Loc theo trang thai, tim theo ten, so dien thoai, xe hoac khu vuc.</p>
     </div>
-    <a class="btn btn-secondary" href="/admin/leads/export.csv?status_filter={{ status_filter or '' }}&q={{ q or '' }}">Export CSV</a>
+    <a class="btn btn-secondary" href="/admin/leads/export.csv?{{ export_query }}">
+      <span class="material-symbols-outlined text-[18px]" aria-hidden="true">download</span>
+      Export CSV
+    </a>
   </div>
 
   <form class="admin-toolbar" method="get" action="/admin/leads">
@@ -16,22 +19,25 @@
       <select name="status_filter">
         <option value="">Tat ca</option>
         {% for status in lead_statuses %}
-          <option value="{{ status }}" {{ "selected" if status_filter == status else "" }}>{{ status }}</option>
+          <option value="{{ status }}" {{ "selected" if status_filter == status else "" }}>{{ admin_status_label(status) }}</option>
         {% endfor %}
       </select>
     </label>
-    <label class="field">
+    <label class="field field-grow">
       Tim kiem
-      <input name="q" value="{{ q }}" placeholder="Ten, so dien thoai, xe..." />
+      <input name="q" value="{{ q }}" placeholder="Ten, so dien thoai, xe, khu vuc" />
     </label>
-    <button class="btn btn-primary" type="submit">Loc lead</button>
+    <button class="btn btn-primary" type="submit">
+      <span class="material-symbols-outlined text-[18px]" aria-hidden="true">filter_alt</span>
+      Loc lead
+    </button>
   </form>
 
-  <div class="status-tabs">
+  <div class="status-tabs" aria-label="Lead status filters">
     <a class="{{ 'active' if not status_filter else '' }}" href="/admin/leads">Tat ca</a>
     {% for status in lead_statuses %}
       <a class="{{ 'active' if status_filter == status else '' }}" href="/admin/leads?status_filter={{ status }}">
-        {{ status }} <span>{{ counts.get(status, 0) }}</span>
+        {{ admin_status_label(status) }} <span>{{ counts.get(status, 0) }}</span>
       </a>
     {% endfor %}
   </div>
@@ -65,7 +71,7 @@
                   <span class="muted">Chua hen</span>
                 {% endif %}
               </td>
-              <td><span class="status-badge status-{{ lead.status }}">{{ lead.status }}</span></td>
+              <td><span class="status-badge status-{{ admin_status_class(lead.status) }}">{{ admin_status_label(lead.status) }}</span></td>
               <td>{{ lead.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
             </tr>
           {% endfor %}
@@ -73,7 +79,11 @@
       </table>
     </div>
   {% else %}
-    <div class="admin-empty">Khong co lead khop bo loc hien tai.</div>
+    <div class="admin-empty">
+      <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
+      <strong>Khong co lead phu hop</strong>
+      <p>Thu xoa bo loc hoac tao lead test tu form public.</p>
+    </div>
   {% endif %}
 </section>
 {% endblock %}

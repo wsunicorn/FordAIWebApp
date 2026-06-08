@@ -67,7 +67,7 @@ const initMobileNav = () => {
 // Scroll Reveal with Staggered Groups
 const initScrollReveal = () => {
   const revealElements = document.querySelectorAll(
-    ".bento-grid > *, .process-step, .glass-panel, .section-title, .calc-panel, .admin-panel, .card, .promo-grid > *"
+    ".bento-grid > *, .process-step, .glass-panel, .section-title, .calc-panel, .card, .promo-grid > *"
   );
   
   if (!revealElements.length) return;
@@ -127,6 +127,18 @@ const initScrollReveal = () => {
   });
 
   revealElements.forEach(el => observer.observe(el));
+};
+
+const initConfirmActions = () => {
+  const forms = document.querySelectorAll("form[data-confirm]");
+  forms.forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      const message = form.getAttribute("data-confirm");
+      if (message && !window.confirm(message)) {
+        event.preventDefault();
+      }
+    });
+  });
 };
 
 // Parallax Effect for Backgrounds
@@ -410,6 +422,7 @@ const initAiChat = () => {
 document.addEventListener("DOMContentLoaded", () => {
   initHeaderScroll();
   initMobileNav();
+  initConfirmActions();
   initScrollReveal();
   initParallax();
   initVehicleSearch();

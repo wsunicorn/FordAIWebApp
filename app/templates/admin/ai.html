@@ -90,8 +90,8 @@
                 <small>{{ document.owner }}</small>
               </td>
               <td>{{ document.risk_level }}</td>
-              <td><span class="status-badge status-{{ document.approval_status }}">{{ document.approval_status }}</span></td>
-              <td><span class="status-badge status-{{ document.freshness_status }}">{{ document.freshness_status }}</span></td>
+              <td><span class="status-badge status-{{ admin_status_class(document.approval_status) }}">{{ admin_status_label(document.approval_status) }}</span></td>
+              <td><span class="status-badge status-{{ admin_status_class(document.freshness_status) }}">{{ admin_status_label(document.freshness_status) }}</span></td>
               <td>
                 {% if document.source_url %}
                   <a href="{{ document.source_url }}" target="_blank" rel="noreferrer">Mo source</a>
@@ -135,7 +135,7 @@
               <td>{{ conversation.session_id[:12] }}</td>
               <td>{{ conversation.customer_name or conversation.phone or "An danh" }}</td>
               <td>{{ conversation.vehicle_interest or "Chua ro" }}</td>
-              <td><span class="status-badge status-{{ conversation.status }}">{{ conversation.status }}</span></td>
+              <td><span class="status-badge status-{{ admin_status_class(conversation.status) }}">{{ admin_status_label(conversation.status) }}</span></td>
               <td>{{ conversation.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
             </tr>
           {% endfor %}

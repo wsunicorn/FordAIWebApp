@@ -25,7 +25,7 @@
     </label>
     <label class="field">
       Source URL
-      <input name="source_url" value="{{ vehicle.source_url or '' }}" />
+      <input name="source_url" type="url" value="{{ vehicle.source_url or '' }}" />
     </label>
     <label class="field">
       Source updated
@@ -39,7 +39,7 @@
       Approval
       <select name="approval_status">
         {% for status in approval_statuses %}
-          <option value="{{ status }}" {{ "selected" if vehicle.approval_status == status else "" }}>{{ status }}</option>
+          <option value="{{ status }}" {{ "selected" if vehicle.approval_status == status else "" }}>{{ admin_status_label(status) }}</option>
         {% endfor %}
       </select>
     </label>
@@ -47,7 +47,7 @@
       Freshness
       <select name="freshness_status">
         {% for status in freshness_statuses %}
-          <option value="{{ status }}" {{ "selected" if vehicle.freshness_status == status else "" }}>{{ status }}</option>
+          <option value="{{ status }}" {{ "selected" if vehicle.freshness_status == status else "" }}>{{ admin_status_label(status) }}</option>
         {% endfor %}
       </select>
     </label>
@@ -80,7 +80,7 @@
             Thu tu
             <input name="sort_order" type="number" value="{{ variant.sort_order }}" />
           </label>
-          <button class="btn btn-secondary" type="submit">Luu</button>
+        <button class="btn btn-secondary" type="submit">Luu phien ban</button>
         </form>
       {% endfor %}
     </div>
@@ -128,13 +128,13 @@
             Freshness
             <select name="freshness_status">
               {% for status in freshness_statuses %}
-                <option value="{{ status }}" {{ "selected" if price.freshness_status == status else "" }}>{{ status }}</option>
+                <option value="{{ status }}" {{ "selected" if price.freshness_status == status else "" }}>{{ admin_status_label(status) }}</option>
               {% endfor %}
             </select>
           </label>
           <label class="field full">
             Source URL
-            <input name="source_url" value="{{ price.source_url or '' }}" />
+            <input name="source_url" type="url" value="{{ price.source_url or '' }}" />
           </label>
           <button class="btn btn-secondary" type="submit">Luu gia</button>
         </form>

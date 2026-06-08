@@ -7,8 +7,11 @@
       <h2>Noi dung va freshness</h2>
       <p>Quan ly uu dai, FAQ va bai viet voi nguon, han hieu luc va trang thai duyet.</p>
     </div>
-    <form action="/admin/content/seed" method="post">
-      <button class="btn btn-primary" type="submit">Seed uu dai va FAQ</button>
+    <form action="/admin/content/seed" method="post" data-confirm="Seed lai uu dai va FAQ tu source hien tai?">
+      <button class="btn btn-primary" type="submit">
+        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">library_add</span>
+        Seed uu dai va FAQ
+      </button>
     </form>
   </div>
 
@@ -52,7 +55,7 @@
     </label>
     <label class="field">
       Source URL
-      <input name="source_url" />
+      <input name="source_url" type="url" />
     </label>
     <label class="field">
       Source updated
@@ -70,7 +73,7 @@
       Approval
       <select name="approval_status">
         {% for status in approval_statuses %}
-          <option value="{{ status }}">{{ status }}</option>
+          <option value="{{ status }}">{{ admin_status_label(status) }}</option>
         {% endfor %}
       </select>
     </label>
@@ -78,7 +81,7 @@
       Freshness
       <select name="freshness_status">
         {% for status in freshness_statuses %}
-          <option value="{{ status }}">{{ status }}</option>
+          <option value="{{ status }}">{{ admin_status_label(status) }}</option>
         {% endfor %}
       </select>
     </label>
@@ -106,8 +109,8 @@
               <small>{{ item.kind }} / {{ item.id[:8] }}</small>
             </div>
             <div class="status-pair">
-              <span class="status-badge status-{{ item.approval_status }}">{{ item.approval_status }}</span>
-              <span class="status-badge status-{{ item.freshness_status }}">{{ item.freshness_status }}</span>
+              <span class="status-badge status-{{ admin_status_class(item.approval_status) }}">{{ admin_status_label(item.approval_status) }}</span>
+              <span class="status-badge status-{{ admin_status_class(item.freshness_status) }}">{{ admin_status_label(item.freshness_status) }}</span>
             </div>
           </div>
           <div class="admin-form-grid">
@@ -129,7 +132,7 @@
             </label>
             <label class="field">
               Source URL
-              <input name="source_url" value="{{ item.source_url or '' }}" />
+              <input name="source_url" type="url" value="{{ item.source_url or '' }}" />
             </label>
             <label class="field">
               Source updated
@@ -147,7 +150,7 @@
               Approval
               <select name="approval_status">
                 {% for status in approval_statuses %}
-                  <option value="{{ status }}" {{ "selected" if item.approval_status == status else "" }}>{{ status }}</option>
+                  <option value="{{ status }}" {{ "selected" if item.approval_status == status else "" }}>{{ admin_status_label(status) }}</option>
                 {% endfor %}
               </select>
             </label>
@@ -155,7 +158,7 @@
               Freshness
               <select name="freshness_status">
                 {% for status in freshness_statuses %}
-                  <option value="{{ status }}" {{ "selected" if item.freshness_status == status else "" }}>{{ status }}</option>
+                  <option value="{{ status }}" {{ "selected" if item.freshness_status == status else "" }}>{{ admin_status_label(status) }}</option>
                 {% endfor %}
               </select>
             </label>

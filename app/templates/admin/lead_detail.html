@@ -8,7 +8,7 @@
         <h2>{{ lead.full_name }}</h2>
         <p>{{ lead.need_type }}{% if lead.vehicle_interest %} cho {{ lead.vehicle_interest }}{% endif %}</p>
       </div>
-      <span class="status-badge status-{{ lead.status }}">{{ lead.status }}</span>
+      <span class="status-badge status-{{ admin_status_class(lead.status) }}">{{ admin_status_label(lead.status) }}</span>
     </div>
 
     <dl class="detail-list">
@@ -28,15 +28,21 @@
         <dt>Ngay tao</dt>
         <dd>{{ lead.created_at.strftime("%Y-%m-%d %H:%M") }}</dd>
       </div>
-      <div>
+      <div class="full">
         <dt>Ghi chu khach</dt>
         <dd>{{ lead.note or "Khach chua de lai ghi chu." }}</dd>
       </div>
     </dl>
 
     <div class="quick-actions">
-      <a class="btn btn-primary" href="tel:{{ lead.phone }}">Goi khach</a>
-      <a class="btn btn-secondary" href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer">Mo Zalo anh Huy</a>
+      <a class="btn btn-primary" href="tel:{{ lead.phone }}">
+        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">call</span>
+        Goi khach
+      </a>
+      <a class="btn btn-secondary" href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer">
+        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">chat</span>
+        Mo Zalo
+      </a>
       <a class="btn btn-secondary" href="/admin/leads">Quay lai inbox</a>
     </div>
   </article>
@@ -48,12 +54,12 @@
         <p>Cap nhat sau moi lan goi, Zalo hoac gui bao gia.</p>
       </div>
     </div>
-    <form action="/admin/leads/{{ lead.id }}" method="post" class="admin-form">
+    <form action="/admin/leads/{{ lead.id }}" method="post" class="admin-form admin-form-grid">
       <label class="field">
         Trang thai
         <select name="lead_status">
           {% for status in lead_statuses %}
-            <option value="{{ status }}" {{ "selected" if lead.status == status else "" }}>{{ status }}</option>
+            <option value="{{ status }}" {{ "selected" if lead.status == status else "" }}>{{ admin_status_label(status) }}</option>
           {% endfor %}
         </select>
       </label>
@@ -69,7 +75,9 @@
         Ghi chu noi bo
         <textarea name="admin_note" rows="7">{{ lead.admin_note or "" }}</textarea>
       </label>
-      <button class="btn btn-primary" type="submit">Luu cham soc</button>
+      <div class="form-actions full">
+        <button class="btn btn-primary" type="submit">Luu cham soc</button>
+      </div>
     </form>
   </article>
 </section>
@@ -92,7 +100,11 @@
       {% endfor %}
     </div>
   {% else %}
-    <div class="admin-empty">Chua co log rieng ngoai thong tin lead hien tai.</div>
+    <div class="admin-empty">
+      <span class="material-symbols-outlined" aria-hidden="true">history</span>
+      <strong>Chua co log rieng</strong>
+      <p>Lead nay chua co cap nhat cham soc nao ngoai thong tin ban dau.</p>
+    </div>
   {% endif %}
 </section>
 {% endblock %}
