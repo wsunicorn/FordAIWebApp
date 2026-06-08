@@ -196,7 +196,8 @@ Keep the TXT record after verification.
 
 ## Sentry Setup
 
-Use Sentry Developer plan first for errors and one uptime monitor.
+Use Sentry for error tracking after the basic GitHub Actions smoke monitor is
+working.
 
 1. Create Sentry account.
 2. Create a Python/FastAPI project.
@@ -204,11 +205,24 @@ Use Sentry Developer plan first for errors and one uptime monitor.
 4. Put it into Render as `SENTRY_DSN`.
 5. Keep `SENTRY_TRACES_SAMPLE_RATE=0.1`.
 6. Redeploy.
-7. Create one uptime monitor for:
+
+## GitHub Actions Uptime Smoke
+
+The repo includes `.github/workflows/production-smoke.yml`.
+
+1. Push the workflow to GitHub.
+2. Open GitHub repo -> **Actions** -> **Production Smoke**.
+3. Run it manually after each Render deploy.
+4. It also runs every 6 hours.
+5. If it fails, GitHub marks the workflow red and can notify repo watchers.
+
+It checks:
 
 ```text
-https://<public-host>/api/health
+https://huy-ford-dong-thap.onrender.com
 ```
+
+with DB readiness enabled. It does not submit leads on the scheduled run.
 
 ## Custom Domain On Render
 

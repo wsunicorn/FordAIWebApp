@@ -153,7 +153,7 @@ Cap nhat file nay moi khi hoan thanh mot dau viec. Trang thai de xuat: `Not star
 
 ## Phase 8 - Launch And Operations
 
-- [x] Chot temporary production URL: `https://huy-ford-dong-thap.pages.dev`.
+- [x] Chot temporary production URL: `https://huy-ford-dong-thap.onrender.com`.
 - [x] Chot Phase 0 temporary URL tren Cloudflare Pages.
 - [x] Chot Phase 3 FastAPI can Docker/Python host thay cho Pages-only hosting.
 - [x] Them production settings guardrails cho secret, debug, `APP_URL` va PostgreSQL.
@@ -170,15 +170,20 @@ Cap nhat file nay moi khi hoan thanh mot dau viec. Trang thai de xuat: `Not star
 - [x] Them optional GA4 qua `GA_MEASUREMENT_ID`.
 - [x] Them optional Sentry qua `SENTRY_DSN`.
 - [x] Tao runbook Render/Cloudflare/GA4/Search Console/Sentry.
+- [x] Chay production smoke tren Render: health, DB, favicon, logo, robots, sitemap, admin noindex.
+- [x] Tao lead smoke production va xac nhan lead co trong admin export.
+- [x] Rotate local production secrets sau khi bi paste vao chat.
+- [x] Cau hinh uptime monitor baseline bang GitHub Actions scheduled smoke.
 - [ ] Chot domain rieng.
 - [ ] Cau hinh DNS/HTTPS.
 - [ ] Chot canonical host apex hoac `www`.
 - [ ] Cau hinh redirect non-canonical sang canonical.
-- [ ] Cau hinh production env canonical `APP_URL=https://huy-ford-dong-thap.onrender.com`.
+- [ ] Cap nhat Render env bang secret da rotate trong `.env.production.local`.
+- [x] Cau hinh production env canonical `APP_URL=https://huy-ford-dong-thap.onrender.com`.
 - [ ] Cau hinh backup.
 - [ ] Cau hinh analytics va Search Console.
 - [ ] Submit sitemap trong Search Console.
-- [ ] Cau hinh uptime monitor.
+- [x] Cau hinh uptime monitor.
 - [ ] Cau hinh error tracking/logging.
 - [ ] Cau hinh AI quota va fallback sang form/Zalo.
 - [ ] Cau hinh weekly freshness report.

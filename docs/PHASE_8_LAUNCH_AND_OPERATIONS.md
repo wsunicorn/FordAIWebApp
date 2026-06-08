@@ -32,6 +32,13 @@ host, domain, HTTPS, database, secrets, UAT and monitoring are confirmed.
 - Created local ignored `.env.production.local` with generated production
   secrets and placeholders for provider keys.
 - Preferred Render public host is `https://huy-ford-dong-thap.onrender.com`.
+- Production smoke passed on the Render host, including DB readiness, favicon,
+  logo, robots, sitemap and admin noindex checks.
+- A production smoke lead was submitted and confirmed in admin CSV export.
+- Local production secrets were rotated after chat exposure; Render env still
+  needs to be updated with the rotated values.
+- Added GitHub Actions scheduled production smoke as the baseline uptime
+  monitor.
 
 ## Production Env Vars Required
 
@@ -114,6 +121,16 @@ docker build -t ford-ai-webapp:phase8 .
 - `sitemap.xml` canonical URLs
 - Admin login `noindex`
 - Optional lead API submission
+
+## Uptime Monitor
+
+Baseline monitoring uses GitHub Actions in
+`.github/workflows/production-smoke.yml`.
+
+- Runs every 6 hours.
+- Can be started manually from GitHub Actions.
+- Checks `https://huy-ford-dong-thap.onrender.com` with `--check-db`.
+- Does not submit test leads on the scheduled run.
 
 ## Still Blocked By External Info
 
