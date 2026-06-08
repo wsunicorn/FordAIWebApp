@@ -50,6 +50,11 @@ def safe_success_redirect(path: str) -> str:
     return f"{redirect_path}{separator}{urlencode({'lead': 'success'})}"
 
 
+@router.head("/")
+async def home_head() -> Response:
+    return Response(status_code=200)
+
+
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse(
@@ -307,6 +312,11 @@ async def robots_txt() -> Response:
         ]
     )
     return Response(content=body, media_type="text/plain")
+
+
+@router.get("/favicon.ico", include_in_schema=False)
+async def favicon_ico() -> RedirectResponse:
+    return RedirectResponse(url="/assets/brand/favicon.svg", status_code=307)
 
 
 @router.get("/sitemap.xml")

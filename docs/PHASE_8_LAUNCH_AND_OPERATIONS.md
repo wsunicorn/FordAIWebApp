@@ -31,6 +31,7 @@ host, domain, HTTPS, database, secrets, UAT and monitoring are confirmed.
 - Added optional Sentry initialization through `SENTRY_DSN`.
 - Created local ignored `.env.production.local` with generated production
   secrets and placeholders for provider keys.
+- Preferred Render public host is `https://huy-ford-dong-thap.onrender.com`.
 
 ## Production Env Vars Required
 
@@ -106,6 +107,7 @@ docker build -t ford-ai-webapp:phase8 .
 - `/api/health`
 - Optional `/api/health/db`
 - Homepage canonical URL
+- Browser tab favicon
 - MVP logo asset and old wordmark absence
 - Logo static serving as SVG
 - `robots.txt` sitemap URL
@@ -145,14 +147,17 @@ Observed log:
 
 ```text
 sqlalchemy.exc.ArgumentError: Could not parse SQLAlchemy URL from given URL string
+DATABASE_URL must be a valid SQLAlchemy database URL
 ```
 
 Cause:
 
-- `DATABASE_URL` was not a real database URL, most likely copied as a placeholder.
+- `DATABASE_URL` was not a real database URL, most likely blank or copied as a
+  placeholder.
 
 Fix:
 
 - Use Render Blueprint `fromDatabase` env binding, or copy the Render Postgres
   **Internal Database URL** into `DATABASE_URL`.
+- Do not paste `DATABASE_URL=` from `.env.production.local`.
 - Do not paste `<render-postgres-internal-database-url>`.

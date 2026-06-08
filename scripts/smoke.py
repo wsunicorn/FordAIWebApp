@@ -68,9 +68,16 @@ def run_smoke(base_url: str, *, check_db: bool, submit_lead: bool) -> list[str]:
     status, _, home = fetch(base, "/")
     check_status(status, "/")
     expect("/assets/brand/huy-dang-huy-logo.svg" in home, "homepage is not using the MVP logo")
+    expect("/assets/brand/favicon.svg" in home, "homepage favicon link is missing")
     expect("huy-dang-huy-wordmark.svg" not in home, "homepage still references the old wordmark")
     expect(f'<link rel="canonical" href="{base}/"' in home, "homepage canonical URL is wrong")
     results.append("homepage ok")
+
+    status, content_type, favicon = fetch(base, "/favicon.ico")
+    check_status(status, "/favicon.ico")
+    expect("image/svg+xml" in content_type, "favicon is not served as SVG")
+    expect("<svg" in favicon, "favicon body is not SVG")
+    results.append("favicon ok")
 
     status, content_type, logo = fetch(base, "/assets/brand/huy-dang-huy-logo.svg")
     check_status(status, "/assets/brand/huy-dang-huy-logo.svg")

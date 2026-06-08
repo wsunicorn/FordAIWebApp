@@ -13,7 +13,7 @@ Cap nhat file nay moi khi hoan thanh mot dau viec. Trang thai de xuat: `Not star
 | Backend/data | Done for admin MVP | Dev | Phase 5 adds admin auth, lead care, content/vehicle freshness data and migrations. |
 | AI assistant | Done for grounded MVP | Dev | Phase 6 adds KB, retrieval, tools, guardrails, handoff, logs and Gemini fallback provider. |
 | QA/UAT | Done for local QA | Team + Anh Huy | Phase 7 local QA hardening, regression tests and browser smoke complete; UAT voi anh Huy van can lam truoc launch. |
-| Hosting/traffic | In progress | Dev | Docker/Render baseline, production guardrails and smoke script da san sang; can chot host/domain/credentials de deploy that. |
+| Hosting/traffic | In progress | Dev | Render Free host can dung ten cu `https://huy-ford-dong-thap.onrender.com`; can sua service/subdomain tren Render, chay production smoke, roi cau hinh domain/monitoring. |
 | Content freshness | Done for admin MVP | Anh Huy + Dev | Admin can seed/update source, review due, approval and freshness status locally. |
 | Launch | In progress | Team | Phase 8 deploy-readiness da co; public launch van cho host, domain, HTTPS, UAT, monitoring. |
 
@@ -26,10 +26,11 @@ Cap nhat file nay moi khi hoan thanh mot dau viec. Trang thai de xuat: `Not star
 - [x] Chot ten hien thi: Huỳnh Đang Huy.
 - [x] Chot vai tro: Tư Vấn Bán Hàng.
 - [x] Chot don vi/ten dai ly hien thi: Đồng Tháp Ford.
-- [x] Chot temporary production URL: `https://huy-ford-dong-thap.pages.dev`.
+- [x] Chot temporary production URL: `https://huy-ford-dong-thap.onrender.com`.
 - [x] Chot temporary URL Phase 0: Cloudflare Pages placeholder/redirect, co duong dung Cloudflare DNS/CDN sau nay.
 - [x] Chot brand/logo MVP: dung custom wordmark rieng, khong dung/khong mo phong logo Ford.
 - [x] Tao file logo MVP: `assets/brand/huy-dang-huy-logo.svg`.
+- [x] Tao favicon/browser tab icon tu logo MVP.
 - [x] Chot nguon site chinh de hoc va ingest: https://dongthapford.com/.
 - [x] Tao source ingestion plan: `docs/SOURCE_SITE_INGESTION_PLAN.md`.
 - [x] Chot kenh lien he chinh: dien thoai 0766994952, Zalo 0818655369, email hh753741@gmail.com, Facebook.
@@ -162,6 +163,8 @@ Cap nhat file nay moi khi hoan thanh mot dau viec. Trang thai de xuat: `Not star
 - [x] Them `.dockerignore`.
 - [x] Cap nhat `render.yaml` baseline voi Docker web service, Postgres va secret placeholders.
 - [x] Tao production smoke script `scripts/smoke.py`.
+- [x] Them favicon vao production smoke script.
+- [x] Deploy production/preview len Render Free.
 - [x] Xoa AI key that khoi `.env.example`.
 - [x] Tao `.env.production.local` bi ignore voi production secrets da generate.
 - [x] Them optional GA4 qua `GA_MEASUREMENT_ID`.
@@ -171,7 +174,7 @@ Cap nhat file nay moi khi hoan thanh mot dau viec. Trang thai de xuat: `Not star
 - [ ] Cau hinh DNS/HTTPS.
 - [ ] Chot canonical host apex hoac `www`.
 - [ ] Cau hinh redirect non-canonical sang canonical.
-- [ ] Cau hinh production env.
+- [ ] Cau hinh production env canonical `APP_URL=https://huy-ford-dong-thap.onrender.com`.
 - [ ] Cau hinh backup.
 - [ ] Cau hinh analytics va Search Console.
 - [ ] Submit sitemap trong Search Console.
@@ -190,11 +193,11 @@ Cap nhat file nay moi khi hoan thanh mot dau viec. Trang thai de xuat: `Not star
 | --- | --- | --- | --- | --- | --- |
 | 2026-06-07 | Quyen dung logo/hinh/catalogue chinh thuc chua co bang chung | Chua the public Ford/dealer media | Anh Huy | Luu bang chung phe duyet truoc launch | Release gate |
 | 2026-06-07 | Chua co domain rieng | Tam thoi dung `pages.dev`, SEO dai han chua toi uu | Team | Mua/chot domain khi san sang | Release gate |
-| 2026-06-07 | Chua co production deploy/cache/freshness automation | Da co FastAPI public MVP local, chua deploy preview | Dev | Deploy Docker preview sau khi chot host Python | Partially resolved |
+| 2026-06-07 | Chua co production deploy/cache/freshness automation | Render Free preview da len, DB health OK | Dev | Doi Render host ve ten cu, sua canonical APP_URL, chay smoke production va cau hinh monitoring | Partially resolved |
 | 2026-06-07 | Chua co provider email/Zalo/Sheets credential | Notification moi la audit/outbox noi bo | Team | Chot provider va credential khi deploy production | Release gate |
 | 2026-06-08 | UAT voi anh Huy chua thuc hien tren dien thoai that | Chua nen launch public du local QA pass | Anh Huy + Dev | Chay UAT script trong `docs/PHASE_7_QA_AND_UAT.md` | Release gate |
 | 2026-06-08 | Chua co Lighthouse/field performance tren production | Chua co LCP/CLS/INP thuc te | Dev | Do tren preview/production sau deploy | Phase 8 gate |
-| 2026-06-08 | Chua co host/domain/production secrets | Chua the deploy public that | Team + Dev | Cung cap host, domain, DB URL, secret, admin password, API key neu dung AI live | Release gate |
+| 2026-06-08 | Chua co domain rieng/final production secrets | Da co Render preview; SEO dai han va secret rotation van can lam | Team + Dev | Chot domain, rotate secrets truoc launch public, them API key neu dung AI live | Release gate |
 
 ## Weekly Progress Notes
 
@@ -212,4 +215,4 @@ Cap nhat file nay moi khi hoan thanh mot dau viec. Trang thai de xuat: `Not star
 - Closed Phase 6 grounded AI assistant MVP with public AI page, AI APIs, KB seed, retrieval, calculator tools, guardrails, Gemini adapter, handoff lead flow, admin AI dashboard, quota fallback and tests.
 - Closed Phase 7 local QA with launch-gate branding/media fixes, accessibility labels, mobile responsive fixes, lead validation, revalidation/admin/SEO regression tests, browser smoke artifacts and UAT script.
 - Started Phase 8 launch operations: production guardrails, Postgres URL normalization, DB health endpoint, Docker migration start script, Render baseline, smoke script and env hardening.
-- Next focus: choose/deploy a Docker Python host, configure production secrets/domain, then run UAT with anh Huy.
+- Render Free preview is live, but project owner wants the old host `https://huy-ford-dong-thap.onrender.com`; next focus is fixing Render subdomain/canonical `APP_URL`, running production smoke, then configuring domain/monitoring and UAT with anh Huy.

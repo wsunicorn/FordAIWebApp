@@ -128,17 +128,20 @@ If `AI_API_KEY` is empty, the app still runs with the internal grounded fallback
 Do not reuse a Gemini key that was previously committed, pasted into chat or
 shown in logs. Treat it as exposed and rotate it.
 
-## Common Render Error: DATABASE_URL Placeholder
+## Common Render Error: DATABASE_URL Blank Or Placeholder
 
 If Render logs end with:
 
 ```text
 sqlalchemy.exc.ArgumentError: Could not parse SQLAlchemy URL from given URL string
+DATABASE_URL must be a valid SQLAlchemy database URL
 ```
 
-the web service probably has `DATABASE_URL` set to a placeholder such as:
+the web service probably has `DATABASE_URL` set to blank or to a placeholder
+such as:
 
 ```text
+DATABASE_URL=
 <render-postgres-internal-database-url>
 ```
 
@@ -148,10 +151,11 @@ Fix:
 2. Open the `huy-ford-dong-thap` web service.
 3. Go to **Environment**.
 4. Find `DATABASE_URL`.
-5. Delete the placeholder value.
+5. Delete the blank/placeholder value.
 6. If using Blueprint, let the `fromDatabase` value populate it.
 7. If using manual deploy, paste the Render Postgres **Internal Database URL**.
-8. Save and redeploy.
+8. Do not paste `DATABASE_URL=` from `.env.production.local`.
+9. Save and redeploy.
 
 ## GA4 Setup
 

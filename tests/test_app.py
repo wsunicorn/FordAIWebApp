@@ -63,11 +63,21 @@ def test_database_url_rejects_placeholders() -> None:
         Settings(database_url="<render-postgres-internal-database-url>")
 
 
+def test_database_url_rejects_blank_value() -> None:
+    with pytest.raises(ValidationError):
+        Settings(database_url="")
+
+
 def test_home_renders() -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert "Huỳnh Đang Huy" in response.text
     assert "Đồng Tháp Ford" in response.text
+
+
+def test_home_head_probe_returns_ok() -> None:
+    response = client.head("/")
+    assert response.status_code == 200
 
 
 def test_public_mvp_pages_render() -> None:
@@ -114,10 +124,23 @@ def test_seo_canonical_and_admin_noindex() -> None:
     canonical = f'{str(settings.app_url).rstrip("/")}/bang-gia'
     assert f'<link rel="canonical" href="{canonical}"' in response.text
     assert f'<meta property="og:url" content="{canonical}"' in response.text
+    assert "/assets/brand/favicon.svg" in response.text
 
     admin_login = client.get("/admin/login")
     assert admin_login.status_code == 200
     assert '<meta name="robots" content="noindex,nofollow"' in admin_login.text
+    assert "/assets/brand/favicon.svg" in admin_login.text
+
+
+def test_favicon_routes_render() -> None:
+    fallback = client.get("/favicon.ico", follow_redirects=False)
+    assert fallback.status_code == 307
+    assert fallback.headers["location"] == "/assets/brand/favicon.svg"
+
+    favicon = client.get("/assets/brand/favicon.svg")
+    assert favicon.status_code == 200
+    assert "image/svg+xml" in favicon.headers["content-type"]
+    assert "<svg" in favicon.text
 
 
 def test_public_html_uses_launch_safe_branding_and_media() -> None:
