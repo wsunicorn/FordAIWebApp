@@ -7,16 +7,15 @@
       <div>
         <span class="badge badge-primary mb-4">
           <span class="material-symbols-outlined text-[16px]">smart_toy</span>
-          Trợ lý AI 24/7
+          {{ t('ai.badge') }}
         </span>
-        <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-ink mb-6">Hỏi AI trước khi liên hệ.</h1>
+        <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-ink mb-6">{{ t('ai.title') }}</h1>
         <p class="text-lg text-muted mb-8 leading-relaxed">
-          Trợ lý AI giúp khách tham khảo dòng xe, giá, lăn bánh và trả góp nhanh chóng. Những nội dung
-          cần cam kết như giá chốt, tồn kho, màu xe sẽ được chuyển sang anh Huy xử lý trực tiếp.
+          {{ t('ai.body') }}
         </p>
         <div class="flex gap-4">
-          <a class="btn btn-primary" href="#chat-section">Bắt đầu chat</a>
-          <a class="btn btn-secondary" href="tel:{{ sales.phone }}">Gọi trực tiếp</a>
+          <a class="btn btn-primary" href="#chat-section">{{ t('ai.start') }}</a>
+          <a class="btn btn-secondary" href="tel:{{ sales.phone }}">{{ t('action.call') }}</a>
         </div>
       </div>
       
@@ -48,37 +47,37 @@
                 <span class="ai-status-dot"></span>
               </div>
               <div>
-                <h2 class="text-base font-bold text-ink leading-none mb-1">Trợ lý Ford AI</h2>
-                <p class="text-xs text-muted">Trực tuyến - Dữ liệu {{ source_period }}</p>
+                <h2 class="text-base font-bold text-ink leading-none mb-1">{{ t('ai.chat_title') }}</h2>
+                <p class="text-xs text-muted">{{ t('ai.online', source_period=source_period) }}</p>
               </div>
             </div>
-            <span class="badge badge-success bg-success/10 text-success text-[10px] uppercase tracking-wide">Gemini Grounded</span>
+            <span class="badge badge-success bg-success/10 text-success text-[10px] uppercase tracking-wide">{{ t('ai.badge_grounded') }}</span>
           </div>
           
           <div class="ai-messages-area" data-ai-messages aria-live="polite">
             <div class="message-bubble message-assistant">
-              <p>Xin chào! Tôi là trợ lý AI của anh Huỳnh Đang Huy - Đồng Tháp Ford.</p>
-              <p class="mt-2">Bạn có thể hỏi tôi về:</p>
+              <p>{{ t('ai.welcome') }}</p>
+              <p class="mt-2">{{ t('ai.ask_intro') }}</p>
               <ul class="mt-2 ml-4 list-disc space-y-1">
-                <li>So sánh các dòng xe (vd: Everest khác Territory thế nào?)</li>
-                <li>Dự toán lăn bánh & Trả góp</li>
-                <li>Thông số kỹ thuật</li>
+                <li>{{ t('ai.list_compare') }}</li>
+                <li>{{ t('ai.list_on_road') }}</li>
+                <li>{{ t('ai.list_specs') }}</li>
               </ul>
             </div>
           </div>
           
           <div class="ai-input-area">
             <div class="ai-quick-actions mb-3">
-              <button class="ai-chip" type="button" onclick="document.getElementById('ai-message').value='Ranger lăn bánh khoảng bao nhiêu?'; document.getElementById('ai-message').focus();">Ranger lăn bánh?</button>
-              <button class="ai-chip" type="button" onclick="document.getElementById('ai-message').value='So sánh Everest Platinum 4x2 và Sport'; document.getElementById('ai-message').focus();">So sánh Everest</button>
-              <button class="ai-chip" type="button" onclick="document.getElementById('ai-message').value='Thủ tục mua trả góp?'; document.getElementById('ai-message').focus();">Trả góp</button>
+              <button class="ai-chip" type="button" onclick="document.getElementById('ai-message').value='{{ t('ai.chip_ranger_value') }}'; document.getElementById('ai-message').focus();">{{ t('ai.chip_ranger') }}</button>
+              <button class="ai-chip" type="button" onclick="document.getElementById('ai-message').value='{{ t('ai.chip_compare_value') }}'; document.getElementById('ai-message').focus();">{{ t('ai.chip_compare') }}</button>
+              <button class="ai-chip" type="button" onclick="document.getElementById('ai-message').value='{{ t('ai.chip_loan_value') }}'; document.getElementById('ai-message').focus();">{{ t('ai.chip_loan') }}</button>
             </div>
             
             <form data-ai-form class="flex flex-col gap-2">
               <div class="ai-input-wrapper">
-                <label class="sr-only" for="ai-message">Câu hỏi gửi trợ lý AI</label>
-                <textarea id="ai-message" name="message" placeholder="Nhập câu hỏi của bạn..." required></textarea>
-                <button type="submit" class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white hover:bg-primary-strong transition-colors active:scale-95" title="Gửi tin nhắn" aria-label="Gửi tin nhắn cho trợ lý AI">
+                <label class="sr-only" for="ai-message">{{ t('ai.input_label') }}</label>
+                <textarea id="ai-message" name="message" placeholder="{{ t('ai.placeholder') }}" required></textarea>
+                <button type="submit" class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white hover:bg-primary-strong transition-colors active:scale-95" title="{{ t('ai.send_title') }}" aria-label="{{ t('ai.send_aria') }}">
                   <span class="material-symbols-outlined text-[20px]">send</span>
                 </button>
               </div>
@@ -93,42 +92,42 @@
               <span class="material-symbols-outlined text-[80px] text-action">support_agent</span>
             </div>
             
-            <h3 class="text-lg font-bold text-ink mb-2 relative z-10">Liên hệ trực tiếp anh Huy</h3>
+            <h3 class="text-lg font-bold text-ink mb-2 relative z-10">{{ t('ai.handoff_title') }}</h3>
             <p class="text-sm text-muted mb-6 relative z-10">
-              AI không chốt giá, tồn kho hay đặt cọc. Gửi thông tin để anh Huy hỗ trợ chính xác nhất.
+              {{ t('ai.handoff_body') }}
             </p>
             
             <form class="flex flex-col gap-4 relative z-10" action="/lead" method="post">
               <input type="hidden" name="need_type" value="ai_handoff" />
-              <input type="hidden" name="redirect_to" value="/tro-ly-ai" />
+              <input type="hidden" name="redirect_to" value="{{ lang_path('/tro-ly-ai') }}" />
               
               <div class="form-group">
-                <label class="sr-only" for="ai-handoff-name">Họ tên của bạn</label>
-                <input id="ai-handoff-name" class="form-input text-sm py-2.5" name="full_name" placeholder="Họ tên của bạn" required autocomplete="name" />
+                <label class="sr-only" for="ai-handoff-name">{{ t('ai.name_label') }}</label>
+                <input id="ai-handoff-name" class="form-input text-sm py-2.5" name="full_name" placeholder="{{ t('ai.name_label') }}" required autocomplete="name" />
               </div>
               <div class="form-group">
-                <label class="sr-only" for="ai-handoff-phone">Số điện thoại</label>
-                <input id="ai-handoff-phone" class="form-input text-sm py-2.5" name="phone" placeholder="Số điện thoại" required autocomplete="tel" inputmode="tel" />
+                <label class="sr-only" for="ai-handoff-phone">{{ t('ai.phone_label') }}</label>
+                <input id="ai-handoff-phone" class="form-input text-sm py-2.5" name="phone" placeholder="{{ t('ai.phone_label') }}" required autocomplete="tel" inputmode="tel" />
               </div>
               <div class="form-group">
-                <label class="sr-only" for="ai-handoff-note">Câu hỏi hoặc yêu cầu thêm</label>
-                <textarea id="ai-handoff-note" class="form-textarea min-h-[80px] text-sm py-2.5" name="note" placeholder="Câu hỏi hoặc yêu cầu thêm..." rows="2"></textarea>
+                <label class="sr-only" for="ai-handoff-note">{{ t('ai.note_label') }}</label>
+                <textarea id="ai-handoff-note" class="form-textarea min-h-[80px] text-sm py-2.5" name="note" placeholder="{{ t('ai.note_placeholder') }}" rows="2"></textarea>
               </div>
               
-              <button class="btn btn-action w-full" type="submit">Gửi thông tin</button>
+              <button class="btn btn-action w-full" type="submit">{{ t('ai.handoff_button') }}</button>
             </form>
           </div>
           
           <div class="admin-panel bg-transparent border-dashed">
             <h4 class="text-sm font-bold text-ink mb-3 flex items-center gap-2">
               <span class="material-symbols-outlined text-action text-[18px]">verified_user</span>
-              AI sẽ chuyển người thật khi hỏi về:
+              {{ t('ai.true_person_title') }}
             </h4>
             <ul class="space-y-2 text-sm text-muted">
-              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>Giá chốt & Ưu đãi riêng</li>
-              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>Tồn kho & Màu xe thực tế</li>
-              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>Đặt cọc hoặc giữ xe</li>
-              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>Duyệt hồ sơ vay chắc chắn</li>
+              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>{{ t('ai.true_person_price') }}</li>
+              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>{{ t('ai.true_person_stock') }}</li>
+              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>{{ t('ai.true_person_deposit') }}</li>
+              <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-border"></span>{{ t('ai.true_person_loan') }}</li>
             </ul>
           </div>
         </aside>
@@ -146,10 +145,10 @@
       const input = document.getElementById('ai-message');
       if (input) {
         input.value = message;
-        // Optionally auto-submit if desired, but letting user review is safer
         input.focus();
-        // Clean URL
-        window.history.replaceState({}, document.title, window.location.pathname);
+        params.delete('message');
+        const query = params.toString();
+        window.history.replaceState({}, document.title, `${window.location.pathname}${query ? `?${query}` : ''}`);
       }
     }
   });

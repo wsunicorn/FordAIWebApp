@@ -7,11 +7,11 @@
     <div class="max-w-2xl">
       <span class="badge badge-primary mb-4">
         <span class="material-symbols-outlined text-[16px]">celebration</span>
-        Ưu đãi xe Ford
+        {{ t('promotion.badge') }}
       </span>
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">Chương trình khuyến mãi tham khảo.</h1>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">{{ t('promotion.title') }}</h1>
       <p class="text-lg text-muted">
-        Ưu đãi cần kiểm tra theo xe, phiên bản và thời điểm. Không hiển thị ưu đãi như cam kết cố định. Anh Huy sẽ xác nhận điều kiện áp dụng trước khi báo giá lăn bánh.
+        {{ t('promotion.body') }}
       </p>
     </div>
   </section>
@@ -29,7 +29,7 @@
           <div class="pt-4 border-t border-border flex items-center justify-between">
             <a class="text-sm font-semibold text-primary hover:underline flex items-center gap-1" href="{{ promo.source_url }}" target="_blank" rel="noreferrer">
               <span class="material-symbols-outlined text-[16px]">link</span>
-              Nguồn tham khảo
+              {{ t('promotion.source') }}
             </a>
           </div>
         </article>
@@ -41,11 +41,11 @@
     <div class="mx-auto max-w-4xl px-5 md:px-8">
       <div class="glass-panel light">
         {{ lead_form(
-          title="Kiểm tra ưu đãi với anh Huy", 
+          title=t('promotion.form_title'), 
           need_type="promotion", 
           current_path=current_path, 
           vehicles=vehicles, 
-          button_label="Gửi yêu cầu kiểm tra ưu đãi",
+          button_label=t('promotion.button'),
           t=t
         ) }}
       </div>

@@ -7,11 +7,11 @@
     <div class="max-w-2xl">
       <span class="badge badge-primary mb-4">
         <span class="material-symbols-outlined text-[16px]">account_balance</span>
-        Dự toán trả góp
+        {{ t('loan.badge') }}
       </span>
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">Ước tính khoản trả hằng tháng.</h1>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">{{ t('loan.title') }}</h1>
       <p class="text-lg text-muted">
-        Kết quả dựa trên công thức dư nợ giảm dần hoặc đều (tham khảo). Không phải cam kết duyệt vay. Lãi suất và hồ sơ do ngân hàng xác nhận.
+        {{ t('loan.body') }}
       </p>
     </div>
   </section>
@@ -20,42 +20,42 @@
     <div class="grid md:grid-cols-[1.5fr_1fr] gap-8">
       <!-- Calculator Inputs -->
       <div class="admin-panel">
-        <h3 class="text-lg font-bold text-ink mb-6">Thông số khoản vay</h3>
+        <h3 class="text-lg font-bold text-ink mb-6">{{ t('loan.inputs_title') }}</h3>
         
         <div class="space-y-5">
           <div class="form-group">
-            <label class="form-label" for="loan-vehicle">Chọn xe tham khảo</label>
+            <label class="form-label" for="loan-vehicle">{{ t('loan.vehicle_label') }}</label>
             <select id="loan-vehicle" class="form-select" data-loan-price>
               {% for option in vehicle_options %}
-                <option value="{{ option.price }}">{{ option.name }} từ {{ option.price_label }}</option>
+                <option value="{{ option.price }}">{{ option.name }} {{ t('common.from') }} {{ option.price_label }}</option>
               {% endfor %}
             </select>
           </div>
           
           <div class="grid grid-cols-2 gap-4">
             <div class="form-group">
-              <label class="form-label" for="down-payment-percent">Trả trước (%)</label>
+              <label class="form-label" for="down-payment-percent">{{ t('loan.down_payment') }}</label>
               <div class="relative">
                 <input id="down-payment-percent" class="form-input pr-10" data-down-payment-range type="number" min="10" max="90" value="20" />
                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-muted font-medium">%</span>
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label" for="loan-term">Kỳ hạn (tháng)</label>
+              <label class="form-label" for="loan-term">{{ t('loan.term') }}</label>
               <select id="loan-term" class="form-select" data-loan-term>
-                <option value="36">3 năm (36T)</option>
-                <option value="48">4 năm (48T)</option>
-                <option value="60">5 năm (60T)</option>
-                <option value="72">6 năm (72T)</option>
-                <option value="84" selected>7 năm (84T)</option>
-                <option value="96">8 năm (96T)</option>
+                <option value="36">{{ t('loan.term_3') }}</option>
+                <option value="48">{{ t('loan.term_4') }}</option>
+                <option value="60">{{ t('loan.term_5') }}</option>
+                <option value="72">{{ t('loan.term_6') }}</option>
+                <option value="84" selected>{{ t('loan.term_7') }}</option>
+                <option value="96">{{ t('loan.term_8') }}</option>
               </select>
             </div>
           </div>
           
           <button class="btn btn-primary w-full mt-2" type="button" data-loan-run>
             <span class="material-symbols-outlined text-[20px]">refresh</span>
-            Tính lại
+            {{ t('action.calculate') }}
           </button>
         </div>
       </div>
@@ -63,23 +63,23 @@
       <!-- Result Panel -->
       <div class="calc-panel flex flex-col justify-between !bg-action-strong">
         <div>
-          <span class="text-white/80 font-semibold mb-2 block">Gốc + lãi tham khảo (tháng đầu)</span>
-          <strong class="calc-total block mb-8" data-monthly-payment>Đang tính...</strong>
+          <span class="text-white/80 font-semibold mb-2 block">{{ t('loan.monthly_label') }}</span>
+          <strong class="calc-total block mb-8" data-monthly-payment>{{ t('common.loading') }}</strong>
           
           <div class="space-y-3 text-sm text-white/90">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
-              <span>Giá trị trả trước</span>
+              <span>{{ t('loan.down_payment_value') }}</span>
               <strong data-down-payment-value></strong>
             </div>
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
-              <span>Lãi suất năm dự kiến</span>
+              <span>{{ t('loan.interest_label') }}</span>
               <strong>~8.5% - 9.5%</strong>
             </div>
           </div>
         </div>
         
         <p class="text-xs text-white/60 mt-6 pt-4 border-t border-white/10 leading-relaxed">
-          *Đóng theo dư nợ giảm dần. Lãi suất ưu đãi thường áp dụng trong 6-12 tháng đầu. Anh Huy sẽ tư vấn gói vay có lợi nhất.
+          {{ t('loan.disclaimer') }}
         </p>
       </div>
     </div>
@@ -90,12 +90,12 @@
     <div class="mx-auto max-w-4xl px-5 md:px-8">
       <div class="glass-panel light">
         {{ lead_form(
-          title="Nhờ anh Huy tư vấn giải pháp vay", 
+          title=t('loan.form_title'), 
           need_type="loan", 
           current_path=current_path, 
           vehicles=vehicles, 
-          button_label="Gửi yêu cầu",
-          note_label="Tình trạng thu nhập, hồ sơ (nếu muốn anh Huy chuẩn bị trước)",
+          button_label=t('loan.button'),
+          note_label=t('loan.note'),
           t=t
         ) }}
       </div>

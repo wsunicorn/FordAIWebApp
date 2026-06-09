@@ -18,6 +18,7 @@ from app.data.site_content import (
 )
 from app.models import ContentItem
 from app.models.vehicle import Vehicle as VehicleModel
+from app.services.i18n_service import DEFAULT_LOCALE, normalize_locale
 
 PUBLIC_APPROVAL_STATUSES = ("approved", "needs_confirmation")
 PUBLIC_FRESHNESS_STATUSES = ("fresh", "review_due")
@@ -42,8 +43,74 @@ RETIRED_VARIANT_NAMES = {
 }
 
 PROMOTION_STATUS_LABELS = {
-    "approved": "Tham khao",
-    "needs_confirmation": "Can anh Huy xac nhan",
+    "vi": {
+        "approved": "Tham khảo",
+        "needs_confirmation": "Cần anh Huy xác nhận",
+    },
+    "en": {
+        "approved": "Reference",
+        "needs_confirmation": "Needs Huy's confirmation",
+    },
+}
+STATIC_PROMOTION_STATUS_TRANSLATIONS = {
+    "en": {
+        "Cần anh Huy xác nhận": "Needs Huy's confirmation",
+        "Tham khảo": "Reference",
+        "Cần xác nhận lịch": "Schedule confirmation needed",
+    }
+}
+PROMOTION_TRANSLATIONS = {
+    "en": {
+        "Khuyến mãi áp dụng theo từng phiên bản": {
+            "title": "Offers apply by variant",
+            "summary": "The source records offers that change by model, variant and timing.",
+        },
+        "Hỗ trợ trả góp và tư vấn hồ sơ": {
+            "title": "Financing support and application advice",
+            "summary": (
+                "Loan results depend on the bank, application profile and program "
+                "at the time of processing."
+            ),
+        },
+        "Đăng ký lái thử": {
+            "title": "Test-drive registration",
+            "summary": "Leave your information so Huy can check schedule and supported area.",
+        },
+    }
+}
+FAQ_TRANSLATIONS = {
+    "en": {
+        "Giá xe trên website có phải giá chốt không?": {
+            "question": "Are prices on this website final prices?",
+            "answer": (
+                "No. These are reference prices from recorded sources. Final price, "
+                "offers, color availability and delivery time need direct confirmation "
+                "from Huy."
+            ),
+        },
+        "Có thể tính lăn bánh tại Đồng Tháp không?": {
+            "question": "Can I estimate on-road cost in Dong Thap?",
+            "answer": (
+                "Yes. The estimate can use the current Other area group. Actual fees "
+                "at registration time need confirmation."
+            ),
+        },
+        "Trả góp có được duyệt chắc chắn không?": {
+            "question": "Is financing approval guaranteed?",
+            "answer": (
+                "No commitment can be made on the website. The calculator only "
+                "estimates payments using assumed interest rates, and the bank reviews "
+                "the loan application."
+            ),
+        },
+        "Anh Huy có hỗ trợ ngoài Đồng Tháp không?": {
+            "question": "Does Huy support customers outside Dong Thap?",
+            "answer": (
+                "Nearby areas may be supported depending on the case. Leave your "
+                "information so Huy can check the suitable support option."
+            ),
+        },
+    }
 }
 
 
@@ -77,7 +144,7 @@ def _vehicle_tags(db_vehicle: VehicleModel, static_vehicle: Vehicle | None) -> t
 def _vehicle_fit(db_vehicle: VehicleModel, static_vehicle: Vehicle | None) -> str:
     if static_vehicle:
         return static_vehicle.fit
-    return db_vehicle.summary or db_vehicle.category or "Can anh Huy tu van them"
+    return db_vehicle.summary or db_vehicle.category or "Cần anh Huy tư vấn thêm"
 
 
 def _db_price_is_current(db_price_source_updated_at: date | None) -> bool:
@@ -85,6 +152,48 @@ def _db_price_is_current(db_price_source_updated_at: date | None) -> bool:
         db_price_source_updated_at is not None
         and db_price_source_updated_at >= SOURCE_CHECKED_DATE
     )
+
+
+def _promotion_status_label(status: str, locale: str) -> str:
+    normalized_locale = normalize_locale(locale)
+    return PROMOTION_STATUS_LABELS[normalized_locale].get(status, status)
+
+
+def _localize_promotion(
+    promotion: dict[str, str],
+    locale: str,
+) -> dict[str, str]:
+    normalized_locale = normalize_locale(locale)
+    if normalized_locale == DEFAULT_LOCALE:
+        return promotion
+
+    translated = PROMOTION_TRANSLATIONS.get(normalized_locale, {}).get(
+        promotion["title"],
+        {},
+    )
+    status = STATIC_PROMOTION_STATUS_TRANSLATIONS.get(normalized_locale, {}).get(
+        promotion["status"],
+        promotion["status"],
+    )
+    return {
+        **promotion,
+        "title": translated.get("title", promotion["title"]),
+        "summary": translated.get("summary", promotion["summary"]),
+        "status": status,
+    }
+
+
+def _localize_faq(faq: dict[str, str], locale: str) -> dict[str, str]:
+    normalized_locale = normalize_locale(locale)
+    if normalized_locale == DEFAULT_LOCALE:
+        return faq
+
+    translated = FAQ_TRANSLATIONS.get(normalized_locale, {}).get(faq["question"], {})
+    return {
+        **faq,
+        "question": translated.get("question", faq["question"]),
+        "answer": translated.get("answer", faq["answer"]),
+    }
 
 
 def _to_public_vehicle(db_vehicle: VehicleModel) -> Vehicle | None:
@@ -115,14 +224,14 @@ def _to_public_vehicle(db_vehicle: VehicleModel) -> Vehicle | None:
             continue
 
         engine = db_variant.engine or (
-            static_variant.engine if static_variant else "Can cap nhat"
+            static_variant.engine if static_variant else "Cần cập nhật"
         )
         public_variants.append(
             Variant(
                 name=db_variant.name,
                 price_vnd=price_vnd,
                 engine=engine,
-                drivetrain=static_variant.drivetrain if static_variant else "Anh Huy xac nhan",
+                drivetrain=static_variant.drivetrain if static_variant else "Anh Huy xác nhận",
             )
         )
         public_variant_names.add(normalized_variant_name)
@@ -193,7 +302,10 @@ def public_vehicle_options(vehicles: tuple[Vehicle, ...]) -> list[dict[str, str 
     ]
 
 
-async def public_promotions(session: AsyncSession) -> tuple[dict[str, str], ...]:
+async def public_promotions(
+    session: AsyncSession,
+    locale: str = DEFAULT_LOCALE,
+) -> tuple[dict[str, str], ...]:
     result = await session.execute(
         select(ContentItem)
         .where(
@@ -205,18 +317,26 @@ async def public_promotions(session: AsyncSession) -> tuple[dict[str, str], ...]
     )
     items = result.scalars().all()
     promotions = tuple(
-        {
-            "title": item.title,
-            "summary": item.body or "",
-            "status": PROMOTION_STATUS_LABELS.get(item.approval_status, item.approval_status),
-            "source_url": item.source_url or PRICE_SOURCE_URL,
-        }
+        _localize_promotion(
+            {
+                "title": item.title,
+                "summary": item.body or "",
+                "status": _promotion_status_label(item.approval_status, locale),
+                "source_url": item.source_url or PRICE_SOURCE_URL,
+            },
+            locale,
+        )
         for item in items
     )
-    return promotions or PROMOTIONS
+    return promotions or tuple(
+        _localize_promotion(promotion, locale) for promotion in PROMOTIONS
+    )
 
 
-async def public_faqs(session: AsyncSession) -> tuple[dict[str, str], ...]:
+async def public_faqs(
+    session: AsyncSession,
+    locale: str = DEFAULT_LOCALE,
+) -> tuple[dict[str, str], ...]:
     result = await session.execute(
         select(ContentItem)
         .where(
@@ -228,4 +348,5 @@ async def public_faqs(session: AsyncSession) -> tuple[dict[str, str], ...]:
     )
     items = result.scalars().all()
     faqs = tuple({"question": item.title, "answer": item.body or ""} for item in items)
-    return faqs or FAQS
+    localized_faqs = tuple(_localize_faq(faq, locale) for faq in faqs)
+    return localized_faqs or tuple(_localize_faq(faq, locale) for faq in FAQS)

@@ -254,7 +254,9 @@ const initVehicleSearch = () => {
 const initSuccessNotice = () => {
   const params = new URLSearchParams(window.location.search);
   if (params.get("lead") === "success") {
-    window.history.replaceState({}, document.title, window.location.pathname);
+    params.delete("lead");
+    const query = params.toString();
+    window.history.replaceState({}, document.title, `${window.location.pathname}${query ? `?${query}` : ""}`);
     
     requestAnimationFrame(() => {
       const form = document.querySelector("form");

@@ -7,11 +7,11 @@
     <div class="max-w-2xl">
       <span class="badge badge-primary mb-4">
         <span class="material-symbols-outlined text-[16px]">key</span>
-        Lái thử
+        {{ t('test_drive.badge') }}
       </span>
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">Đăng ký lịch lái thử xe Ford.</h1>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">{{ t('test_drive.title') }}</h1>
       <p class="text-lg text-muted">
-        Chọn xe quan tâm, khu vực và thời gian mong muốn. Lịch thực tế phụ thuộc vào tình trạng xe sẵn có và khu vực hỗ trợ. Anh Huy sẽ liên hệ để chốt lịch.
+        {{ t('test_drive.body') }}
       </p>
     </div>
   </section>
@@ -20,13 +20,13 @@
     <div class="mx-auto max-w-4xl px-5 md:px-8">
       <div class="glass-panel light">
         {{ lead_form(
-          title="Đăng ký trải nghiệm lái thử", 
+          title=t('test_drive.form_title'),
           need_type="test_drive", 
           current_path=current_path, 
           vehicles=vehicles, 
           selected_vehicle=selected_vehicle,
-          button_label="Gửi đăng ký", 
-          note_label="Thời gian và địa điểm mong muốn lái thử",
+          button_label=t('test_drive.button'), 
+          note_label=t('test_drive.note'),
           t=t
         ) }}
       </div>

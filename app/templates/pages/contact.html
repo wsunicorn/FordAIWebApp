@@ -8,11 +8,11 @@
       <div>
         <span class="badge badge-primary mb-4">
           <span class="material-symbols-outlined text-[16px]">contact_support</span>
-          Liên hệ
+          {{ t('contact.badge') }}
         </span>
-        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">Kết nối với anh Huy.</h1>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">{{ t('contact.title') }}</h1>
         <p class="text-lg text-muted mb-8 text-balance">
-          Ưu tiên liên hệ trực tiếp nếu anh/chị cần giá lăn bánh, màu xe, lịch lái thử, ưu đãi tiền mặt hoặc giải pháp trả góp.
+          {{ t('contact.body') }}
         </p>
         
         <div class="grid gap-4">
@@ -21,7 +21,7 @@
               <span class="material-symbols-outlined">call</span>
             </div>
             <div>
-              <span class="block text-sm font-semibold text-ink">Điện thoại</span>
+              <span class="block text-sm font-semibold text-ink">{{ t('contact.phone') }}</span>
               <span class="block text-muted">{{ sales.phone }}</span>
             </div>
           </a>
@@ -31,7 +31,7 @@
               <span class="material-symbols-outlined">chat</span>
             </div>
             <div>
-              <span class="block text-sm font-semibold text-ink">Zalo (Ưu tiên)</span>
+              <span class="block text-sm font-semibold text-ink">{{ t('contact.zalo') }}</span>
               <span class="block text-muted">{{ sales.zalo }}</span>
             </div>
           </a>
@@ -41,7 +41,7 @@
               <span class="material-symbols-outlined">mail</span>
             </div>
             <div>
-              <span class="block text-sm font-semibold text-ink">Email công việc</span>
+              <span class="block text-sm font-semibold text-ink">{{ t('contact.email') }}</span>
               <span class="block text-muted">{{ sales.email }}</span>
             </div>
           </a>
@@ -58,7 +58,7 @@
           <h3 class="text-xl font-bold text-ink mb-1">{{ sales.name }}</h3>
           <p class="text-sm text-muted uppercase tracking-wider font-semibold">{{ sales.title }}</p>
           <div class="w-12 h-1 bg-action mx-auto my-4 rounded-full"></div>
-          <p class="text-sm text-ink font-medium">Đồng Tháp Ford</p>
+          <p class="text-sm text-ink font-medium">{{ t('brand.dealer') }}</p>
         </div>
       </div>
     </div>
@@ -68,11 +68,11 @@
     <div class="mx-auto max-w-4xl px-5 md:px-8">
       <div class="glass-panel light">
         {{ lead_form(
-          title="Gửi thông tin để anh Huy gọi lại", 
+          title=t('contact.form_title'),
           need_type="contact", 
           current_path=current_path, 
           vehicles=vehicles, 
-          button_label="Gửi liên hệ",
+          button_label=t('contact.form_button'),
           t=t
         ) }}
       </div>

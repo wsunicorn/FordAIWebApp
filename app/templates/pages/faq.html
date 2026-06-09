@@ -6,11 +6,11 @@
     <div class="max-w-2xl mx-auto text-center">
       <span class="badge badge-primary mb-4">
         <span class="material-symbols-outlined text-[16px]">help</span>
-        FAQ
+        {{ t('faq.badge') }}
       </span>
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4 text-balance">Câu hỏi thường gặp.</h1>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4 text-balance">{{ t('faq.title') }}</h1>
       <p class="text-lg text-muted">
-        Giải đáp thắc mắc cơ bản trước khi mua xe. Các câu hỏi liên quan đến giá chốt, tồn kho, duyệt vay và lịch giao xe sẽ được anh Huy trả lời trực tiếp.
+        {{ t('faq.body') }}
       </p>
     </div>
   </section>
@@ -31,10 +31,10 @@
     </div>
     
     <div class="mt-12 text-center">
-      <p class="text-ink font-medium mb-4">Chưa tìm thấy câu trả lời của bạn?</p>
+      <p class="text-ink font-medium mb-4">{{ t('faq.no_answer') }}</p>
       <div class="flex flex-wrap justify-center gap-4">
-        <a href="/tro-ly-ai" class="btn btn-secondary">Hỏi Trợ Lý AI</a>
-        <a href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer" class="btn btn-action">Chat Zalo với anh Huy</a>
+        <a href="{{ lang_path('/tro-ly-ai') }}" class="btn btn-secondary">{{ t('faq.ask_ai') }}</a>
+        <a href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer" class="btn btn-action">{{ t('faq.chat_zalo') }}</a>
       </div>
     </div>
   </section>

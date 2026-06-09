@@ -4,9 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ page_title or settings.app_name }}</title>
-    <meta name="description" content="{{ page_description or 'Kênh tham khảo xe Ford, dự toán chi phí và liên hệ tư vấn trực tiếp với anh Huỳnh Đang Huy tại Đồng Tháp Ford.' }}" />
+    <meta name="description" content="{{ page_description or t('meta.default.description') }}" />
     <meta property="og:title" content="{{ page_title or settings.app_name }}" />
-    <meta property="og:description" content="{{ page_description or 'Tham khảo xe Ford và liên hệ anh Huy để xác nhận giá, ưu đãi, tồn kho.' }}" />
+    <meta property="og:description" content="{{ page_description or t('meta.default.og_description') }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ canonical_url or base_url ~ (current_path or '/') }}" />
     <link rel="canonical" href="{{ canonical_url or base_url ~ (current_path or '/') }}" />
@@ -41,8 +41,8 @@
         <a class="brand-lockup" href="{{ lang_path('/') }}" aria-label="{{ t('brand.home_aria') }}">
           <img src="{{ url_for('assets', path='/brand/huy-dang-huy-logo.svg') }}" alt="" class="brand-mark" />
           <span class="ml-2 border-l border-border pl-3">
-            <strong class="text-base font-bold tracking-tight text-ink uppercase">Huỳnh Đang Huy</strong>
-            <small class="text-[10px] text-muted font-semibold tracking-wider uppercase block mt-0.5">Đồng Tháp Ford</small>
+            <strong class="text-base font-bold tracking-tight text-ink uppercase">{{ t('brand.name') }}</strong>
+            <small class="text-[10px] text-muted font-semibold tracking-wider uppercase block mt-0.5">{{ t('brand.dealer') }}</small>
           </span>
         </a>
       </div>
@@ -98,7 +98,7 @@
 
     {% block body %}{% endblock %}
 
-    <nav class="mobile-bottom-nav" aria-label="Liên hệ nhanh">
+    <nav class="mobile-bottom-nav" aria-label="{{ t('nav.quick_contact_aria') }}">
       <a href="{{ lang_path('/') }}" class="mobile-nav-item {{ 'active' if current_path == '/' else '' }}">
         <span class="material-symbols-outlined">home</span>
         {{ t('nav.home') }}
@@ -128,8 +128,8 @@
           <a class="brand-lockup" href="{{ lang_path('/') }}">
             <img src="{{ url_for('assets', path='/brand/huy-dang-huy-logo.svg') }}" alt="Huy Dang Huy" class="h-10 w-10 rounded-md border border-border bg-white object-contain p-0.5 shadow-sm" />
             <span>
-              <strong>Huỳnh Đang Huy</strong>
-              <small class="text-muted">Đồng Tháp Ford</small>
+              <strong>{{ t('brand.name') }}</strong>
+              <small class="text-muted">{{ t('brand.dealer') }}</small>
             </span>
           </a>
           <p class="text-sm leading-relaxed text-muted mt-2 max-w-sm">
@@ -154,7 +154,7 @@
             </li>
             <li class="flex items-start gap-3">
               <span class="material-symbols-outlined text-base mt-0.5">location_on</span>
-              <span class="leading-relaxed">Đồng Tháp Ford<br>QL 30, An Định, phường Mỹ Trà, Tỉnh Đồng Tháp</span>
+              <span class="leading-relaxed">{{ t('brand.address') | safe }}</span>
             </li>
           </ul>
         </div>
@@ -162,7 +162,7 @@
         <div>
           <h4 class="mb-4 font-bold text-ink">{{ t('footer.reference_title') }}</h4>
           <p class="text-sm leading-relaxed text-muted mb-3">
-            {{ t('footer.reference_body') }} <a href="{{ price_source_url }}" target="_blank" rel="noreferrer" class="text-primary hover:underline font-medium">Đồng Tháp Ford</a> {{ 'vào kỳ' if locale == 'vi' else 'for period' }} {{ source_period }} ({{ 'kiểm tra' if locale == 'vi' else 'checked' }} {{ source_checked_at }}).
+            {{ t('footer.reference_body') }} <a href="{{ price_source_url }}" target="_blank" rel="noreferrer" class="text-primary hover:underline font-medium">{{ t('brand.dealer') }}</a> {{ 'vào kỳ' if locale == 'vi' else 'for period' }} {{ source_period }} ({{ 'kiểm tra' if locale == 'vi' else 'checked' }} {{ source_checked_at }}).
           </p>
           <div class="rounded-xl bg-surface-muted p-4 text-xs font-medium text-ink">
             <span class="material-symbols-outlined text-primary mb-1 block">info</span>

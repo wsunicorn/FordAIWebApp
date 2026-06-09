@@ -122,8 +122,8 @@ async def home_head() -> Response:
 async def home(request: Request, session: SessionDep):
     locale = request_locale(request)
     vehicles = localize_vehicles(await public_vehicles(session), locale)
-    promotions = await public_promotions(session)
-    faqs = await public_faqs(session)
+    promotions = await public_promotions(session, locale)
+    faqs = await public_faqs(session, locale)
     return templates.TemplateResponse(
         request,
         "pages/home.html",
@@ -142,17 +142,15 @@ async def home(request: Request, session: SessionDep):
 
 @router.get("/anh-huy", response_class=HTMLResponse)
 async def about_huy(request: Request, session: SessionDep):
+    locale = request_locale(request)
     return templates.TemplateResponse(
         request,
         "pages/about.html",
         await public_page_context(
             request,
             session,
-            page_title="Anh Huỳnh Đang Huy - Tư vấn bán hàng Ford",
-            page_description=(
-                "Thông tin liên hệ, vai trò và cách anh Huy hỗ trợ "
-                "khách hàng Ford tại Đồng Tháp."
-            ),
+            page_title=t(locale, "meta.about.title"),
+            page_description=t(locale, "meta.about.description"),
         ),
     )
 
@@ -187,10 +185,11 @@ async def vehicle_detail(request: Request, slug: str, session: SessionDep):
             request,
             session,
             vehicle=vehicle,
-            page_title=f"{vehicle.name} - Giá tham khảo và tư vấn",
-            page_description=(
-                f"Thông tin {vehicle.name}, phiên bản, giá tham khảo "
-                "và form liên hệ anh Huy."
+            page_title=t(locale, "meta.vehicle_detail.title", vehicle=vehicle.name),
+            page_description=t(
+                locale,
+                "meta.vehicle_detail.description",
+                vehicle=vehicle.name,
             ),
         ),
     )
@@ -198,14 +197,15 @@ async def vehicle_detail(request: Request, slug: str, session: SessionDep):
 
 @router.get("/so-sanh", response_class=HTMLResponse)
 async def compare(request: Request, session: SessionDep):
+    locale = request_locale(request)
     return templates.TemplateResponse(
         request,
         "pages/compare.html",
         await public_page_context(
             request,
             session,
-            page_title="So sánh nhanh xe Ford",
-            page_description="So sánh nhanh các dòng xe Ford theo giá, nhóm xe và nhu cầu sử dụng.",
+            page_title=t(locale, "meta.compare.title"),
+            page_description=t(locale, "meta.compare.description"),
         ),
     )
 
@@ -227,14 +227,15 @@ async def price_table(request: Request, session: SessionDep):
 
 @router.get("/du-toan-lan-banh", response_class=HTMLResponse)
 async def on_road_calculator(request: Request, session: SessionDep):
+    locale = request_locale(request)
     return templates.TemplateResponse(
         request,
         "pages/on_road.html",
         await public_page_context(
             request,
             session,
-            page_title="Dự toán chi phí lăn bánh Ford",
-            page_description="Ước tính chi phí lăn bánh tham khảo và gửi phương án cho anh Huy.",
+            page_title=t(locale, "meta.on_road.title"),
+            page_description=t(locale, "meta.on_road.description"),
             assumptions=ON_ROAD_ASSUMPTIONS,
         ),
     )
@@ -242,29 +243,31 @@ async def on_road_calculator(request: Request, session: SessionDep):
 
 @router.get("/du-toan-tra-gop", response_class=HTMLResponse)
 async def loan_calculator(request: Request, session: SessionDep):
+    locale = request_locale(request)
     return templates.TemplateResponse(
         request,
         "pages/loan.html",
         await public_page_context(
             request,
             session,
-            page_title="Dự toán trả góp xe Ford",
-            page_description="Ước tính trả góp xe Ford, không phải cam kết duyệt vay.",
+            page_title=t(locale, "meta.loan.title"),
+            page_description=t(locale, "meta.loan.description"),
         ),
     )
 
 
 @router.get("/uu-dai", response_class=HTMLResponse)
 async def promotions(request: Request, session: SessionDep):
-    promotions = await public_promotions(session)
+    locale = request_locale(request)
+    promotions = await public_promotions(session, locale)
     return templates.TemplateResponse(
         request,
         "pages/promotions.html",
         await public_page_context(
             request,
             session,
-            page_title="Ưu đãi Ford cần xác nhận",
-            page_description="Xem các nhóm ưu đãi tham khảo và gửi yêu cầu để anh Huy xác nhận.",
+            page_title=t(locale, "meta.promotions.title"),
+            page_description=t(locale, "meta.promotions.description"),
             promotions=promotions,
         ),
     )
@@ -272,15 +275,16 @@ async def promotions(request: Request, session: SessionDep):
 
 @router.get("/faq", response_class=HTMLResponse)
 async def faq(request: Request, session: SessionDep):
-    faqs = await public_faqs(session)
+    locale = request_locale(request)
+    faqs = await public_faqs(session, locale)
     return templates.TemplateResponse(
         request,
         "pages/faq.html",
         await public_page_context(
             request,
             session,
-            page_title="Câu hỏi thường gặp khi mua xe Ford",
-            page_description="FAQ về giá, lăn bánh, trả góp, lái thử và liên hệ anh Huy.",
+            page_title=t(locale, "meta.faq.title"),
+            page_description=t(locale, "meta.faq.description"),
             faqs=faqs,
         ),
     )
@@ -288,31 +292,30 @@ async def faq(request: Request, session: SessionDep):
 
 @router.get("/tro-ly-ai", response_class=HTMLResponse)
 async def ai_assistant(request: Request, session: SessionDep):
+    locale = request_locale(request)
     return templates.TemplateResponse(
         request,
         "pages/ai_assistant.html",
         await public_page_context(
             request,
             session,
-            page_title="Trợ lý AI tư vấn Ford",
-            page_description=(
-                "Hỏi AI về xe Ford, giá tham khảo, lăn bánh, trả góp và chuyển yêu cầu "
-                "cho anh Huy khi cần xác nhận trực tiếp."
-            ),
+            page_title=t(locale, "meta.ai.title"),
+            page_description=t(locale, "meta.ai.description"),
         ),
     )
 
 
 @router.get("/lien-he", response_class=HTMLResponse)
 async def contact(request: Request, session: SessionDep):
+    locale = request_locale(request)
     return templates.TemplateResponse(
         request,
         "pages/contact.html",
         await public_page_context(
             request,
             session,
-            page_title="Liên hệ anh Huy Ford Đồng Tháp",
-            page_description="Gọi, Zalo, email, Facebook hoặc gửi form để anh Huy liên hệ lại.",
+            page_title=t(locale, "meta.contact.title"),
+            page_description=t(locale, "meta.contact.description"),
         ),
     )
 
@@ -329,11 +332,8 @@ async def test_drive(request: Request, session: SessionDep):
             vehicles=vehicles,
             vehicle_options=public_vehicle_options(vehicles),
             selected_vehicle=selected_vehicle_name(request, vehicles),
-            page_title="Đăng ký lái thử Ford",
-            page_description=(
-                "Để lại thông tin xe, khu vực và thời gian mong muốn "
-                "để anh Huy xác nhận lịch."
-            ),
+            page_title=t(locale, "meta.test_drive.title"),
+            page_description=t(locale, "meta.test_drive.description"),
         ),
     )
 

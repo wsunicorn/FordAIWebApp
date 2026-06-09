@@ -6,7 +6,7 @@
 <main>
   <!-- Hero Section -->
   <section class="hero-home relative">
-    <img src="{{ url_for('assets', path='/images/vehicles/dong-thap-showroom.png') }}" alt="Showroom Đồng Tháp Ford" class="hero-home-bg opacity-35 mix-blend-luminosity" aria-hidden="true" data-parallax="0.25" />
+    <img src="{{ url_for('assets', path='/images/vehicles/dong-thap-showroom.png') }}" alt="{{ t('home.showroom_alt') }}" class="hero-home-bg opacity-35 mix-blend-luminosity" aria-hidden="true" data-parallax="0.25" />
     <div class="hero-home-overlay"></div>
     
     <div class="hero-home-content z-10 relative">
@@ -35,7 +35,7 @@
 
       <aside class="w-full max-w-sm mx-auto">
         <div class="hero-profile-card">
-          <img src="{{ url_for('assets', path='/images/people/huy-dang-huy.jpg') }}" alt="Anh Huỳnh Đang Huy, tư vấn bán hàng Đồng Tháp Ford" />
+          <img src="{{ url_for('assets', path='/images/people/huy-dang-huy.jpg') }}" alt="{{ t('home.profile_alt') }}" />
           <div class="hero-profile-info">
             <strong class="text-2xl font-bold block mb-1">{{ sales.name }}</strong>
             <span class="text-sm text-white/80 uppercase tracking-wide">{{ sales.title }}, {{ sales.dealership }}</span>

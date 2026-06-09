@@ -2,6 +2,8 @@
 {% from "components/forms.html" import lead_form %}
 
 {% block body %}
+{% set on_road_href = lang_path('/du-toan-lan-banh') %}
+{% set ai_href = lang_path('/tro-ly-ai') %}
 <main class="bg-surface">
   <!-- Immersive Hero Section -->
   <section class="vehicle-detail-hero">
@@ -18,7 +20,7 @@
           {% if vehicle.promotions %}
             <span class="badge badge-success bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shadow-sm">
               <span class="material-symbols-outlined text-[14px]">local_offer</span> 
-              Có ưu đãi
+              {{ t('vehicle_detail.offer_badge') }}
             </span>
           {% endif %}
         </div>
@@ -29,16 +31,16 @@
         <div class="vehicle-detail-actions">
           <div class="vehicle-price-panel">
             <div>
-              <span class="text-xs text-white/70 uppercase tracking-wide font-semibold block mb-0.5">Giá từ</span>
+              <span class="text-xs text-white/70 uppercase tracking-wide font-semibold block mb-0.5">{{ t('vehicle_detail.price_from') }}</span>
               <strong class="text-2xl md:text-3xl font-bold text-white">{{ format_vnd(vehicle.price_from) }}</strong>
             </div>
           </div>
 
           <a class="btn vehicle-hero-cta-primary btn-shine" href="#quote-form">
-            Nhận báo giá
+            {{ t('action.quote') }}
           </a>
-          <a class="btn vehicle-hero-cta-secondary btn-shine" href="/du-toan-lan-banh?vehicle={{ vehicle.slug }}">
-            Tự tính chi phí
+          <a class="btn vehicle-hero-cta-secondary btn-shine" href="{{ on_road_href }}{{ '&' if '?' in on_road_href else '?' }}vehicle={{ vehicle.slug }}">
+            {{ t('vehicle_detail.estimate_cost') }}
           </a>
         </div>
       </div>
@@ -51,23 +53,23 @@
       <div class="spec-grid max-w-4xl mx-auto">
         <div class="spec-item shadow-sm">
           <div class="spec-icon"><span class="material-symbols-outlined">settings_applications</span></div>
-          <span>Động cơ</span>
-          <small>{{ vehicle.variants[0].engine if vehicle.variants else 'Tùy phiên bản' }}</small>
+          <span>{{ t('vehicle_detail.engine') }}</span>
+          <small>{{ vehicle.variants[0].engine if vehicle.variants else t('vehicle_detail.variant_specific') }}</small>
         </div>
         <div class="spec-item shadow-sm">
           <div class="spec-icon"><span class="material-symbols-outlined">directions_car</span></div>
-          <span>Dẫn động</span>
-          <small>{{ vehicle.variants[0].drivetrain if vehicle.variants else 'Tùy phiên bản' }}</small>
+          <span>{{ t('vehicle_detail.drivetrain') }}</span>
+          <small>{{ vehicle.variants[0].drivetrain if vehicle.variants else t('vehicle_detail.variant_specific') }}</small>
         </div>
         <div class="spec-item shadow-sm">
           <div class="spec-icon"><span class="material-symbols-outlined">groups</span></div>
-          <span>Phù hợp</span>
+          <span>{{ t('vehicle_detail.fit') }}</span>
           <small>{{ vehicle.fit }}</small>
         </div>
         <div class="spec-item shadow-sm">
           <div class="spec-icon"><span class="material-symbols-outlined">verified</span></div>
-          <span>Bảo hành</span>
-          <small>3 năm hoặc 100.000km</small>
+          <span>{{ t('vehicle_detail.warranty') }}</span>
+          <small>{{ t('vehicle_detail.warranty_value') }}</small>
         </div>
       </div>
     </div>
@@ -77,8 +79,8 @@
   <section class="py-20 bg-surface">
     <div class="mx-auto max-w-7xl px-5 md:px-8">
       <div class="section-title left">
-        <h2>Phiên bản & Giá tham khảo</h2>
-        <p>Giá chốt, màu xe, ưu đãi và thời gian giao xe cần anh Huy xác nhận. Giá hiển thị là giá tham khảo nguồn {{ source_period }}.</p>
+        <h2>{{ t('vehicle_detail.variants_title') }}</h2>
+        <p>{{ t('vehicle_detail.variants_body', source_period=source_period) }}</p>
       </div>
       
       <div class="admin-panel mt-10">
@@ -86,10 +88,10 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th class="w-1/3">Phiên bản</th>
-                <th>Giá niêm yết</th>
-                <th>Động cơ</th>
-                <th>Dẫn động</th>
+                <th class="w-1/3">{{ t('vehicle_detail.variant') }}</th>
+                <th>{{ t('vehicle_detail.list_price') }}</th>
+                <th>{{ t('vehicle_detail.engine') }}</th>
+                <th>{{ t('vehicle_detail.drivetrain') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -109,11 +111,11 @@
       <div class="mt-6 flex items-center justify-between flex-wrap gap-4 p-4 bg-surface-muted rounded-xl border border-border">
         <div class="flex items-center gap-3">
           <span class="material-symbols-outlined text-primary">info</span>
-          <p class="text-sm text-ink font-medium">Bạn phân vân chưa biết chọn bản nào?</p>
+          <p class="text-sm text-ink font-medium">{{ t('vehicle_detail.unsure') }}</p>
         </div>
-        <a href="/tro-ly-ai?message={{ 'So sánh các phiên bản ' ~ vehicle.name | urlencode }}" class="btn btn-ghost text-sm">
+        <a href="{{ ai_href }}{{ '&' if '?' in ai_href else '?' }}message={{ t('vehicle_detail.compare_message', vehicle=vehicle.name) | urlencode }}" class="btn btn-ghost text-sm">
           <span class="material-symbols-outlined text-[18px]">smart_toy</span>
-          Hỏi AI So Sánh
+          {{ t('vehicle_detail.ask_ai_compare') }}
         </a>
       </div>
     </div>
@@ -124,13 +126,13 @@
     <div class="mx-auto max-w-3xl px-5 md:px-8 relative z-10">
       <div class="glass-panel light">
         {{ lead_form(
-            title="Nhận báo giá " ~ vehicle.name, 
+            title=t('vehicle_detail.quote_title', vehicle=vehicle.name), 
             need_type="quote", 
             current_path=current_path, 
             vehicles=vehicles, 
             selected_vehicle=vehicle.name, 
-            button_label="Gửi cho anh Huy",
-            note_label="Ghi chú thêm (màu sắc, trả góp...)",
+            button_label=t('vehicle_detail.button'),
+            note_label=t('vehicle_detail.note'),
             t=t
         ) }}
       </div>

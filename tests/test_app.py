@@ -241,6 +241,21 @@ def test_public_english_locale_renders_core_ui() -> None:
     assert "Ford models" in response.text
     assert "Get quote" in response.text
 
+    loan = client.get("/du-toan-tra-gop?lang=en")
+    assert loan.status_code == 200
+    assert "Estimate the monthly payment" in loan.text
+    assert "Choose reference vehicle" in loan.text
+
+    faq = client.get("/faq?lang=en")
+    assert faq.status_code == 200
+    assert "Frequently asked questions" in faq.text
+    assert "Ask AI Assistant" in faq.text
+
+    vehicle = client.get("/xe/ford-everest?lang=en")
+    assert vehicle.status_code == 200
+    assert "Variants &amp; reference prices" in vehicle.text
+    assert "Everest Platinum +" in vehicle.text
+
 
 def test_vehicle_detail_404() -> None:
     response = client.get("/xe/khong-co-xe-nay")

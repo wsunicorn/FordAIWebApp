@@ -6,11 +6,11 @@
     <div class="max-w-2xl">
       <span class="badge badge-primary mb-4">
         <span class="material-symbols-outlined text-[16px]">compare_arrows</span>
-        So sánh nhanh
+        {{ t('compare.badge') }}
       </span>
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">Tìm dòng xe phù hợp nhu cầu.</h1>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">{{ t('compare.title') }}</h1>
       <p class="text-lg text-muted">
-        Bảng so sánh tổng quan giúp anh/chị dễ dàng khoanh vùng lựa chọn trước khi liên hệ tư vấn chi tiết từng phiên bản.
+        {{ t('compare.body') }}
       </p>
     </div>
   </section>
@@ -21,11 +21,11 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th class="w-1/4">Dòng xe</th>
-              <th>Phân khúc</th>
-              <th>Giá từ (tham khảo)</th>
-              <th class="w-1/3">Phù hợp nhu cầu</th>
-              <th class="text-right">Hành động</th>
+              <th class="w-1/4">{{ t('compare.model') }}</th>
+              <th>{{ t('compare.segment') }}</th>
+              <th>{{ t('compare.price') }}</th>
+              <th class="w-1/3">{{ t('compare.fit') }}</th>
+              <th class="text-right">{{ t('compare.action') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -45,7 +45,7 @@
                 <td class="py-4 font-bold text-action">{{ format_vnd(vehicle.price_from) }}</td>
                 <td class="py-4 text-sm text-muted leading-relaxed">{{ vehicle.fit }}</td>
                 <td class="py-4 text-right">
-                  <a class="btn btn-secondary text-sm px-4 py-2" href="/xe/{{ vehicle.slug }}">Chi tiết</a>
+                  <a class="btn btn-secondary text-sm px-4 py-2" href="{{ lang_path('/xe/' ~ vehicle.slug) }}">{{ t('compare.detail') }}</a>
                 </td>
               </tr>
             {% endfor %}
