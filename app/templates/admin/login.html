@@ -14,9 +14,9 @@
     <div class="admin-ambience" aria-hidden="true"></div>
     <main class="admin-login-card">
       <img src="{{ url_for('assets', path='/brand/huy-dang-huy-logo.svg') }}" alt="" />
-      <p class="admin-kicker">Noi bo</p>
-      <h1>Dang nhap admin</h1>
-      <p>Quan ly lead, gia tham khao, noi dung va tri thuc AI truoc khi hien thi tren website.</p>
+      <p class="admin-kicker">Nội bộ</p>
+      <h1>Đăng nhập admin</h1>
+      <p>Quản lý lead, giá tham khảo, nội dung và tri thức AI trước khi hiển thị trên website.</p>
 
       {% if error %}
         <div class="admin-login-error" role="alert">{{ error }}</div>
@@ -25,17 +25,17 @@
       <form action="/admin/login" method="post" class="admin-form">
         <input type="hidden" name="next_path" value="{{ next_path or '/admin' }}" />
         <label class="field">
-          Tai khoan
+          Tài khoản
           <input name="username" autocomplete="username" required />
         </label>
         <label class="field">
-          Mat khau
+          Mật khẩu
           <input name="password" type="password" autocomplete="current-password" required />
         </label>
-        <button class="btn btn-primary" type="submit">Dang nhap</button>
+        <button class="btn btn-primary" type="submit">Đăng nhập</button>
       </form>
 
-      <p class="admin-muted">Hay rotate ADMIN_PASSWORD va SECRET_KEY sau moi lan bi lo secret.</p>
+      <p class="admin-muted">Hãy rotate ADMIN_PASSWORD và SECRET_KEY sau mỗi lần bị lộ secret.</p>
     </main>
   </body>
 </html>

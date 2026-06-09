@@ -1,27 +1,29 @@
-{% macro vehicle_card(vehicle, format_vnd) %}
+{% macro vehicle_card(vehicle, format_vnd, t=None, lang_path=None) %}
 <article class="vehicle-card" data-vehicle-card data-category="{{ vehicle.category }}" data-name="{{ vehicle.name | lower }}" data-price="{{ vehicle.price_from }}">
   
-  <a class="vehicle-image-wrap" href="/xe/{{ vehicle.slug }}" aria-label="Xem {{ vehicle.name }}">
+  {% set detail_href = lang_path('/xe/' ~ vehicle.slug) if lang_path else '/xe/' ~ vehicle.slug %}
+  {% set quote_href = lang_path('/bao-gia') ~ '&vehicle=' ~ vehicle.slug if lang_path and '?' in lang_path('/bao-gia') else (lang_path('/bao-gia') ~ '?vehicle=' ~ vehicle.slug if lang_path else '/bao-gia?vehicle=' ~ vehicle.slug) %}
+  <a class="vehicle-image-wrap" href="{{ detail_href }}" aria-label="{{ (t('action.view_detail') if t else 'Xem chi tiết') }} {{ vehicle.name }}">
     {% if vehicle.image_path %}
       <img src="{{ '/assets' ~ vehicle.image_path }}" alt="{{ vehicle.name }}" loading="lazy" />
     {% else %}
       <div class="flex h-full min-h-52 w-full items-center justify-center bg-surface-muted text-primary">
         <span class="material-symbols-outlined text-[64px]" aria-hidden="true">directions_car</span>
-        <span class="sr-only">Chưa có ảnh cho {{ vehicle.name }}</span>
+        <span class="sr-only">{{ t('vehicle.no_image') if t else 'Chưa có ảnh cho' }} {{ vehicle.name }}</span>
       </div>
     {% endif %}
     <span class="absolute top-4 left-4 badge badge-glass backdrop-blur-md">{{ vehicle.category }}</span>
     {% if vehicle.promotions %}
       <span class="absolute bottom-4 left-4 badge badge-success flex items-center gap-1 shadow-sm">
         <span class="material-symbols-outlined text-[14px]">local_offer</span> 
-        Có ưu đãi
+        {{ t('vehicle.has_promotion') if t else 'Có ưu đãi' }}
       </span>
     {% endif %}
   </a>
 
   <div class="vehicle-content">
     <div class="vehicle-header">
-      <h3 class="line-clamp-1"><a href="/xe/{{ vehicle.slug }}">{{ vehicle.name }}</a></h3>
+      <h3 class="line-clamp-1"><a href="{{ detail_href }}">{{ vehicle.name }}</a></h3>
     </div>
     
     <p class="text-sm text-muted line-clamp-2 mb-4 flex-1">{{ vehicle.summary }}</p>
@@ -33,13 +35,13 @@
     </div>
 
     <div class="vehicle-price">
-      <span>Giá từ (tham khảo)</span>
+      <span>{{ t('vehicle.price_from') if t else 'Giá từ (tham khảo)' }}</span>
       <strong>{{ format_vnd(vehicle.price_from) }}</strong>
     </div>
 
     <div class="vehicle-actions">
-      <a class="btn btn-primary flex-1" href="/xe/{{ vehicle.slug }}">Xem chi tiết</a>
-      <a class="btn btn-secondary flex-none px-3" href="/bao-gia?vehicle={{ vehicle.slug }}" title="Nhận báo giá" aria-label="Nhận báo giá">
+      <a class="btn btn-primary flex-1" href="{{ detail_href }}">{{ t('action.view_detail') if t else 'Xem chi tiết' }}</a>
+      <a class="btn btn-secondary flex-none px-3" href="{{ quote_href }}" title="{{ t('action.quote') if t else 'Nhận báo giá' }}" aria-label="{{ t('action.quote') if t else 'Nhận báo giá' }}">
         <span class="material-symbols-outlined text-[20px]">request_quote</span>
       </a>
     </div>

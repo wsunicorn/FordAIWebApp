@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="vi" class="scroll-smooth">
+<html lang="{{ locale or 'vi' }}" class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,8 +8,10 @@
     <meta property="og:title" content="{{ page_title or settings.app_name }}" />
     <meta property="og:description" content="{{ page_description or 'Tham khảo xe Ford và liên hệ anh Huy để xác nhận giá, ưu đãi, tồn kho.' }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ base_url }}{{ current_path or '/' }}" />
-    <link rel="canonical" href="{{ base_url }}{{ current_path or '/' }}" />
+    <meta property="og:url" content="{{ canonical_url or base_url ~ (current_path or '/') }}" />
+    <link rel="canonical" href="{{ canonical_url or base_url ~ (current_path or '/') }}" />
+    <link rel="alternate" hreflang="vi" href="{{ base_url }}{{ lang_switch_url('vi') }}" />
+    <link rel="alternate" hreflang="en" href="{{ base_url }}{{ lang_switch_url('en') }}" />
     <link rel="icon" href="{{ url_for('assets', path='/brand/favicon.svg') }}?v=20260608" type="image/svg+xml" />
     <link rel="shortcut icon" href="/favicon.ico?v=20260608" />
     <meta name="theme-color" content="#0f2e4a" />
@@ -36,7 +38,7 @@
     <div class="site-noise" aria-hidden="true"></div>
     <header class="site-header" id="site-header">
       <div class="site-brand-wrap">
-        <a class="brand-lockup" href="/" aria-label="Trang chủ Huỳnh Đang Huy Ford">
+        <a class="brand-lockup" href="{{ lang_path('/') }}" aria-label="{{ t('brand.home_aria') }}">
           <img src="{{ url_for('assets', path='/brand/huy-dang-huy-logo.svg') }}" alt="" class="brand-mark" />
           <span class="ml-2 border-l border-border pl-3">
             <strong class="text-base font-bold tracking-tight text-ink uppercase">Huỳnh Đang Huy</strong>
@@ -47,25 +49,29 @@
       
       <nav id="primary-nav" class="primary-nav" aria-label="Desktop menu">
         {% set nav_items = [
-          ('/xe', 'Xe Ford'),
-          ('/bang-gia', 'Bảng giá'),
-          ('/du-toan-lan-banh', 'Lăn bánh'),
-          ('/du-toan-tra-gop', 'Trả góp'),
-          ('/tro-ly-ai', 'AI tư vấn'),
-          ('/uu-dai', 'Ưu đãi'),
-          ('/faq', 'FAQ')
+          ('/xe', t('nav.vehicles')),
+          ('/bang-gia', t('nav.prices')),
+          ('/du-toan-lan-banh', t('nav.on_road')),
+          ('/du-toan-tra-gop', t('nav.loan')),
+          ('/tro-ly-ai', t('nav.ai')),
+          ('/uu-dai', t('nav.promotions')),
+          ('/faq', t('nav.faq'))
         ] %}
         {% for href, label in nav_items %}
-          <a class="{{ 'active' if current_path == href else '' }}" href="{{ href }}">{{ label }}</a>
+          <a class="{{ 'active' if current_path == href else '' }}" href="{{ lang_path(href) }}">{{ label }}</a>
         {% endfor %}
       </nav>
       
       <div class="header-actions">
+        <div class="language-switch" aria-label="{{ t('language.label') }}">
+          <a class="{{ 'active' if locale == 'vi' else '' }}" href="{{ lang_switch_url('vi') }}">{{ t('language.vi') }}</a>
+          <a class="{{ 'active' if locale == 'en' else '' }}" href="{{ lang_switch_url('en') }}">{{ t('language.en') }}</a>
+        </div>
         <a class="btn btn-ghost" href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer">
           <span class="material-symbols-outlined text-[18px]">chat</span> Zalo
         </a>
         <a class="btn btn-primary" href="tel:{{ sales.phone }}">
-          <span class="material-symbols-outlined text-[18px]">call</span> Gọi anh Huy
+          <span class="material-symbols-outlined text-[18px]">call</span> {{ t('action.call_huy') }}
         </a>
       </div>
 
@@ -77,45 +83,49 @@
 
     <!-- Mobile Header Menu Dropdown -->
     <nav id="mobile-nav" class="nav-menu-mobile" data-nav aria-label="Mobile menu">
+      <div class="language-switch mb-3" aria-label="{{ t('language.label') }}">
+        <a class="{{ 'active' if locale == 'vi' else '' }}" href="{{ lang_switch_url('vi') }}">{{ t('language.vi') }}</a>
+        <a class="{{ 'active' if locale == 'en' else '' }}" href="{{ lang_switch_url('en') }}">{{ t('language.en') }}</a>
+      </div>
       {% for href, label in nav_items %}
-        <a class="{{ 'text-primary bg-surface-muted' if current_path == href else '' }}" href="{{ href }}">{{ label }}</a>
+        <a class="{{ 'text-primary bg-surface-muted' if current_path == href else '' }}" href="{{ lang_path(href) }}">{{ label }}</a>
       {% endfor %}
       <div class="mt-4 grid grid-cols-2 gap-2 border-t border-border pt-4">
         <a class="btn btn-secondary justify-center" href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer">Zalo</a>
-        <a class="btn btn-primary justify-center" href="tel:{{ sales.phone }}">Gọi điện</a>
+        <a class="btn btn-primary justify-center" href="tel:{{ sales.phone }}">{{ t('action.call') }}</a>
       </div>
     </nav>
 
     {% block body %}{% endblock %}
 
     <nav class="mobile-bottom-nav" aria-label="Liên hệ nhanh">
-      <a href="/" class="mobile-nav-item {{ 'active' if current_path == '/' else '' }}">
+      <a href="{{ lang_path('/') }}" class="mobile-nav-item {{ 'active' if current_path == '/' else '' }}">
         <span class="material-symbols-outlined">home</span>
-        Trang chủ
+        {{ t('nav.home') }}
       </a>
-      <a href="/xe" class="mobile-nav-item {{ 'active' if current_path == '/xe' else '' }}">
+      <a href="{{ lang_path('/xe') }}" class="mobile-nav-item {{ 'active' if current_path == '/xe' else '' }}">
         <span class="material-symbols-outlined">directions_car</span>
-        Chọn xe
+        {{ t('nav.choose_vehicle') }}
       </a>
-      <a href="/tro-ly-ai" class="mobile-nav-item {{ 'active' if current_path == '/tro-ly-ai' else '' }}">
+      <a href="{{ lang_path('/tro-ly-ai') }}" class="mobile-nav-item {{ 'active' if current_path == '/tro-ly-ai' else '' }}">
         <span class="material-symbols-outlined">smart_toy</span>
-        Hỏi AI
+        {{ t('nav.ask_ai') }}
       </a>
       <a href="tel:{{ sales.phone }}" class="mobile-nav-item">
         <span class="material-symbols-outlined">call</span>
-        Gọi anh Huy
+        {{ t('action.call_huy') }}
       </a>
     </nav>
 
       <!-- Floating AI Assistant Button (Desktop) -->
-  <a class="floating-ai-btn" href="/tro-ly-ai" aria-label="Mở Trợ Lý AI">
+  <a class="floating-ai-btn" href="{{ lang_path('/tro-ly-ai') }}" aria-label="{{ t('action.open_ai') }}">
     <span class="material-symbols-outlined text-[28px]">smart_toy</span>
   </a>
 
     <footer class="mt-auto border-t border-border bg-white pt-12 pb-8">
       <div class="mx-auto grid w-full max-w-7xl gap-10 px-5 md:grid-cols-3 md:px-8">
         <div class="flex flex-col gap-4">
-          <a class="brand-lockup" href="/">
+          <a class="brand-lockup" href="{{ lang_path('/') }}">
             <img src="{{ url_for('assets', path='/brand/huy-dang-huy-logo.svg') }}" alt="Huy Dang Huy" class="h-10 w-10 rounded-md border border-border bg-white object-contain p-0.5 shadow-sm" />
             <span>
               <strong>Huỳnh Đang Huy</strong>
@@ -123,12 +133,12 @@
             </span>
           </a>
           <p class="text-sm leading-relaxed text-muted mt-2 max-w-sm">
-            Kênh tư vấn cá nhân để khách tham khảo thông tin xe Ford và liên hệ trực tiếp anh Huy tại Đồng Tháp Ford. Mọi thông tin giá, ưu đãi và tình trạng xe cần được xác nhận lại trước khi quyết định.
+            {{ t('footer.about') }}
           </p>
         </div>
         
         <div>
-          <h4 class="mb-4 font-bold text-ink">Liên hệ tư vấn</h4>
+          <h4 class="mb-4 font-bold text-ink">{{ t('footer.contact') }}</h4>
           <ul class="space-y-3 text-sm text-muted">
             <li class="flex items-center gap-3">
               <span class="material-symbols-outlined text-base">call</span>
@@ -150,13 +160,13 @@
         </div>
         
         <div>
-          <h4 class="mb-4 font-bold text-ink">Về thông tin tham khảo</h4>
+          <h4 class="mb-4 font-bold text-ink">{{ t('footer.reference_title') }}</h4>
           <p class="text-sm leading-relaxed text-muted mb-3">
-            Giá bán, thông số và ưu đãi mang tính chất tham khảo. Được cập nhật từ <a href="{{ price_source_url }}" target="_blank" rel="noreferrer" class="text-primary hover:underline font-medium">Đồng Tháp Ford</a> vào kỳ {{ source_period }} (kiểm tra {{ source_checked_at }}).
+            {{ t('footer.reference_body') }} <a href="{{ price_source_url }}" target="_blank" rel="noreferrer" class="text-primary hover:underline font-medium">Đồng Tháp Ford</a> {{ 'vào kỳ' if locale == 'vi' else 'for period' }} {{ source_period }} ({{ 'kiểm tra' if locale == 'vi' else 'checked' }} {{ source_checked_at }}).
           </p>
           <div class="rounded-xl bg-surface-muted p-4 text-xs font-medium text-ink">
             <span class="material-symbols-outlined text-primary mb-1 block">info</span>
-            Vui lòng liên hệ trực tiếp anh Huy để xác nhận giá chốt, tồn kho và lịch lái thử thực tế.
+            {{ t('footer.reference_notice') }}
           </div>
         </div>
       </div>

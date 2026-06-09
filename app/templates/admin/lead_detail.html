@@ -13,50 +13,50 @@
 
     <dl class="detail-list">
       <div>
-        <dt>Dien thoai</dt>
+        <dt>Điện thoại</dt>
         <dd><a href="tel:{{ lead.phone }}">{{ lead.phone }}</a></dd>
       </div>
       <div>
-        <dt>Xe quan tam</dt>
-        <dd>{{ lead.vehicle_interest or "Chua ro" }}</dd>
+        <dt>Xe quan tâm</dt>
+        <dd>{{ lead.vehicle_interest or "Chưa rõ" }}</dd>
       </div>
       <div>
-        <dt>Khu vuc</dt>
-        <dd>{{ lead.area or "Chua ro" }}</dd>
+        <dt>Khu vực</dt>
+        <dd>{{ lead.area or "Chưa rõ" }}</dd>
       </div>
       <div>
-        <dt>Ngay tao</dt>
+        <dt>Ngày tạo</dt>
         <dd>{{ lead.created_at.strftime("%Y-%m-%d %H:%M") }}</dd>
       </div>
       <div class="full">
-        <dt>Ghi chu khach</dt>
-        <dd>{{ lead.note or "Khach chua de lai ghi chu." }}</dd>
+        <dt>Ghi chú khách</dt>
+        <dd>{{ lead.note or "Khách chưa để lại ghi chú." }}</dd>
       </div>
     </dl>
 
     <div class="quick-actions">
       <a class="btn btn-primary" href="tel:{{ lead.phone }}">
         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">call</span>
-        Goi khach
+        Gọi khách
       </a>
       <a class="btn btn-secondary" href="{{ sales.zalo_url }}" target="_blank" rel="noreferrer">
         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">chat</span>
-        Mo Zalo
+        Mở Zalo
       </a>
-      <a class="btn btn-secondary" href="/admin/leads">Quay lai inbox</a>
+      <a class="btn btn-secondary" href="/admin/leads">Quay lại inbox</a>
     </div>
   </article>
 
   <article class="admin-panel">
     <div class="panel-head">
       <div>
-        <h2>Cham soc lead</h2>
-        <p>Cap nhat sau moi lan goi, Zalo hoac gui bao gia.</p>
+        <h2>Chăm sóc lead</h2>
+        <p>Cập nhật sau mỗi lần gọi, Zalo hoặc gửi báo giá.</p>
       </div>
     </div>
     <form action="/admin/leads/{{ lead.id }}" method="post" class="admin-form admin-form-grid">
       <label class="field">
-        Trang thai
+        Trạng thái
         <select name="lead_status">
           {% for status in lead_statuses %}
             <option value="{{ status }}" {{ "selected" if lead.status == status else "" }}>{{ admin_status_label(status) }}</option>
@@ -64,19 +64,19 @@
         </select>
       </label>
       <label class="field">
-        Lich follow-up
+        Lịch follow-up
         <input name="follow_up_at" type="datetime-local" value="{{ lead.follow_up_at.strftime('%Y-%m-%dT%H:%M') if lead.follow_up_at else '' }}" />
       </label>
       <label class="field">
-        Lan lien he gan nhat
+        Lần liên hệ gần nhất
         <input name="last_contacted_at" type="datetime-local" value="{{ lead.last_contacted_at.strftime('%Y-%m-%dT%H:%M') if lead.last_contacted_at else '' }}" />
       </label>
       <label class="field full">
-        Ghi chu noi bo
+        Ghi chú nội bộ
         <textarea name="admin_note" rows="7">{{ lead.admin_note or "" }}</textarea>
       </label>
       <div class="form-actions full">
-        <button class="btn btn-primary" type="submit">Luu cham soc</button>
+        <button class="btn btn-primary" type="submit">Lưu chăm sóc</button>
       </div>
     </form>
   </article>
@@ -85,8 +85,8 @@
 <section class="admin-panel">
   <div class="panel-head">
     <div>
-      <h2>Audit cua lead</h2>
-      <p>Log gan nhat lien quan den lead nay.</p>
+      <h2>Audit của lead</h2>
+      <p>Log gần nhất liên quan đến lead này.</p>
     </div>
   </div>
   {% if related_logs %}
@@ -102,8 +102,8 @@
   {% else %}
     <div class="admin-empty">
       <span class="material-symbols-outlined" aria-hidden="true">history</span>
-      <strong>Chua co log rieng</strong>
-      <p>Lead nay chua co cap nhat cham soc nao ngoai thong tin ban dau.</p>
+      <strong>Chưa có log riêng</strong>
+      <p>Lead này chưa có cập nhật chăm sóc nào ngoài thông tin ban đầu.</p>
     </div>
   {% endif %}
 </section>

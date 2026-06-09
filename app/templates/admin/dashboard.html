@@ -15,10 +15,10 @@
   <article class="admin-panel">
     <div class="panel-head">
       <div>
-        <h2>Do tuoi du lieu</h2>
-        <p>Xe, gia va noi dung chi nen public khi co nguon, ngay cap nhat va trang thai ro rang.</p>
-      </div>
-      <a class="btn btn-secondary" href="/admin/content">Kiem tra noi dung</a>
+      <h2>Độ mới dữ liệu</h2>
+      <p>Xe, giá và nội dung chỉ nên public khi có nguồn, ngày cập nhật và trạng thái rõ ràng.</p>
+    </div>
+      <a class="btn btn-secondary" href="/admin/content">Kiểm tra nội dung</a>
     </div>
     <div class="status-summary">
       {% for status in freshness_statuses %}
@@ -33,30 +33,30 @@
   <article class="admin-panel">
     <div class="panel-head">
       <div>
-        <h2>Hanh dong nhanh</h2>
-        <p>Nap lai seed khi khoi tao database, sau do duyet tung noi dung truoc khi public.</p>
+        <h2>Hành động nhanh</h2>
+        <p>Đồng bộ seed khi khởi tạo database, sau đó duyệt từng nội dung trước khi public.</p>
       </div>
     </div>
     <div class="quick-actions">
-      <form action="/admin/vehicles/seed" method="post" data-confirm="Seed lai xe va gia tu source hien tai?">
+      <form action="/admin/vehicles/seed" method="post" data-confirm="Đồng bộ lại xe và giá từ source hiện tại? Các phiên bản không còn trong source sẽ bị xóa.">
         <button class="btn btn-secondary" type="submit">
           <span class="material-symbols-outlined text-[18px]" aria-hidden="true">sync</span>
-          Seed xe va gia
+          Đồng bộ xe và giá
         </button>
       </form>
-      <form action="/admin/content/seed" method="post" data-confirm="Seed lai uu dai va FAQ tu source hien tai?">
+      <form action="/admin/content/seed" method="post" data-confirm="Seed lại ưu đãi và FAQ từ source hiện tại?">
         <button class="btn btn-secondary" type="submit">
           <span class="material-symbols-outlined text-[18px]" aria-hidden="true">library_add</span>
-          Seed noi dung
+          Seed nội dung
         </button>
       </form>
       <a class="btn btn-primary" href="/admin/leads">
         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">inbox</span>
-        Mo lead inbox
+        Mở lead inbox
       </a>
       <a class="btn btn-secondary" href="/admin/ai">
         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">smart_toy</span>
-        Kiem tra AI
+        Kiểm tra AI
       </a>
     </div>
   </article>
@@ -65,8 +65,8 @@
 <section class="admin-panel">
   <div class="panel-head">
     <div>
-      <h2>Lead moi nhat</h2>
-      <p>Uu tien goi hoac Zalo lead moi, sau do cap nhat trang thai cham soc.</p>
+      <h2>Lead mới nhất</h2>
+      <p>Ưu tiên gọi hoặc Zalo lead mới, sau đó cập nhật trạng thái chăm sóc.</p>
     </div>
     <a class="btn btn-secondary" href="/admin/leads/export.csv">Export CSV</a>
   </div>
@@ -76,11 +76,11 @@
       <table class="admin-table">
         <thead>
           <tr>
-            <th>Khach hang</th>
-            <th>Nhu cau</th>
-            <th>Xe quan tam</th>
-            <th>Trang thai</th>
-            <th>Tao luc</th>
+            <th>Khách hàng</th>
+            <th>Nhu cầu</th>
+            <th>Xe quan tâm</th>
+            <th>Trạng thái</th>
+            <th>Tạo lúc</th>
           </tr>
         </thead>
         <tbody>
@@ -91,7 +91,7 @@
                 <small><a href="tel:{{ lead.phone }}">{{ lead.phone }}</a></small>
               </td>
               <td>{{ lead.need_type }}</td>
-              <td>{{ lead.vehicle_interest or "Chua ro" }}</td>
+              <td>{{ lead.vehicle_interest or "Chưa rõ" }}</td>
               <td>
                 <span class="status-badge status-{{ admin_status_class(lead.status) }}">{{ admin_status_label(lead.status) }}</span>
               </td>
@@ -104,8 +104,8 @@
   {% else %}
     <div class="admin-empty">
       <span class="material-symbols-outlined" aria-hidden="true">inbox</span>
-      <strong>Chua co lead</strong>
-      <p>Khi khach gui form, lead se xuat hien o day va trong lead inbox.</p>
+      <strong>Chưa có lead</strong>
+      <p>Khi khách gửi form, lead sẽ xuất hiện ở đây và trong lead inbox.</p>
     </div>
   {% endif %}
 </section>

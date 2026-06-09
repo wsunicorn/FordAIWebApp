@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 PRICE_SOURCE_URL = "https://dongthapford.com/bang-gia-xe/"
 SOURCE_PERIOD = "6/2026"
-SOURCE_CHECKED_AT = "2026-06-07"
+SOURCE_CHECKED_AT = "2026-06-09"
 
 
 @dataclass(frozen=True)
@@ -65,11 +65,11 @@ VEHICLES: tuple[Vehicle, ...] = (
         image_path="/images/vehicles/ford-everest.jpg",
         image_source_url="https://dongthapford.com/ford-everest-gia-xe-dong-thap/",
         variants=(
-            Variant("Everest Ambiente", 1_099_000_000, "Diesel 2.0L", "4x2"),
-            Variant("Everest Sport", 1_178_000_000, "Diesel 2.0L", "4x2"),
-            Variant("Everest Sport SE", 1_199_000_000, "Diesel 2.0L", "4x2"),
-            Variant("Everest Titanium", 1_299_000_000, "Diesel 2.0L", "4x2"),
-            Variant("Everest Platinum", 1_545_000_000, "Diesel 2.0L", "Anh Huy xác nhận"),
+            Variant("Everest Active", 1_129_000_000, "Diesel 2.0L", "4x2"),
+            Variant("Everest Sport", 1_209_000_000, "Diesel 2.0L", "4x2"),
+            Variant("Everest Platinum 4x2", 1_335_000_000, "Diesel 2.0L", "4x2"),
+            Variant("Everest Platinum 4x4", 1_440_000_000, "Diesel 2.0L", "4x4"),
+            Variant("Everest Platinum +", 1_629_000_000, "Diesel 2.0L", "Anh Huy xác nhận"),
         ),
     ),
     Vehicle(
@@ -83,13 +83,10 @@ VEHICLES: tuple[Vehicle, ...] = (
         image_path="/images/vehicles/ford-ranger.jpg",
         image_source_url="https://dongthapford.com/ford-ranger-xls-gia-lan-banh/",
         variants=(
-            Variant("Ranger XL 4x4 MT", 669_000_000, "Diesel 2.0L", "4x4"),
             Variant("Ranger XLS 4x2 AT", 707_000_000, "Diesel 2.0L", "4x2"),
             Variant("Ranger XLS 4x4 AT", 776_000_000, "Diesel 2.0L", "4x4"),
-            Variant("Ranger Sport", 864_000_000, "Diesel 2.0L", "Anh Huy xác nhận"),
-            Variant("Ranger Wildtrak 4x4", 979_000_000, "Diesel 2.0L", "4x4"),
-            Variant("Ranger StormTrak", 1_039_000_000, "Diesel 2.0L", "4x4"),
-            Variant("Ranger Raptor", 1_299_000_000, "Bi-Turbo 2.0L", "4x4"),
+            Variant("Ranger Wildtrak 3.0", 1_093_000_000, "Diesel 3.0L", "4x4"),
+            Variant("Ranger Raptor 3.0", 1_448_000_000, "3.0 V6 EcoBoost", "4x4"),
         ),
     ),
     Vehicle(
@@ -120,31 +117,6 @@ VEHICLES: tuple[Vehicle, ...] = (
         image_source_url=PRICE_SOURCE_URL,
         variants=(
             Variant("Mustang Mach-E Premium AWD", 2_599_000_000, "Thuần điện", "AWD"),
-        ),
-    ),
-    Vehicle(
-        slug="ford-transit-limousine",
-        name="Ford Transit Limousine",
-        category="Xe dịch vụ cao cấp",
-        summary="Cấu hình limousine cho dịch vụ cao cấp, cần xác nhận tùy chọn theo xe thực tế.",
-        fit="Dịch vụ cao cấp, hợp đồng",
-        source_url=PRICE_SOURCE_URL,
-        tags=("Limousine", "Dịch vụ", "Cần xác nhận"),
-        image_path="/images/vehicles/ford-transit-limousine.png",
-        image_source_url="https://dongthapford.com/ford-transit-xe-van-tai-da-dung/",
-        variants=(
-            Variant(
-                "Transit Limousine 10 chỗ",
-                1_388_000_000,
-                "Anh Huy xác nhận",
-                "Anh Huy xác nhận",
-            ),
-            Variant(
-                "Transit Limousine 12 chỗ",
-                1_499_000_000,
-                "Anh Huy xác nhận",
-                "Anh Huy xác nhận",
-            ),
         ),
     ),
 )

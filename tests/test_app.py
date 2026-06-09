@@ -110,6 +110,15 @@ def first_vehicle_id() -> str | None:
     return asyncio.run(_get())
 
 
+def vehicle_id_by_slug(slug: str) -> str | None:
+    async def _get() -> str | None:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(select(Vehicle.id).where(Vehicle.slug == slug))
+            return result.scalars().first()
+
+    return asyncio.run(_get())
+
+
 def test_health_endpoint() -> None:
     response = client.get("/api/health")
     assert response.status_code == 200
@@ -182,6 +191,55 @@ def test_public_mvp_pages_render() -> None:
     for route in routes:
         response = client.get(route)
         assert response.status_code == 200, route
+
+
+def test_public_vehicle_prices_use_latest_source() -> None:
+    price_page = client.get("/bang-gia")
+    assert price_page.status_code == 200
+    body = price_page.text
+
+    expected_fragments = [
+        "Everest Active",
+        "1.129.000.000",
+        "Everest Sport",
+        "1.209.000.000",
+        "Everest Platinum 4x2",
+        "1.335.000.000",
+        "Everest Platinum 4x4",
+        "1.440.000.000",
+        "Everest Platinum +",
+        "1.629.000.000",
+        "Ranger XLS 4x2 AT",
+        "707.000.000",
+        "Ranger XLS 4x4 AT",
+        "776.000.000",
+        "Ranger Wildtrak 3.0",
+        "1.093.000.000",
+        "Ranger Raptor 3.0",
+        "1.448.000.000",
+    ]
+    for fragment in expected_fragments:
+        assert fragment in body
+
+    retired_fragments = [
+        "Everest Ambiente",
+        "Everest Sport SE",
+        "Everest Titanium",
+        "Ranger XL 4x4",
+        "Ranger StormTrak",
+        "Ford Transit Limousine",
+    ]
+    for fragment in retired_fragments:
+        assert fragment not in body
+
+
+def test_public_english_locale_renders_core_ui() -> None:
+    response = client.get("/?lang=en")
+    assert response.status_code == 200
+    assert '<html lang="en"' in response.text
+    assert "Careful Advice" in response.text
+    assert "Ford models" in response.text
+    assert "Get quote" in response.text
 
 
 def test_vehicle_detail_404() -> None:
@@ -318,17 +376,18 @@ def test_admin_login_dashboard_and_seed_routes() -> None:
 
     vehicles_admin = admin_client.get("/admin/vehicles")
     assert vehicles_admin.status_code == 200
-    assert "Xe va bang gia" in vehicles_admin.text
+    assert "Xe và bảng giá" in vehicles_admin.text
 
     vehicle_id = first_vehicle_id()
     assert vehicle_id is not None
     vehicle_detail = admin_client.get(f"/admin/vehicles/{vehicle_id}")
     assert vehicle_detail.status_code == 200
-    assert "Luu xe" in vehicle_detail.text
+    assert "Lưu xe" in vehicle_detail.text
+    assert "Thêm phiên bản mới" in vehicle_detail.text
 
     content_admin = admin_client.get("/admin/content")
     assert content_admin.status_code == 200
-    assert "Noi dung va freshness" in content_admin.text
+    assert "Nội dung và freshness" in content_admin.text
 
     ai_admin = admin_client.get("/admin/ai")
     assert ai_admin.status_code == 200
@@ -395,6 +454,59 @@ def test_admin_can_update_lead_status() -> None:
     detail = admin_client.get(f"/admin/leads/{lead_id}")
     assert detail.status_code == 200
     assert "contacted" in detail.text
+
+
+def test_admin_can_create_and_delete_vehicle_variant() -> None:
+    admin_client = TestClient(app)
+    admin_client.post(
+        "/admin/login",
+        data={
+            "username": settings.admin_username,
+            "password": settings.admin_password,
+            "next_path": "/admin",
+        },
+    )
+    admin_client.post("/admin/vehicles/seed", follow_redirects=False)
+    vehicle_id = vehicle_id_by_slug("ford-everest")
+    assert vehicle_id is not None
+
+    create = admin_client.post(
+        f"/admin/vehicles/{vehicle_id}/variants",
+        data={
+            "name": "Pytest Admin Variant",
+            "engine": "Test engine",
+            "sort_order": "99",
+            "price_vnd": "1234000000",
+            "freshness_status": "fresh",
+        },
+        follow_redirects=False,
+    )
+    assert create.status_code == 303
+
+    detail = admin_client.get(f"/admin/vehicles/{vehicle_id}")
+    assert detail.status_code == 200
+    assert "Pytest Admin Variant" in detail.text
+
+    async def _variant_id() -> str | None:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(
+                select(VehicleVariant.id).where(
+                    VehicleVariant.vehicle_id == vehicle_id,
+                    VehicleVariant.name == "Pytest Admin Variant",
+                )
+            )
+            return result.scalars().first()
+
+    variant_id = asyncio.run(_variant_id())
+    assert variant_id is not None
+    delete_response = admin_client.post(
+        f"/admin/vehicles/{vehicle_id}/variants/{variant_id}/delete",
+        follow_redirects=False,
+    )
+    assert delete_response.status_code == 303
+
+    detail_after_delete = admin_client.get(f"/admin/vehicles/{vehicle_id}")
+    assert "Pytest Admin Variant" not in detail_after_delete.text
 
 
 def test_public_lead_form_validation_and_redirect() -> None:

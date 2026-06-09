@@ -4,13 +4,13 @@
 <section class="admin-panel">
   <div class="panel-head">
     <div>
-      <h2>Xe va bang gia</h2>
-      <p>Du lieu da duyet se duoc public doc tu database; neu DB trong, website fallback ve seed tinh.</p>
+      <h2>Xe và bảng giá</h2>
+      <p>Dữ liệu đã duyệt sẽ được website public đọc từ database; nếu DB trống, website fallback về seed tĩnh.</p>
     </div>
-    <form action="/admin/vehicles/seed" method="post" data-confirm="Seed lai xe va gia tu source hien tai?">
+    <form action="/admin/vehicles/seed" method="post" data-confirm="Đồng bộ lại xe và giá từ source hiện tại? Các phiên bản không còn trong source sẽ bị xóa.">
       <button class="btn btn-primary" type="submit">
         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">sync</span>
-        Seed xe va gia
+        Đồng bộ xe và giá
       </button>
     </form>
   </div>
@@ -20,11 +20,11 @@
       <table class="admin-table">
         <thead>
           <tr>
-            <th>Dong xe</th>
-            <th>Nhom</th>
-            <th>Phien ban</th>
-            <th>Gia</th>
-            <th>Duyet</th>
+            <th>Dòng xe</th>
+            <th>Nhóm</th>
+            <th>Phiên bản</th>
+            <th>Giá</th>
+            <th>Duyệt</th>
             <th>Freshness</th>
             <th>Review</th>
           </tr>
@@ -41,7 +41,7 @@
               <td>{{ vehicle.prices|length }}</td>
               <td><span class="status-badge status-{{ admin_status_class(vehicle.approval_status) }}">{{ admin_status_label(vehicle.approval_status) }}</span></td>
               <td><span class="status-badge status-{{ admin_status_class(vehicle.freshness_status) }}">{{ admin_status_label(vehicle.freshness_status) }}</span></td>
-              <td>{{ vehicle.review_due_at.isoformat() if vehicle.review_due_at else "Chua dat" }}</td>
+              <td>{{ vehicle.review_due_at.isoformat() if vehicle.review_due_at else "Chưa đặt" }}</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -50,8 +50,8 @@
   {% else %}
     <div class="admin-empty">
       <span class="material-symbols-outlined" aria-hidden="true">directions_car</span>
-      <strong>Chua co xe trong database</strong>
-      <p>Bam seed de nap du lieu ban dau tu Phase 4 seed.</p>
+      <strong>Chưa có xe trong database</strong>
+      <p>Bấm đồng bộ để nạp dữ liệu ban đầu từ seed hiện tại.</p>
     </div>
   {% endif %}
 </section>

@@ -2,25 +2,25 @@
 
 {% block admin_body %}
 <section class="admin-panel">
-  <div class="panel-head">
+    <div class="panel-head">
     <div>
       <h2>{{ vehicle.name }}</h2>
-      <p>Cap nhat thong tin nguon, trang thai duyet va freshness cho public data.</p>
+      <p>Cập nhật nguồn, trạng thái duyệt và độ mới trước khi public dữ liệu ra website.</p>
     </div>
-    <a class="btn btn-secondary" href="/admin/vehicles">Tat ca xe</a>
+    <a class="btn btn-secondary" href="/admin/vehicles">Tất cả xe</a>
   </div>
 
   <form action="/admin/vehicles/{{ vehicle.id }}" method="post" class="admin-form admin-form-grid">
     <label class="field">
-      Ten xe
+      Tên xe
       <input name="name" value="{{ vehicle.name }}" required />
     </label>
     <label class="field">
-      Nhom xe
+      Nhóm xe
       <input name="category" value="{{ vehicle.category }}" required />
     </label>
     <label class="field full">
-      Tom tat
+      Tóm tắt
       <textarea name="summary" rows="4">{{ vehicle.summary or "" }}</textarea>
     </label>
     <label class="field">
@@ -52,16 +52,16 @@
       </select>
     </label>
     <div class="form-actions full">
-      <button class="btn btn-primary" type="submit">Luu xe</button>
+      <button class="btn btn-primary" type="submit">Lưu xe</button>
     </div>
   </form>
 </section>
 
 <section class="admin-panel">
-  <div class="panel-head">
+    <div class="panel-head">
     <div>
-      <h2>Phien ban</h2>
-      <p>Ten phien ban va dong co hien trong admin, public dang doc seed cho Phase 4.</p>
+      <h2>Phiên bản</h2>
+      <p>Admin có thể thêm, sửa hoặc xóa phiên bản. Website public đọc các phiên bản đã có giá.</p>
     </div>
   </div>
   {% if vehicle.variants %}
@@ -69,31 +69,91 @@
       {% for variant in vehicle.variants|sort(attribute="sort_order") %}
         <form action="/admin/vehicles/{{ vehicle.id }}/variants/{{ variant.id }}" method="post" class="admin-row-form">
           <label class="field">
-            Ten phien ban
+            Tên phiên bản
             <input name="name" value="{{ variant.name }}" required />
           </label>
           <label class="field">
-            Dong co
+            Động cơ
             <input name="engine" value="{{ variant.engine or '' }}" />
           </label>
           <label class="field small-field">
-            Thu tu
+            Thứ tự
             <input name="sort_order" type="number" value="{{ variant.sort_order }}" />
           </label>
-        <button class="btn btn-secondary" type="submit">Luu phien ban</button>
+          <button class="btn btn-secondary" type="submit">Lưu phiên bản</button>
+        </form>
+        <form class="admin-delete-form" action="/admin/vehicles/{{ vehicle.id }}/variants/{{ variant.id }}/delete" method="post" data-confirm="Xóa phiên bản {{ variant.name }} và giá liên quan?">
+          <button class="btn btn-danger" type="submit">
+            <span class="material-symbols-outlined text-[18px]" aria-hidden="true">delete</span>
+            Xóa
+          </button>
         </form>
       {% endfor %}
     </div>
   {% else %}
-    <div class="admin-empty">Chua co phien ban. Hay seed tu source truoc.</div>
+    <div class="admin-empty">Chưa có phiên bản. Hãy seed từ source hoặc thêm thủ công.</div>
   {% endif %}
 </section>
 
 <section class="admin-panel">
   <div class="panel-head">
     <div>
-      <h2>Gia tham khao</h2>
-      <p>Moi gia can co source, ngay cap nhat, han hieu luc va ngay review.</p>
+      <h2>Thêm phiên bản mới</h2>
+      <p>Dùng khi Ford cập nhật bản mới hoặc cần thêm giá bán sau khi anh Huy xác nhận.</p>
+    </div>
+  </div>
+  <form action="/admin/vehicles/{{ vehicle.id }}/variants" method="post" class="admin-form admin-form-grid">
+    <label class="field">
+      Tên phiên bản
+      <input name="name" placeholder="Everest Platinum +" required />
+    </label>
+    <label class="field">
+      Động cơ
+      <input name="engine" placeholder="Diesel 2.0L" />
+    </label>
+    <label class="field">
+      Giá VND
+      <input name="price_vnd" type="number" min="0" step="1000000" required />
+    </label>
+    <label class="field small-field">
+      Thứ tự
+      <input name="sort_order" type="number" value="{{ vehicle.variants|length }}" />
+    </label>
+    <label class="field">
+      Source updated
+      <input name="source_updated_at" type="date" />
+    </label>
+    <label class="field">
+      Effective to
+      <input name="effective_to" type="date" />
+    </label>
+    <label class="field">
+      Review due
+      <input name="review_due_at" type="date" />
+    </label>
+    <label class="field">
+      Freshness
+      <select name="freshness_status">
+        {% for status in freshness_statuses %}
+          <option value="{{ status }}" {{ "selected" if status == "fresh" else "" }}>{{ admin_status_label(status) }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field full">
+      Source URL
+      <input name="source_url" type="url" value="{{ vehicle.source_url or '' }}" />
+    </label>
+    <div class="form-actions full">
+      <button class="btn btn-primary" type="submit">Thêm phiên bản</button>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="panel-head">
+    <div>
+      <h2>Giá tham khảo</h2>
+      <p>Mỗi giá cần có source, ngày cập nhật, hạn hiệu lực và ngày review.</p>
     </div>
   </div>
   {% if vehicle.prices %}
@@ -109,7 +169,7 @@
             <small>{{ price.id[:8] }}</small>
           </div>
           <label class="field">
-            Gia VND
+            Giá VND
             <input name="price_vnd" type="number" min="0" step="1000000" value="{{ price.price_vnd }}" required />
           </label>
           <label class="field">
@@ -136,12 +196,12 @@
             Source URL
             <input name="source_url" type="url" value="{{ price.source_url or '' }}" />
           </label>
-          <button class="btn btn-secondary" type="submit">Luu gia</button>
+          <button class="btn btn-secondary" type="submit">Lưu giá</button>
         </form>
       {% endfor %}
     </div>
   {% else %}
-    <div class="admin-empty">Chua co gia. Hay seed tu source truoc.</div>
+    <div class="admin-empty">Chưa có giá. Hãy seed từ source hoặc thêm phiên bản mới kèm giá.</div>
   {% endif %}
 </section>
 {% endblock %}

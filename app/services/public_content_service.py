@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import date
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -8,6 +10,7 @@ from app.data.site_content import (
     FAQS,
     PRICE_SOURCE_URL,
     PROMOTIONS,
+    SOURCE_CHECKED_AT,
     VEHICLES,
     Variant,
     Vehicle,
@@ -18,6 +21,25 @@ from app.models.vehicle import Vehicle as VehicleModel
 
 PUBLIC_APPROVAL_STATUSES = ("approved", "needs_confirmation")
 PUBLIC_FRESHNESS_STATUSES = ("fresh", "review_due")
+SOURCE_CHECKED_DATE = date.fromisoformat(SOURCE_CHECKED_AT)
+RETIRED_VEHICLE_SLUGS = ("ford-transit-limousine",)
+RETIRED_VARIANT_NAMES = {
+    "ford-everest": {
+        "everest ambiente",
+        "everest ambient",
+        "everest sport se",
+        "everest titanium",
+        "everest platinum",
+    },
+    "ford-ranger": {
+        "ranger xl 4x4 mt",
+        "ranger sport",
+        "ranger stormtrak",
+        "ranger stomtrak",
+        "ranger wildtrak 4x4",
+        "ranger raptor",
+    },
+}
 
 PROMOTION_STATUS_LABELS = {
     "approved": "Tham khao",
@@ -58,6 +80,13 @@ def _vehicle_fit(db_vehicle: VehicleModel, static_vehicle: Vehicle | None) -> st
     return db_vehicle.summary or db_vehicle.category or "Can anh Huy tu van them"
 
 
+def _db_price_is_current(db_price_source_updated_at: date | None) -> bool:
+    return (
+        db_price_source_updated_at is not None
+        and db_price_source_updated_at >= SOURCE_CHECKED_DATE
+    )
+
+
 def _to_public_vehicle(db_vehicle: VehicleModel) -> Vehicle | None:
     static_vehicle = _static_vehicle(db_vehicle.slug)
     prices_by_variant_id = {
@@ -66,11 +95,16 @@ def _to_public_vehicle(db_vehicle: VehicleModel) -> Vehicle | None:
         if price.variant_id
     }
     public_variants: list[Variant] = []
+    public_variant_names: set[str] = set()
 
     for db_variant in sorted(db_vehicle.variants, key=lambda variant: variant.sort_order):
+        normalized_variant_name = db_variant.name.strip().lower()
+        if normalized_variant_name in RETIRED_VARIANT_NAMES.get(db_vehicle.slug, set()):
+            continue
+
         db_price = prices_by_variant_id.get(db_variant.id)
         static_variant = _static_variant(static_vehicle, db_variant.name)
-        if db_price:
+        if db_price and (not static_variant or _db_price_is_current(db_price.source_updated_at)):
             price_vnd = db_price.price_vnd
         elif static_variant:
             price_vnd = static_variant.price_vnd
@@ -91,6 +125,15 @@ def _to_public_vehicle(db_vehicle: VehicleModel) -> Vehicle | None:
                 drivetrain=static_variant.drivetrain if static_variant else "Anh Huy xac nhan",
             )
         )
+        public_variant_names.add(normalized_variant_name)
+
+    if static_vehicle:
+        for static_variant in static_vehicle.variants:
+            normalized_static_name = static_variant.name.strip().lower()
+            if normalized_static_name in public_variant_names:
+                continue
+            public_variants.append(static_variant)
+            public_variant_names.add(normalized_static_name)
 
     if not public_variants and static_vehicle:
         public_variants = list(static_vehicle.variants)
@@ -117,6 +160,7 @@ async def public_vehicles(session: AsyncSession) -> tuple[Vehicle, ...]:
     result = await session.execute(
         select(VehicleModel)
         .where(
+            VehicleModel.slug.not_in(RETIRED_VEHICLE_SLUGS),
             VehicleModel.approval_status.in_(PUBLIC_APPROVAL_STATUSES),
             VehicleModel.freshness_status.in_(PUBLIC_FRESHNESS_STATUSES),
         )

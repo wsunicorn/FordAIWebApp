@@ -26,6 +26,8 @@ from app.services.admin_service import (
     LEAD_STATUSES,
     content_freshness_counts,
     create_content_item,
+    create_variant_with_price,
+    delete_variant,
     get_lead_or_none,
     get_vehicle_or_none,
     lead_status_counts,
@@ -55,25 +57,25 @@ SessionDep = Annotated[AsyncSession, Depends(get_session)]
 AdminDep = Annotated[str, Depends(require_admin)]
 
 STATUS_LABELS = {
-    "new": "Moi",
-    "contacted": "Da lien he",
-    "quoted": "Da bao gia",
-    "test_drive": "Hen lai thu",
-    "won": "Da chot",
-    "lost": "Khong phu hop",
-    "draft": "Ban nhap",
-    "needs_confirmation": "Can xac nhan",
-    "approved": "Da duyet",
-    "archived": "Luu tru",
-    "fresh": "Moi",
-    "review_due": "Can review",
-    "expired": "Het han",
+    "new": "Mới",
+    "contacted": "Đã liên hệ",
+    "quoted": "Đã báo giá",
+    "test_drive": "Hẹn lái thử",
+    "won": "Đã chốt",
+    "lost": "Không phù hợp",
+    "draft": "Bản nháp",
+    "needs_confirmation": "Cần xác nhận",
+    "approved": "Đã duyệt",
+    "archived": "Lưu trữ",
+    "fresh": "Mới",
+    "review_due": "Cần review",
+    "expired": "Hết hạn",
 }
 
 
 def admin_status_label(status_value: str | None) -> str:
     if not status_value:
-        return "Chua ro"
+        return "Chưa rõ"
     return STATUS_LABELS.get(status_value, status_value.replace("_", " ").title())
 
 
@@ -144,7 +146,7 @@ async def admin_login_submit(
     next_path: str = Form(default="/admin"),
 ):
     if not verify_admin_credentials(username, password):
-        return admin_redirect("/admin/login", "Sai tai khoan hoac mat khau")
+        return admin_redirect("/admin/login", "Sai tài khoản hoặc mật khẩu")
 
     target = next_path if next_path.startswith("/") and not next_path.startswith("//") else "/admin"
     response = RedirectResponse(url=target, status_code=status.HTTP_303_SEE_OTHER)
@@ -179,7 +181,7 @@ async def admin_dashboard(request: Request, session: SessionDep, admin_user: Adm
         admin_context(
             request,
             admin_user,
-            page_title="Admin dashboard",
+            page_title="Tổng quan admin",
             lead_counts=lead_counts,
             freshness_counts=freshness_counts,
             recent_leads=recent_leads,
@@ -318,7 +320,7 @@ async def admin_lead_update(
         follow_up_at=parse_optional_datetime(follow_up_at),
         last_contacted_at=parse_optional_datetime(last_contacted_at),
     )
-    return admin_redirect(f"/admin/leads/{lead.id}", "Da cap nhat lead")
+    return admin_redirect(f"/admin/leads/{lead.id}", "Đã cập nhật lead")
 
 
 @router.get("/admin/vehicles", response_class=HTMLResponse)
@@ -330,7 +332,7 @@ async def admin_vehicles(request: Request, session: SessionDep, admin_user: Admi
         admin_context(
             request,
             admin_user,
-            page_title="Quan ly xe va gia",
+            page_title="Quản lý xe và giá",
             vehicles=vehicles,
         ),
     )
@@ -339,7 +341,7 @@ async def admin_vehicles(request: Request, session: SessionDep, admin_user: Admi
 @router.post("/admin/vehicles/seed")
 async def admin_vehicles_seed(session: SessionDep, _: AdminDep):
     count = await seed_vehicles_from_source(session)
-    return admin_redirect("/admin/vehicles", f"Da seed {count} dong xe")
+    return admin_redirect("/admin/vehicles", f"Đã đồng bộ {count} dòng xe")
 
 
 @router.get("/admin/vehicles/{vehicle_id}", response_class=HTMLResponse)
@@ -359,7 +361,7 @@ async def admin_vehicle_detail(
         admin_context(
             request,
             admin_user,
-            page_title=f"Quan ly {vehicle.name}",
+            page_title=f"Quản lý {vehicle.name}",
             vehicle=vehicle,
         ),
     )
@@ -395,7 +397,42 @@ async def admin_vehicle_update(
         approval_status=validate_choice(approval_status, APPROVAL_STATUSES, "approval status"),
         freshness_status=validate_choice(freshness_status, FRESHNESS_STATUSES, "freshness status"),
     )
-    return admin_redirect(f"/admin/vehicles/{vehicle.id}", "Da cap nhat xe")
+    return admin_redirect(f"/admin/vehicles/{vehicle.id}", "Đã cập nhật xe")
+
+
+@router.post("/admin/vehicles/{vehicle_id}/variants")
+async def admin_variant_create(
+    vehicle_id: str,
+    session: SessionDep,
+    _: AdminDep,
+    name: str = Form(...),
+    engine: str | None = Form(default=None),
+    sort_order: int = Form(default=0),
+    price_vnd: int = Form(...),
+    source_url: str | None = Form(default=None),
+    source_updated_at: str | None = Form(default=None),
+    effective_to: str | None = Form(default=None),
+    review_due_at: str | None = Form(default=None),
+    freshness_status: str = Form(default="fresh"),
+):
+    vehicle = await get_vehicle_or_none(session, vehicle_id)
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+
+    await create_variant_with_price(
+        session,
+        vehicle,
+        name=name,
+        engine=engine,
+        sort_order=sort_order,
+        price_vnd=price_vnd,
+        source_url=source_url,
+        source_updated_at=parse_optional_date(source_updated_at),
+        effective_to=parse_optional_date(effective_to),
+        review_due_at=parse_optional_date(review_due_at),
+        freshness_status=validate_choice(freshness_status, FRESHNESS_STATUSES, "freshness status"),
+    )
+    return admin_redirect(f"/admin/vehicles/{vehicle.id}", "Đã thêm phiên bản")
 
 
 @router.post("/admin/vehicles/{vehicle_id}/variants/{variant_id}")
@@ -413,7 +450,23 @@ async def admin_variant_update(
         raise HTTPException(status_code=404, detail="Variant not found")
 
     await update_variant(session, variant, name=name, engine=engine, sort_order=sort_order)
-    return admin_redirect(f"/admin/vehicles/{vehicle_id}", "Da cap nhat phien ban")
+    return admin_redirect(f"/admin/vehicles/{vehicle_id}", "Đã cập nhật phiên bản")
+
+
+@router.post("/admin/vehicles/{vehicle_id}/variants/{variant_id}/delete")
+async def admin_variant_delete(
+    vehicle_id: str,
+    variant_id: str,
+    session: SessionDep,
+    _: AdminDep,
+):
+    vehicle = await get_vehicle_or_none(session, vehicle_id)
+    variant = await session.get(VehicleVariant, variant_id)
+    if not vehicle or not variant or variant.vehicle_id != vehicle_id:
+        raise HTTPException(status_code=404, detail="Variant not found")
+
+    await delete_variant(session, vehicle, variant)
+    return admin_redirect(f"/admin/vehicles/{vehicle_id}", "Đã xóa phiên bản")
 
 
 @router.post("/admin/vehicles/{vehicle_id}/prices/{price_id}")
@@ -443,7 +496,7 @@ async def admin_price_update(
         review_due_at=parse_optional_date(review_due_at),
         freshness_status=validate_choice(freshness_status, FRESHNESS_STATUSES, "freshness status"),
     )
-    return admin_redirect(f"/admin/vehicles/{vehicle_id}", "Da cap nhat gia")
+    return admin_redirect(f"/admin/vehicles/{vehicle_id}", "Đã cập nhật giá")
 
 
 @router.get("/admin/content", response_class=HTMLResponse)
@@ -461,7 +514,7 @@ async def admin_content(
         admin_context(
             request,
             admin_user,
-            page_title="Quan ly noi dung",
+            page_title="Quản lý nội dung",
             items=items,
             kind_filter=kind or "",
         ),
@@ -490,13 +543,13 @@ async def admin_ai(request: Request, session: SessionDep, admin_user: AdminDep):
 @router.post("/admin/ai/seed")
 async def admin_ai_seed(session: SessionDep, _: AdminDep):
     count = await seed_ai_documents(session)
-    return admin_redirect("/admin/ai", f"Da seed {count} tai lieu AI")
+    return admin_redirect("/admin/ai", f"Đã seed {count} tài liệu AI")
 
 
 @router.post("/admin/content/seed")
 async def admin_content_seed(session: SessionDep, _: AdminDep):
     count = await seed_content_from_source(session)
-    return admin_redirect("/admin/content", f"Da seed {count} noi dung")
+    return admin_redirect("/admin/content", f"Đã seed {count} nội dung")
 
 
 @router.post("/admin/content")
@@ -525,7 +578,7 @@ async def admin_content_create(
         approval_status=validate_choice(approval_status, APPROVAL_STATUSES, "approval status"),
         freshness_status=validate_choice(freshness_status, FRESHNESS_STATUSES, "freshness status"),
     )
-    return admin_redirect("/admin/content", "Da tao noi dung")
+    return admin_redirect("/admin/content", "Đã tạo nội dung")
 
 
 @router.post("/admin/content/{content_id}")
@@ -560,4 +613,4 @@ async def admin_content_update(
         approval_status=validate_choice(approval_status, APPROVAL_STATUSES, "approval status"),
         freshness_status=validate_choice(freshness_status, FRESHNESS_STATUSES, "freshness status"),
     )
-    return admin_redirect("/admin/content", "Da cap nhat noi dung")
+    return admin_redirect("/admin/content", "Đã cập nhật nội dung")

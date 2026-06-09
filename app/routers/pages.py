@@ -19,6 +19,12 @@ from app.data.site_content import (
 )
 from app.db.session import get_session
 from app.schemas import LeadCreate
+from app.services.i18n_service import (
+    localize_vehicles,
+    localized_url,
+    request_locale,
+    t,
+)
 from app.services.lead_service import create_lead
 from app.services.public_content_service import (
     public_faqs,
@@ -33,10 +39,35 @@ SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
 def page_context(request: Request, **extra: object) -> dict[str, object]:
+    locale = request_locale(request)
+
+    def translate(key: str, **kwargs: object) -> str:
+        return t(locale, key, **kwargs)
+
+    def lang_path(path: str, target_locale: str | None = None) -> str:
+        return localized_url(
+            path,
+            target_locale or locale,
+            request.url.query,
+        )
+
+    canonical_suffix = request.url.path
+    if locale != "vi":
+        canonical_suffix = localized_url(request.url.path, locale)
+
     return {
         **common_context(),
         "request": request,
+        "locale": locale,
+        "t": translate,
+        "lang_path": lang_path,
+        "lang_switch_url": lambda target_locale: localized_url(
+            request.url.path,
+            target_locale,
+            request.url.query,
+        ),
         "current_path": request.url.path,
+        "canonical_url": f"{str(settings.app_url).rstrip('/')}{canonical_suffix}",
         "vehicles": VEHICLES,
         "vehicle_options": public_vehicle_options(VEHICLES),
         "format_vnd": format_vnd,
@@ -52,7 +83,8 @@ async def public_page_context(
     session: AsyncSession,
     **extra: object,
 ) -> dict[str, object]:
-    vehicles = await public_vehicles(session)
+    locale = request_locale(request)
+    vehicles = localize_vehicles(await public_vehicles(session), locale)
     return page_context(
         request,
         vehicles=vehicles,
@@ -88,7 +120,8 @@ async def home_head() -> Response:
 
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request, session: SessionDep):
-    vehicles = await public_vehicles(session)
+    locale = request_locale(request)
+    vehicles = localize_vehicles(await public_vehicles(session), locale)
     promotions = await public_promotions(session)
     faqs = await public_faqs(session)
     return templates.TemplateResponse(
@@ -98,11 +131,8 @@ async def home(request: Request, session: SessionDep):
             request,
             vehicles=vehicles,
             vehicle_options=public_vehicle_options(vehicles),
-            page_title="Huỳnh Đang Huy - Tư vấn Ford Đồng Tháp",
-            page_description=(
-                "Tham khảo xe Ford, dự toán chi phí và liên hệ anh Huỳnh Đang Huy "
-                "tại Đồng Tháp Ford để nhận tư vấn trực tiếp."
-            ),
+            page_title=t(locale, "meta.home.title"),
+            page_description=t(locale, "meta.home.description"),
             featured_vehicles=vehicles[:4],
             promotions=promotions,
             faqs=faqs[:3],
@@ -129,24 +159,24 @@ async def about_huy(request: Request, session: SessionDep):
 
 @router.get("/xe", response_class=HTMLResponse)
 async def vehicles(request: Request, session: SessionDep):
+    locale = request_locale(request)
     return templates.TemplateResponse(
         request,
         "pages/vehicles.html",
         await public_page_context(
             request,
             session,
-            page_title="Danh sách xe Ford tham khảo",
-            page_description=(
-                "Xem các dòng xe Ford, giá tham khảo và gửi yêu cầu báo giá "
-                "cho anh Huy."
-            ),
+            page_title=t(locale, "meta.vehicles.title"),
+            page_description=t(locale, "meta.vehicles.description"),
         ),
     )
 
 
 @router.get("/xe/{slug}", response_class=HTMLResponse)
 async def vehicle_detail(request: Request, slug: str, session: SessionDep):
-    vehicle = await public_vehicle(session, slug)
+    locale = request_locale(request)
+    raw_vehicle = await public_vehicle(session, slug)
+    vehicle = localize_vehicles((raw_vehicle,), locale)[0] if raw_vehicle else None
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
 
@@ -182,17 +212,15 @@ async def compare(request: Request, session: SessionDep):
 
 @router.get("/bang-gia", response_class=HTMLResponse)
 async def price_table(request: Request, session: SessionDep):
+    locale = request_locale(request)
     return templates.TemplateResponse(
         request,
         "pages/prices.html",
         await public_page_context(
             request,
             session,
-            page_title="Bảng giá Ford tham khảo",
-            page_description=(
-                "Bảng giá Ford tham khảo có nguồn và ngày kiểm tra, "
-                "cần anh Huy xác nhận trước khi chốt."
-            ),
+            page_title=t(locale, "meta.prices.title"),
+            page_description=t(locale, "meta.prices.description"),
         ),
     )
 
@@ -291,7 +319,8 @@ async def contact(request: Request, session: SessionDep):
 
 @router.get("/lai-thu", response_class=HTMLResponse)
 async def test_drive(request: Request, session: SessionDep):
-    vehicles = await public_vehicles(session)
+    locale = request_locale(request)
+    vehicles = localize_vehicles(await public_vehicles(session), locale)
     return templates.TemplateResponse(
         request,
         "pages/test_drive.html",
@@ -311,7 +340,8 @@ async def test_drive(request: Request, session: SessionDep):
 
 @router.get("/bao-gia", response_class=HTMLResponse)
 async def quote(request: Request, session: SessionDep):
-    vehicles = await public_vehicles(session)
+    locale = request_locale(request)
+    vehicles = localize_vehicles(await public_vehicles(session), locale)
     return templates.TemplateResponse(
         request,
         "pages/quote.html",
@@ -320,11 +350,8 @@ async def quote(request: Request, session: SessionDep):
             vehicles=vehicles,
             vehicle_options=public_vehicle_options(vehicles),
             selected_vehicle=selected_vehicle_name(request, vehicles),
-            page_title="Nhận báo giá Ford từ anh Huy",
-            page_description=(
-                "Gửi xe quan tâm và số điện thoại để anh Huy kiểm tra giá, "
-                "ưu đãi và gọi lại."
-            ),
+            page_title=t(locale, "meta.quote.title"),
+            page_description=t(locale, "meta.quote.description"),
         ),
     )
 

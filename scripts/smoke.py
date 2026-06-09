@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from datetime import datetime
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin
@@ -19,6 +20,9 @@ def fetch(
     *,
     method: str = "GET",
     payload: dict | None = None,
+    timeout_seconds: int = 20,
+    attempts: int = 1,
+    backoff_seconds: int = 0,
 ) -> tuple[int, str, str]:
     url = urljoin(f"{base_url.rstrip('/')}/", path.lstrip("/"))
     data = json.dumps(payload).encode("utf-8") if payload is not None else None
@@ -26,16 +30,37 @@ def fetch(
     if payload is not None:
         headers["Content-Type"] = "application/json"
     request = Request(url, data=data, headers=headers, method=method)
-    try:
-        with urlopen(request, timeout=20) as response:
-            body = response.read().decode("utf-8", errors="replace")
-            content_type = response.headers.get("Content-Type", "")
-            return response.status, content_type, body
-    except HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
-        raise SmokeError(f"{method} {url} returned {exc.code}: {body[:240]}") from exc
-    except URLError as exc:
-        raise SmokeError(f"{method} {url} failed: {exc.reason}") from exc
+    retryable_statuses = {429, 502, 503, 504}
+    last_error: Exception | None = None
+
+    for attempt in range(1, attempts + 1):
+        try:
+            with urlopen(request, timeout=timeout_seconds) as response:
+                body = response.read().decode("utf-8", errors="replace")
+                content_type = response.headers.get("Content-Type", "")
+                return response.status, content_type, body
+        except HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")
+            if exc.code not in retryable_statuses or attempt == attempts:
+                raise SmokeError(f"{method} {url} returned {exc.code}: {body[:240]}") from exc
+            last_error = exc
+        except (URLError, TimeoutError) as exc:
+            if attempt == attempts:
+                reason = getattr(exc, "reason", exc)
+                raise SmokeError(
+                    f"{method} {url} failed after {attempts} attempt(s): {reason}"
+                ) from exc
+            last_error = exc
+
+        sleep_for = backoff_seconds * attempt
+        print(
+            f"Retrying {method} {url} in {sleep_for}s "
+            f"(attempt {attempt}/{attempts}, last error: {last_error})",
+            file=sys.stderr,
+        )
+        time.sleep(sleep_for)
+
+    raise SmokeError(f"{method} {url} failed unexpectedly")
 
 
 def expect(condition: bool, message: str) -> None:
@@ -47,19 +72,39 @@ def check_status(status: int, path: str) -> None:
     expect(status == 200, f"{path} returned {status}, expected 200")
 
 
-def run_smoke(base_url: str, *, check_db: bool, submit_lead: bool) -> list[str]:
+def run_smoke(
+    base_url: str,
+    *,
+    check_db: bool,
+    submit_lead: bool,
+    attempts: int,
+    timeout_seconds: int,
+    backoff_seconds: int,
+) -> list[str]:
     base = base_url.rstrip("/")
     is_local_base = "127.0.0.1" in base or "localhost" in base
     results: list[str] = []
 
-    status, _, body = fetch(base, "/api/health")
+    status, _, body = fetch(
+        base,
+        "/api/health",
+        attempts=attempts,
+        timeout_seconds=timeout_seconds,
+        backoff_seconds=backoff_seconds,
+    )
     check_status(status, "/api/health")
     health = json.loads(body)
     expect(health.get("ok") is True, "/api/health did not return ok=true")
     results.append("health ok")
 
     if check_db:
-        status, _, body = fetch(base, "/api/health/db")
+        status, _, body = fetch(
+            base,
+            "/api/health/db",
+            attempts=attempts,
+            timeout_seconds=timeout_seconds,
+            backoff_seconds=backoff_seconds,
+        )
         check_status(status, "/api/health/db")
         db_health = json.loads(body)
         expect(db_health.get("ok") is True, "/api/health/db did not return ok=true")
@@ -129,10 +174,20 @@ def main() -> int:
     parser.add_argument("base_url", help="Base URL, for example https://example.com")
     parser.add_argument("--check-db", action="store_true", help="Check /api/health/db")
     parser.add_argument("--submit-lead", action="store_true", help="Submit a test lead")
+    parser.add_argument("--attempts", type=int, default=1, help="Attempts for cold-start probes")
+    parser.add_argument("--timeout", type=int, default=20, help="Per-request timeout in seconds")
+    parser.add_argument("--backoff", type=int, default=0, help="Linear backoff in seconds")
     args = parser.parse_args()
 
     try:
-        results = run_smoke(args.base_url, check_db=args.check_db, submit_lead=args.submit_lead)
+        results = run_smoke(
+            args.base_url,
+            check_db=args.check_db,
+            submit_lead=args.submit_lead,
+            attempts=max(1, args.attempts),
+            timeout_seconds=max(1, args.timeout),
+            backoff_seconds=max(0, args.backoff),
+        )
     except SmokeError as exc:
         print(f"SMOKE FAILED: {exc}", file=sys.stderr)
         return 1

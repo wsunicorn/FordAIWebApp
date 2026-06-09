@@ -12,7 +12,7 @@ jobs:
   smoke:
     name: Smoke Render production
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     env:
       PRODUCTION_BASE_URL: https://huy-ford-dong-thap.onrender.com
     steps:
@@ -25,4 +25,4 @@ jobs:
           python-version: "3.11"
 
       - name: Run smoke test
-        run: python scripts/smoke.py "$PRODUCTION_BASE_URL" --check-db
+        run: python scripts/smoke.py "$PRODUCTION_BASE_URL" --check-db --attempts 6 --timeout 30 --backoff 15

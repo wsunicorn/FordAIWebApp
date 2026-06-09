@@ -4,7 +4,7 @@ import re
 import unicodedata
 from datetime import date, datetime, timedelta
 
-from sqlalchemy import desc, func, or_, select
+from sqlalchemy import delete, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -22,6 +22,7 @@ LEAD_STATUSES = ("new", "contacted", "quoted", "test_drive", "won", "lost")
 CONTENT_KINDS = ("promotion", "faq", "article")
 APPROVAL_STATUSES = ("draft", "needs_confirmation", "approved", "archived")
 FRESHNESS_STATUSES = ("fresh", "review_due", "expired")
+RETIRED_VEHICLE_SLUGS = ("ford-transit-limousine",)
 
 
 def content_public_paths(kind: str) -> list[str]:
@@ -165,7 +166,24 @@ async def seed_vehicles_from_source(session: AsyncSession) -> int:
     source_date = date.fromisoformat(SOURCE_CHECKED_AT)
     review_due_at = source_date + timedelta(days=14)
     effective_to = source_date + timedelta(days=45)
+    source_slugs = {vehicle.slug for vehicle in VEHICLES}
     touched = 0
+
+    await session.execute(
+        delete(VehiclePrice).where(
+            VehiclePrice.vehicle_id.in_(
+                select(Vehicle.id).where(Vehicle.slug.in_(RETIRED_VEHICLE_SLUGS))
+            )
+        )
+    )
+    await session.execute(
+        delete(VehicleVariant).where(
+            VehicleVariant.vehicle_id.in_(
+                select(Vehicle.id).where(Vehicle.slug.in_(RETIRED_VEHICLE_SLUGS))
+            )
+        )
+    )
+    await session.execute(delete(Vehicle).where(Vehicle.slug.in_(RETIRED_VEHICLE_SLUGS)))
 
     for source_vehicle in VEHICLES:
         result = await session.execute(select(Vehicle).where(Vehicle.slug == source_vehicle.slug))
@@ -188,6 +206,24 @@ async def seed_vehicles_from_source(session: AsyncSession) -> int:
         vehicle.approval_status = "approved"
         vehicle.freshness_status = "fresh"
         touched += 1
+
+        source_variant_slugs = {
+            slugify(source_variant.name) for source_variant in source_vehicle.variants
+        }
+        stale_variants = await session.execute(
+            select(VehicleVariant.id).where(
+                VehicleVariant.vehicle_id == vehicle.id,
+                VehicleVariant.slug.not_in(source_variant_slugs),
+            )
+        )
+        stale_variant_ids = list(stale_variants.scalars().all())
+        if stale_variant_ids:
+            await session.execute(
+                delete(VehiclePrice).where(VehiclePrice.variant_id.in_(stale_variant_ids))
+            )
+            await session.execute(
+                delete(VehicleVariant).where(VehicleVariant.id.in_(stale_variant_ids))
+            )
 
         for index, source_variant in enumerate(source_vehicle.variants):
             variant_slug = slugify(source_variant.name)
@@ -235,7 +271,11 @@ async def seed_vehicles_from_source(session: AsyncSession) -> int:
         session,
         action="vehicles.seeded",
         entity_table="vehicles",
-        metadata={"source": PRICE_SOURCE_URL, "vehicle_count": touched},
+        metadata={
+            "source": PRICE_SOURCE_URL,
+            "vehicle_count": touched,
+            "source_slugs": sorted(source_slugs),
+        },
     )
     await write_audit_log(
         session,
@@ -315,6 +355,87 @@ async def update_variant(
         metadata={"paths": ["/xe", "/bang-gia", "/so-sanh"], "reason": "admin_variant_update"},
     )
     return variant
+
+
+async def create_variant_with_price(
+    session: AsyncSession,
+    vehicle: Vehicle,
+    *,
+    name: str,
+    engine: str | None,
+    sort_order: int,
+    price_vnd: int,
+    source_url: str | None,
+    source_updated_at: date | None,
+    effective_to: date | None,
+    review_due_at: date | None,
+    freshness_status: str,
+) -> VehicleVariant:
+    variant = VehicleVariant(
+        vehicle_id=vehicle.id,
+        slug=slugify(name),
+        name=name,
+        engine=engine or None,
+        sort_order=sort_order,
+    )
+    session.add(variant)
+    await session.flush()
+    price = VehiclePrice(
+        vehicle_id=vehicle.id,
+        variant_id=variant.id,
+        price_vnd=price_vnd,
+        source_url=source_url or vehicle.source_url,
+        source_updated_at=source_updated_at,
+        effective_to=effective_to,
+        review_due_at=review_due_at,
+        freshness_status=freshness_status,
+    )
+    session.add(price)
+    await session.commit()
+    await session.refresh(variant)
+    await write_audit_log(
+        session,
+        action="vehicle_variant.created",
+        entity_table="vehicle_variants",
+        entity_id=variant.id,
+        metadata={"vehicle_id": vehicle.id, "price_vnd": price_vnd},
+    )
+    await write_audit_log(
+        session,
+        action="cache.revalidate",
+        entity_table="cache",
+        metadata={
+            "paths": ["/xe", f"/xe/{vehicle.slug}", "/bang-gia", "/so-sanh"],
+            "reason": "admin_variant_create",
+        },
+    )
+    return variant
+
+
+async def delete_variant(
+    session: AsyncSession,
+    vehicle: Vehicle,
+    variant: VehicleVariant,
+) -> None:
+    await session.execute(delete(VehiclePrice).where(VehiclePrice.variant_id == variant.id))
+    await session.delete(variant)
+    await session.commit()
+    await write_audit_log(
+        session,
+        action="vehicle_variant.deleted",
+        entity_table="vehicle_variants",
+        entity_id=variant.id,
+        metadata={"vehicle_id": vehicle.id, "variant_name": variant.name},
+    )
+    await write_audit_log(
+        session,
+        action="cache.revalidate",
+        entity_table="cache",
+        metadata={
+            "paths": ["/xe", f"/xe/{vehicle.slug}", "/bang-gia", "/so-sanh"],
+            "reason": "admin_variant_delete",
+        },
+    )
 
 
 async def update_price(

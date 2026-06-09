@@ -3,15 +3,15 @@
 {% block admin_body %}
 <section class="metric-grid">
   <article class="metric-card">
-    <span>Tai lieu AI</span>
+    <span>Tài liệu AI</span>
     <strong>{{ stats.documents }}</strong>
   </article>
   <article class="metric-card">
-    <span>Hoi thoai</span>
+    <span>Hội thoại</span>
     <strong>{{ stats.conversations }}</strong>
   </article>
   <article class="metric-card">
-    <span>Tin nhan</span>
+    <span>Tin nhắn</span>
     <strong>{{ stats.messages }}</strong>
   </article>
   <article class="metric-card">
@@ -25,17 +25,17 @@
     <div class="panel-head">
       <div>
         <h2>Grounded AI</h2>
-        <p>AI chi tra loi tu tai lieu da duyet, calculator noi bo va guardrail handoff.</p>
+        <p>AI chỉ trả lời từ tài liệu đã duyệt, calculator nội bộ và guardrail handoff.</p>
       </div>
       <form action="/admin/ai/seed" method="post">
         <button class="btn btn-primary" type="submit">Seed knowledge base</button>
       </form>
     </div>
     <div class="ai-rule-grid">
-      <span>Khong chot gia</span>
-      <span>Khong xac nhan ton kho</span>
-      <span>Khong nhan dat coc</span>
-      <span>Khong cam ket duyet vay</span>
+      <span>Không chốt giá</span>
+      <span>Không xác nhận tồn kho</span>
+      <span>Không nhận đặt cọc</span>
+      <span>Không cam kết duyệt vay</span>
     </div>
   </article>
 
@@ -43,7 +43,7 @@
     <div class="panel-head">
       <div>
         <h2>Provider</h2>
-        <p>Gemini chi duoc goi sau retrieval va guardrail; loi provider se fallback ve cau tra loi noi bo.</p>
+        <p>Gemini chỉ được gọi sau retrieval và guardrail; lỗi provider sẽ fallback về câu trả lời nội bộ.</p>
       </div>
     </div>
     <dl class="detail-list">
@@ -67,7 +67,7 @@
   <div class="panel-head">
     <div>
       <h2>Knowledge base</h2>
-      <p>Moi tai lieu can co owner, source, approval va freshness ro rang.</p>
+      <p>Mỗi tài liệu cần có owner, source, approval và freshness rõ ràng.</p>
     </div>
   </div>
   {% if documents %}
@@ -75,7 +75,7 @@
       <table class="admin-table">
         <thead>
           <tr>
-            <th>Tai lieu</th>
+            <th>Tài liệu</th>
             <th>Risk</th>
             <th>Approval</th>
             <th>Freshness</th>
@@ -94,9 +94,9 @@
               <td><span class="status-badge status-{{ admin_status_class(document.freshness_status) }}">{{ admin_status_label(document.freshness_status) }}</span></td>
               <td>
                 {% if document.source_url %}
-                  <a href="{{ document.source_url }}" target="_blank" rel="noreferrer">Mo source</a>
+                  <a href="{{ document.source_url }}" target="_blank" rel="noreferrer">Mở source</a>
                 {% else %}
-                  <span class="muted">Noi bo</span>
+                  <span class="muted">Nội bộ</span>
                 {% endif %}
               </td>
             </tr>
@@ -105,17 +105,17 @@
       </table>
     </div>
   {% else %}
-    <div class="admin-empty">Chua co tai lieu AI. Bam seed knowledge base de tao bo du lieu ban dau.</div>
+    <div class="admin-empty">Chưa có tài liệu AI. Bấm seed knowledge base để tạo bộ dữ liệu ban đầu.</div>
   {% endif %}
 </section>
 
 <section class="admin-panel">
   <div class="panel-head">
     <div>
-      <h2>Hoi thoai gan day</h2>
-      <p>Theo doi session AI va cac lead tao tu handoff.</p>
+      <h2>Hội thoại gần đây</h2>
+      <p>Theo dõi session AI và các lead tạo từ handoff.</p>
     </div>
-    <a class="btn btn-secondary" href="/tro-ly-ai" target="_blank" rel="noreferrer">Mo AI public</a>
+    <a class="btn btn-secondary" href="/tro-ly-ai" target="_blank" rel="noreferrer">Mở AI public</a>
   </div>
   {% if conversations %}
     <div class="admin-table-wrap">
@@ -123,18 +123,18 @@
         <thead>
           <tr>
             <th>Session</th>
-            <th>Khach</th>
+            <th>Khách</th>
             <th>Xe</th>
             <th>Status</th>
-            <th>Tao luc</th>
+            <th>Tạo lúc</th>
           </tr>
         </thead>
         <tbody>
           {% for conversation in conversations %}
             <tr>
               <td>{{ conversation.session_id[:12] }}</td>
-              <td>{{ conversation.customer_name or conversation.phone or "An danh" }}</td>
-              <td>{{ conversation.vehicle_interest or "Chua ro" }}</td>
+              <td>{{ conversation.customer_name or conversation.phone or "Ẩn danh" }}</td>
+              <td>{{ conversation.vehicle_interest or "Chưa rõ" }}</td>
               <td><span class="status-badge status-{{ admin_status_class(conversation.status) }}">{{ admin_status_label(conversation.status) }}</span></td>
               <td>{{ conversation.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
             </tr>
@@ -143,7 +143,7 @@
       </table>
     </div>
   {% else %}
-    <div class="admin-empty">Chua co hoi thoai AI nao.</div>
+    <div class="admin-empty">Chưa có hội thoại AI nào.</div>
   {% endif %}
 </section>
 {% endblock %}

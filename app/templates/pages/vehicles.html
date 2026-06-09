@@ -12,16 +12,16 @@
       <div>
         <span class="badge badge-glass mb-4">
           <span class="material-symbols-outlined text-[16px]">directions_car</span>
-          Danh sách xe
+          {{ t('vehicles.badge') }}
         </span>
-        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">Khám phá các dòng xe Ford.</h1>
-        <p class="text-lg text-white/80 max-w-2xl">Kiến tạo hành trình vững chắc. Lọc nhanh theo tên hoặc nhóm xe. Giá hiển thị là giá tham khảo theo nguồn đã ghi nhận.</p>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">{{ t('vehicles.title') }}</h1>
+        <p class="text-lg text-white/80 max-w-2xl">{{ t('vehicles.body') }}</p>
       </div>
       
       <div class="vehicles-search-shell">
         <div class="relative">
           <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/70">search</span>
-          <label class="sr-only" for="vehicle-search">Tìm xe Ford theo tên hoặc nhóm xe</label>
+          <label class="sr-only" for="vehicle-search">{{ t('vehicles.search_label') }}</label>
           <input id="vehicle-search" class="w-full rounded-2xl border border-white/20 bg-black/20 pl-12 pr-4 py-3 text-base text-white placeholder-white/50 shadow-sm transition-colors focus:border-white/50 focus:bg-black/40 focus:outline-none focus:ring-4 focus:ring-white/10" data-vehicle-search placeholder="Everest, Ranger, Transit..." />
         </div>
       </div>
@@ -31,26 +31,26 @@
   <section class="mx-auto max-w-7xl px-5 md:px-8 mt-16">
     <!-- Filters (Visual only for now, logic in JS if needed) -->
     <div class="variant-tabs mb-8 inline-flex">
-      <button class="variant-tab active" type="button">Tất cả</button>
-      <button class="variant-tab" type="button">SUV</button>
-      <button class="variant-tab" type="button">Bán tải</button>
-      <button class="variant-tab" type="button">Thương mại</button>
+      <button class="variant-tab active" type="button" data-filter="all">{{ t('vehicles.all') }}</button>
+      <button class="variant-tab" type="button" data-filter="suv">SUV</button>
+      <button class="variant-tab" type="button" data-filter="pickup">{{ t('vehicles.pickup') }}</button>
+      <button class="variant-tab" type="button" data-filter="commercial">{{ t('vehicles.commercial') }}</button>
     </div>
 
     <div class="bento-grid">
       {% for vehicle in vehicles %}
         <!-- Distribute sizes based on typical catalog importance -->
         <div class="{% if vehicle.slug == 'everest' %}bento-item-medium lg:row-span-2{% elif vehicle.slug == 'ranger' %}bento-item-medium{% else %}{% endif %}">
-          {{ vehicle_card(vehicle, format_vnd) }}
+          {{ vehicle_card(vehicle, format_vnd, t=t, lang_path=lang_path) }}
         </div>
       {% endfor %}
     </div>
     
     <div class="mt-8 rounded-2xl border border-border bg-surface-muted p-8 text-center" data-empty-vehicles style="display: none;">
       <span class="material-symbols-outlined text-4xl text-muted mb-3">search_off</span>
-      <h3 class="text-lg font-bold text-ink mb-2">Không thấy xe phù hợp</h3>
-      <p class="text-muted">Bộ lọc không khớp với dòng xe nào. Hãy gọi anh Huy để được tư vấn trực tiếp.</p>
-      <a class="btn btn-primary mt-4" href="tel:{{ sales.phone }}">Gọi anh Huy</a>
+      <h3 class="text-lg font-bold text-ink mb-2">{{ t('vehicles.empty_title') }}</h3>
+      <p class="text-muted">{{ t('vehicles.empty_body') }}</p>
+      <a class="btn btn-primary mt-4" href="tel:{{ sales.phone }}">{{ t('action.call_huy') }}</a>
     </div>
   </section>
 </main>
@@ -68,15 +68,19 @@
         tab.classList.add('active');
         
         // Filter logic
-        const category = tab.textContent.trim().toLowerCase();
+        const filter = tab.dataset.filter || 'all';
         const cards = document.querySelectorAll('[data-vehicle-card]');
         let hasVisible = false;
         
         cards.forEach(card => {
           const cardCategory = (card.dataset.category || "").toLowerCase();
           const matchSearch = searchInput.value ? (card.dataset.name || "").toLowerCase().includes(searchInput.value.toLowerCase()) : true;
+          const matchCategory = filter === 'all'
+            || (filter === 'suv' && cardCategory.includes('suv'))
+            || (filter === 'pickup' && (cardCategory.includes('bán tải') || cardCategory.includes('pickup')))
+            || (filter === 'commercial' && (cardCategory.includes('thương mại') || cardCategory.includes('commercial')));
           
-          if ((category === 'tất cả' || cardCategory.includes(category)) && matchSearch) {
+          if (matchCategory && matchSearch) {
             card.style.display = "";
             hasVisible = true;
           } else {

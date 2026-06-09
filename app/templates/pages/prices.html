@@ -6,15 +6,15 @@
     <div class="max-w-2xl">
       <span class="badge badge-primary mb-4">
         <span class="material-symbols-outlined text-[16px]">sell</span>
-        Bảng giá tham khảo
+        {{ t('prices.badge') }}
       </span>
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">Giá bán các dòng xe Ford.</h1>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-ink mb-4">{{ t('prices.title') }}</h1>
       <p class="text-lg text-muted mb-6">
-        Cập nhật theo nguồn {{ source_period }} (kiểm tra {{ source_checked_at }}). Giá có thể thay đổi theo khu vực, phiên bản, ưu đãi hiện hành và thời điểm giao xe.
+        {{ t('prices.body', source_period=source_period, source_checked_at=source_checked_at) }}
       </p>
       <a class="btn btn-secondary" href="{{ price_source_url }}" target="_blank" rel="noreferrer">
         <span class="material-symbols-outlined text-[20px]">link</span>
-        Xem nguồn dữ liệu
+        {{ t('prices.source') }}
       </a>
     </div>
   </section>
@@ -30,12 +30,12 @@
                 <span class="material-symbols-outlined text-[24px]">directions_car</span>
               </div>
               <div>
-                <h2 class="text-xl font-bold text-ink leading-tight"><a href="/xe/{{ vehicle.slug }}" class="hover:text-primary transition-colors">{{ vehicle.name }}</a></h2>
+                <h2 class="text-xl font-bold text-ink leading-tight"><a href="{{ lang_path('/xe/' ~ vehicle.slug) }}" class="hover:text-primary transition-colors">{{ vehicle.name }}</a></h2>
                 <p class="text-sm text-muted">{{ vehicle.category }}</p>
               </div>
             </div>
-            <a href="/bao-gia?vehicle={{ vehicle.slug }}" class="btn btn-ghost text-sm hidden sm:flex">
-              Nhận báo giá
+            <a href="{{ lang_path('/bao-gia') }}{{ '&' if '?' in lang_path('/bao-gia') else '?' }}vehicle={{ vehicle.slug }}" class="btn btn-ghost text-sm hidden sm:flex">
+              {{ t('action.quote') }}
               <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
             </a>
           </div>
@@ -54,8 +54,8 @@
           </div>
           
           <div class="mt-4 pt-4 border-t border-border flex sm:hidden justify-end">
-             <a href="/bao-gia?vehicle={{ vehicle.slug }}" class="text-primary text-sm font-semibold flex items-center gap-1">
-              Nhận báo giá
+             <a href="{{ lang_path('/bao-gia') }}{{ '&' if '?' in lang_path('/bao-gia') else '?' }}vehicle={{ vehicle.slug }}" class="text-primary text-sm font-semibold flex items-center gap-1">
+              {{ t('action.quote') }}
               <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
             </a>
           </div>
@@ -65,12 +65,12 @@
     
     <div class="mt-12 rounded-2xl bg-primary-container p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-soft">
       <div>
-        <h3 class="text-xl font-bold mb-2">Cần giá chốt tốt nhất?</h3>
-        <p class="text-white/80">Gọi ngay cho anh Huy để nhận thông tin về ưu đãi tiền mặt, tặng phụ kiện và lịch xe về.</p>
+        <h3 class="text-xl font-bold mb-2">{{ t('prices.final_title') }}</h3>
+        <p class="text-white/80">{{ t('prices.final_body') }}</p>
       </div>
       <a href="tel:{{ sales.phone }}" class="btn bg-white text-primary hover:bg-surface-muted flex-none whitespace-nowrap">
         <span class="material-symbols-outlined text-[20px]">call</span>
-        Gọi {{ sales.phone }}
+        {{ t('action.call') }} {{ sales.phone }}
       </a>
     </div>
   </section>

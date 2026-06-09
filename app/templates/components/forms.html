@@ -1,25 +1,27 @@
-{% macro lead_form(title, need_type, current_path, vehicles, selected_vehicle='', button_label='Gửi yêu cầu', note_label='Ghi chú') %}
+{% macro lead_form(title, need_type, current_path, vehicles, selected_vehicle='', button_label='', note_label='', t=None) %}
 <form class="lead-form" action="/lead" method="post" data-enhanced-form>
+  {% set form_button = button_label or (t('form.default_button') if t else 'Gửi yêu cầu') %}
+  {% set form_note_label = note_label or (t('form.note') if t else 'Ghi chú') %}
   <div class="mb-8">
     <h2 class="text-2xl font-bold text-ink mb-2">{{ title }}</h2>
-    <p class="text-sm text-muted">Điền thông tin ngắn, anh Huy sẽ kiểm tra giá lăn bánh, ưu đãi và phản hồi lại cho anh/chị.</p>
+    <p class="text-sm text-muted">{{ t('form.intro') if t else 'Điền thông tin ngắn, anh Huy sẽ kiểm tra giá lăn bánh, ưu đãi và phản hồi lại cho anh/chị.' }}</p>
   </div>
   
   <div class="grid gap-5 md:grid-cols-2 mb-5">
     <div class="form-group">
-      <label class="form-label" for="full_name">Họ tên</label>
-      <input class="form-input" id="full_name" name="full_name" required autocomplete="name" placeholder="Tên của anh/chị" />
+      <label class="form-label" for="full_name">{{ t('form.full_name') if t else 'Họ tên' }}</label>
+      <input class="form-input" id="full_name" name="full_name" required autocomplete="name" placeholder="{{ t('form.full_name_placeholder') if t else 'Tên của anh/chị' }}" />
     </div>
     
     <div class="form-group">
-      <label class="form-label" for="phone">Số điện thoại</label>
-      <input class="form-input" id="phone" name="phone" required autocomplete="tel" inputmode="tel" placeholder="Số để anh Huy gọi lại" />
+      <label class="form-label" for="phone">{{ t('form.phone') if t else 'Số điện thoại' }}</label>
+      <input class="form-input" id="phone" name="phone" required autocomplete="tel" inputmode="tel" placeholder="{{ t('form.phone_placeholder') if t else 'Số để anh Huy gọi lại' }}" />
     </div>
     
     <div class="form-group">
-      <label class="form-label" for="vehicle_interest">Xe quan tâm</label>
+      <label class="form-label" for="vehicle_interest">{{ t('form.vehicle') if t else 'Xe quan tâm' }}</label>
       <select class="form-select" id="vehicle_interest" name="vehicle_interest">
-        <option value="">Chọn xe nếu đã biết</option>
+        <option value="">{{ t('form.vehicle_placeholder') if t else 'Chọn xe nếu đã biết' }}</option>
         {% for vehicle in vehicles %}
           <option value="{{ vehicle.name }}" {{ 'selected' if selected_vehicle == vehicle.name else '' }}>{{ vehicle.name }}</option>
         {% endfor %}
@@ -27,22 +29,22 @@
     </div>
     
     <div class="form-group">
-      <label class="form-label" for="area">Khu vực</label>
-      <input class="form-input" id="area" name="area" placeholder="Đồng Tháp, Cần Thơ..." />
+      <label class="form-label" for="area">{{ t('form.area') if t else 'Khu vực' }}</label>
+      <input class="form-input" id="area" name="area" placeholder="{{ t('form.area_placeholder') if t else 'Đồng Tháp, Cần Thơ...' }}" />
     </div>
   </div>
   
   <div class="form-group mb-6">
-    <label class="form-label" for="note">{{ note_label }}</label>
-    <textarea class="form-textarea" id="note" name="note" rows="3" placeholder="Ví dụ: Quan tâm bản Titanium+, muốn tư vấn trả góp, lịch hẹn lái thử..."></textarea>
+    <label class="form-label" for="note">{{ form_note_label }}</label>
+    <textarea class="form-textarea" id="note" name="note" rows="3" placeholder="{{ t('form.note_placeholder') if t else 'Ví dụ: Quan tâm bản Titanium+, muốn tư vấn trả góp, lịch hẹn lái thử...' }}"></textarea>
   </div>
   
   <input type="hidden" name="need_type" value="{{ need_type }}" />
   <input type="hidden" name="redirect_to" value="{{ current_path }}" />
   
   <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-    <button class="btn btn-primary sm:w-auto w-full" type="submit">{{ button_label }}</button>
-    <p class="text-xs text-muted max-w-sm">Website không nhận đặt cọc hoặc thanh toán. Mọi thủ tục sẽ làm việc trực tiếp sau khi tư vấn.</p>
+    <button class="btn btn-primary sm:w-auto w-full" type="submit">{{ form_button }}</button>
+    <p class="text-xs text-muted max-w-sm">{{ t('form.disclaimer') if t else 'Website không nhận đặt cọc hoặc thanh toán. Mọi thủ tục sẽ làm việc trực tiếp sau khi tư vấn.' }}</p>
   </div>
 </form>
 {% endmacro %}

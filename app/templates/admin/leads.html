@@ -5,7 +5,7 @@
   <div class="panel-head">
     <div>
       <h2>Lead inbox</h2>
-      <p>Loc theo trang thai, tim theo ten, so dien thoai, xe hoac khu vuc.</p>
+      <p>Lọc theo trạng thái, tìm theo tên, số điện thoại, xe hoặc khu vực.</p>
     </div>
     <a class="btn btn-secondary" href="/admin/leads/export.csv?{{ export_query }}">
       <span class="material-symbols-outlined text-[18px]" aria-hidden="true">download</span>
@@ -15,26 +15,26 @@
 
   <form class="admin-toolbar" method="get" action="/admin/leads">
     <label class="field">
-      Trang thai
+      Trạng thái
       <select name="status_filter">
-        <option value="">Tat ca</option>
+        <option value="">Tất cả</option>
         {% for status in lead_statuses %}
           <option value="{{ status }}" {{ "selected" if status_filter == status else "" }}>{{ admin_status_label(status) }}</option>
         {% endfor %}
       </select>
     </label>
     <label class="field field-grow">
-      Tim kiem
-      <input name="q" value="{{ q }}" placeholder="Ten, so dien thoai, xe, khu vuc" />
+      Tìm kiếm
+      <input name="q" value="{{ q }}" placeholder="Tên, số điện thoại, xe, khu vực" />
     </label>
     <button class="btn btn-primary" type="submit">
       <span class="material-symbols-outlined text-[18px]" aria-hidden="true">filter_alt</span>
-      Loc lead
+      Lọc lead
     </button>
   </form>
 
   <div class="status-tabs" aria-label="Lead status filters">
-    <a class="{{ 'active' if not status_filter else '' }}" href="/admin/leads">Tat ca</a>
+    <a class="{{ 'active' if not status_filter else '' }}" href="/admin/leads">Tất cả</a>
     {% for status in lead_statuses %}
       <a class="{{ 'active' if status_filter == status else '' }}" href="/admin/leads?status_filter={{ status }}">
         {{ admin_status_label(status) }} <span>{{ counts.get(status, 0) }}</span>
@@ -47,12 +47,12 @@
       <table class="admin-table">
         <thead>
           <tr>
-            <th>Khach hang</th>
-            <th>Nhu cau</th>
-            <th>Xe quan tam</th>
+            <th>Khách hàng</th>
+            <th>Nhu cầu</th>
+            <th>Xe quan tâm</th>
             <th>Follow-up</th>
-            <th>Trang thai</th>
-            <th>Tao luc</th>
+            <th>Trạng thái</th>
+            <th>Tạo lúc</th>
           </tr>
         </thead>
         <tbody>
@@ -63,12 +63,12 @@
                 <small><a href="tel:{{ lead.phone }}">{{ lead.phone }}</a></small>
               </td>
               <td>{{ lead.need_type }}</td>
-              <td>{{ lead.vehicle_interest or "Chua ro" }}</td>
+              <td>{{ lead.vehicle_interest or "Chưa rõ" }}</td>
               <td>
                 {% if lead.follow_up_at %}
                   {{ lead.follow_up_at.strftime("%Y-%m-%d %H:%M") }}
                 {% else %}
-                  <span class="muted">Chua hen</span>
+                  <span class="muted">Chưa hẹn</span>
                 {% endif %}
               </td>
               <td><span class="status-badge status-{{ admin_status_class(lead.status) }}">{{ admin_status_label(lead.status) }}</span></td>
@@ -81,8 +81,8 @@
   {% else %}
     <div class="admin-empty">
       <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
-      <strong>Khong co lead phu hop</strong>
-      <p>Thu xoa bo loc hoac tao lead test tu form public.</p>
+      <strong>Không có lead phù hợp</strong>
+      <p>Thử xóa bộ lọc hoặc tạo lead test từ form public.</p>
     </div>
   {% endif %}
 </section>

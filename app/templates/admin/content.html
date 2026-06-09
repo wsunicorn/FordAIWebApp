@@ -4,41 +4,41 @@
 <section class="admin-panel">
   <div class="panel-head">
     <div>
-      <h2>Noi dung va freshness</h2>
-      <p>Quan ly uu dai, FAQ va bai viet voi nguon, han hieu luc va trang thai duyet.</p>
+      <h2>Nội dung và freshness</h2>
+      <p>Quản lý ưu đãi, FAQ và bài viết với nguồn, hạn hiệu lực và trạng thái duyệt.</p>
     </div>
-    <form action="/admin/content/seed" method="post" data-confirm="Seed lai uu dai va FAQ tu source hien tai?">
+    <form action="/admin/content/seed" method="post" data-confirm="Seed lại ưu đãi và FAQ từ source hiện tại?">
       <button class="btn btn-primary" type="submit">
         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">library_add</span>
-        Seed uu dai va FAQ
+        Seed ưu đãi và FAQ
       </button>
     </form>
   </div>
 
   <form class="admin-toolbar" method="get" action="/admin/content">
     <label class="field">
-      Loai noi dung
+      Loại nội dung
       <select name="kind">
-        <option value="">Tat ca</option>
+        <option value="">Tất cả</option>
         {% for kind in content_kinds %}
           <option value="{{ kind }}" {{ "selected" if kind_filter == kind else "" }}>{{ kind }}</option>
         {% endfor %}
       </select>
     </label>
-    <button class="btn btn-secondary" type="submit">Loc noi dung</button>
+    <button class="btn btn-secondary" type="submit">Lọc nội dung</button>
   </form>
 </section>
 
 <section class="admin-panel">
   <div class="panel-head">
     <div>
-      <h2>Tao noi dung moi</h2>
-      <p>Dung cho FAQ moi, uu dai can xac nhan hoac bai viet sau nay.</p>
+      <h2>Tạo nội dung mới</h2>
+      <p>Dùng cho FAQ mới, ưu đãi cần xác nhận hoặc bài viết sau này.</p>
     </div>
   </div>
   <form action="/admin/content" method="post" class="admin-form admin-form-grid">
     <label class="field">
-      Loai
+      Loại
       <select name="kind">
         {% for kind in content_kinds %}
           <option value="{{ kind }}">{{ kind }}</option>
@@ -46,11 +46,11 @@
       </select>
     </label>
     <label class="field">
-      Tieu de
+      Tiêu đề
       <input name="title" required />
     </label>
     <label class="field full">
-      Noi dung
+      Nội dung
       <textarea name="body" rows="5"></textarea>
     </label>
     <label class="field">
@@ -86,7 +86,7 @@
       </select>
     </label>
     <div class="form-actions full">
-      <button class="btn btn-primary" type="submit">Tao noi dung</button>
+      <button class="btn btn-primary" type="submit">Tạo nội dung</button>
     </div>
   </form>
 </section>
@@ -94,8 +94,8 @@
 <section class="admin-panel">
   <div class="panel-head">
     <div>
-      <h2>Danh sach noi dung</h2>
-      <p>Cap nhat trang thai ngay khi thong tin het han hoac can anh Huy xac nhan.</p>
+      <h2>Danh sách nội dung</h2>
+      <p>Cập nhật trạng thái ngay khi thông tin hết hạn hoặc cần anh Huy xác nhận.</p>
     </div>
   </div>
 
@@ -115,7 +115,7 @@
           </div>
           <div class="admin-form-grid">
             <label class="field">
-              Loai
+              Loại
               <select name="kind">
                 {% for kind in content_kinds %}
                   <option value="{{ kind }}" {{ "selected" if item.kind == kind else "" }}>{{ kind }}</option>
@@ -123,11 +123,11 @@
               </select>
             </label>
             <label class="field">
-              Tieu de
+              Tiêu đề
               <input name="title" value="{{ item.title }}" required />
             </label>
             <label class="field full">
-              Noi dung
+              Nội dung
               <textarea name="body" rows="4">{{ item.body or "" }}</textarea>
             </label>
             <label class="field">
@@ -164,13 +164,13 @@
             </label>
           </div>
           <div class="form-actions">
-            <button class="btn btn-secondary" type="submit">Luu noi dung</button>
+            <button class="btn btn-secondary" type="submit">Lưu nội dung</button>
           </div>
         </form>
       {% endfor %}
     </div>
   {% else %}
-    <div class="admin-empty">Chua co noi dung trong database admin.</div>
+    <div class="admin-empty">Chưa có nội dung trong database admin.</div>
   {% endif %}
 </section>
 {% endblock %}

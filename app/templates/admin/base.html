@@ -28,10 +28,10 @@
 
         <nav class="admin-nav" aria-label="Admin">
           {% set admin_nav = [
-            ('/admin', 'dashboard', 'Tong quan'),
+            ('/admin', 'dashboard', 'Tổng quan'),
             ('/admin/leads', 'group', 'Lead'),
-            ('/admin/vehicles', 'directions_car', 'Xe va gia'),
-            ('/admin/content', 'article', 'Noi dung'),
+            ('/admin/vehicles', 'directions_car', 'Xe và giá'),
+            ('/admin/content', 'article', 'Nội dung'),
             ('/admin/ai', 'smart_toy', 'AI')
           ] %}
           {% for href, icon, label in admin_nav %}
@@ -45,13 +45,13 @@
 
         <div class="admin-session">
           <div>
-            <span>Dang nhap</span>
+            <span>Đang đăng nhập</span>
             <strong>{{ admin_user or "admin" }}</strong>
           </div>
           <form action="/admin/logout" method="post">
             <button class="admin-logout" type="submit">
               <span class="material-symbols-outlined" aria-hidden="true">logout</span>
-              Dang xuat
+              Đăng xuất
             </button>
           </form>
         </div>

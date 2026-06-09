@@ -14,6 +14,19 @@ const formatVnd = (value) =>
 
 // Check for reduced motion preference
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const currentLocale = document.documentElement.lang === "en" ? "en" : "vi";
+const uiCopy = {
+  vi: {
+    close: "Đóng",
+    success: "Đã nhận yêu cầu. Anh Huy sẽ liên hệ lại sớm.",
+    aiError: "Xin lỗi, đang có lỗi kết nối. Vui lòng gọi trực tiếp anh Huy để được hỗ trợ.",
+  },
+  en: {
+    close: "Close",
+    success: "Request received. Huy will contact you soon.",
+    aiError: "Sorry, there is a connection issue. Please call Huy directly for support.",
+  },
+};
 
 // Header Scroll Effect
 const initHeaderScroll = () => {
@@ -47,7 +60,7 @@ const initMobileNav = () => {
       // Open
       mobileNav.style.transformOrigin = "top right";
       mobileNav.classList.add("is-open");
-      navToggle.innerHTML = '<span class="material-symbols-outlined">close</span><span data-nav-toggle-label>Đóng</span>';
+      navToggle.innerHTML = `<span class="material-symbols-outlined">close</span><span data-nav-toggle-label>${uiCopy[currentLocale].close}</span>`;
     } else {
       // Close
       mobileNav.classList.remove("is-open");
@@ -138,6 +151,25 @@ const initConfirmActions = () => {
         event.preventDefault();
       }
     });
+  });
+};
+
+const initLanguagePersistence = () => {
+  if (currentLocale === "vi") return;
+
+  document.querySelectorAll('a[href^="/"]').forEach((link) => {
+    const rawHref = link.getAttribute("href");
+    if (!rawHref || rawHref.startsWith("/api") || rawHref.includes("lang=")) return;
+    const url = new URL(rawHref, window.location.origin);
+    url.searchParams.set("lang", currentLocale);
+    link.setAttribute("href", `${url.pathname}${url.search}${url.hash}`);
+  });
+
+  document.querySelectorAll('input[name="redirect_to"]').forEach((input) => {
+    if (!(input instanceof HTMLInputElement)) return;
+    const url = new URL(input.value || window.location.pathname, window.location.origin);
+    url.searchParams.set("lang", currentLocale);
+    input.value = `${url.pathname}${url.search}${url.hash}`;
   });
 };
 
@@ -234,7 +266,7 @@ const initSuccessNotice = () => {
         notice.style.transform = "translateY(-10px)";
         notice.style.transition = "opacity 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms cubic-bezier(0.23, 1, 0.32, 1)";
         
-        notice.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Đã nhận yêu cầu. Anh Huy sẽ liên hệ lại sớm.';
+        notice.innerHTML = `<span class="material-symbols-outlined">check_circle</span> ${uiCopy[currentLocale].success}`;
         form.prepend(notice);
         
         requestAnimationFrame(() => {
@@ -398,7 +430,7 @@ const initAiChat = () => {
       
     } catch (err) {
       document.getElementById(typingId)?.remove();
-      appendMessage("Xin lỗi, đang có lỗi kết nối. Vui lòng gọi trực tiếp anh Huy để được hỗ trợ.", false);
+      appendMessage(uiCopy[currentLocale].aiError, false);
     } finally {
       if (submitBtn) submitBtn.disabled = false;
       input.focus();
@@ -423,6 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initHeaderScroll();
   initMobileNav();
   initConfirmActions();
+  initLanguagePersistence();
   initScrollReveal();
   initParallax();
   initVehicleSearch();
