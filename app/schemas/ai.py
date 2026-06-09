@@ -5,6 +5,7 @@ class AIChatRequest(BaseModel):
     message: str = Field(min_length=2, max_length=1200)
     session_id: str | None = Field(default=None, max_length=80)
     vehicle_interest: str | None = Field(default=None, max_length=160)
+    locale: str = Field(default="vi", max_length=8)
 
 
 class AISourceRead(BaseModel):

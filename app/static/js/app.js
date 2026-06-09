@@ -423,7 +423,7 @@ const initAiChat = () => {
       const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, session_id: getSessionId() })
+        body: JSON.stringify({ message: text, session_id: getSessionId(), locale: currentLocale })
       });
       
       const data = await res.json();

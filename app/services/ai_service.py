@@ -23,6 +23,7 @@ from app.data.site_content import (
 from app.models import AIConversation, AIDocument, AIFeedback, AIMessage
 from app.schemas import AIChatRequest, AIChatResponse, AISourceRead, LeadCreate
 from app.services.audit_service import write_audit_log
+from app.services.i18n_service import normalize_locale
 from app.services.lead_service import create_lead
 
 SYSTEM_PROMPT = """Bạn là trợ lý AI tư vấn tham khảo cho anh Huỳnh Đang Huy tại Đồng Tháp Ford.
@@ -152,6 +153,7 @@ def monthly_payment(principal: int, annual_rate: float, months: int) -> int:
 def maybe_run_tool(
     message: str,
     vehicle_interest: str | None = None,
+    locale: str = "vi",
 ) -> tuple[str | None, str | None]:
     normalized = normalize_text(message)
     inferred_vehicle = infer_vehicle_name(message)
@@ -159,8 +161,12 @@ def maybe_run_tool(
     if not vehicle:
         return None, None
 
+    is_english = normalize_locale(locale) == "en"
     price = vehicle.price_from
-    if any(keyword in normalized for keyword in ("lăn bánh", "lan banh", "ra biển", "ra bien")):
+    if any(
+        keyword in normalized
+        for keyword in ("lăn bánh", "lan banh", "ra biển", "ra bien", "on-road", "on road")
+    ):
         registration_fee = round(price * ON_ROAD_ASSUMPTIONS["registration_rate"])
         total = (
             price
@@ -169,25 +175,53 @@ def maybe_run_tool(
             + ON_ROAD_ASSUMPTIONS["road_fee"]
             + ON_ROAD_ASSUMPTIONS["civil_insurance"]
         )
-        answer = (
-            f"Ước tính lăn bánh tham khảo cho {vehicle.name} từ {format_vnd(price)} là "
-            f"khoảng {format_vnd(total)}. Con số này dùng nhóm phí khu vực tham khảo, "
-            "chưa phải báo giá chính thức. Anh Huy cần xác nhận lại phí, màu xe "
-            "và ưu đãi hiện hành."
-        )
+        if is_english:
+            answer = (
+                f"Reference on-road estimate for {vehicle.name} from {format_vnd(price)} is "
+                f"around {format_vnd(total)}. This uses the reference area fee group and is "
+                "not an official quote. Huy needs to reconfirm fees, color availability and "
+                "current offers."
+            )
+        else:
+            answer = (
+                f"Ước tính lăn bánh tham khảo cho {vehicle.name} từ {format_vnd(price)} là "
+                f"khoảng {format_vnd(total)}. Con số này dùng nhóm phí khu vực tham khảo, "
+                "chưa phải báo giá chính thức. Anh Huy cần xác nhận lại phí, màu xe "
+                "và ưu đãi hiện hành."
+            )
         return "on_road_calculator", answer
 
-    if any(keyword in normalized for keyword in ("trả góp", "tra gop", "vay", "ngân hàng")):
+    if any(
+        keyword in normalized
+        for keyword in (
+            "trả góp",
+            "tra gop",
+            "vay",
+            "ngân hàng",
+            "financing",
+            "loan",
+            "monthly payment",
+        )
+    ):
         down_payment = round(price * 0.3)
         principal = price - down_payment
         payment = monthly_payment(principal, annual_rate=8.5, months=60)
-        answer = (
-            f"Nếu tham khảo {vehicle.name} từ {format_vnd(price)}, trả trước 30% khoảng "
-            f"{format_vnd(down_payment)}, khoản vay còn lại khoảng {format_vnd(principal)}. "
-            f"Với giả định 8,5%/năm trong 60 tháng, trả góp ước tính khoảng "
-            f"{format_vnd(payment)}/tháng. "
-            "Ngân hàng sẽ xét hồ sơ thực tế, nên đây không phải cam kết duyệt vay."
-        )
+        if is_english:
+            answer = (
+                f"For {vehicle.name} from {format_vnd(price)}, a 30% down payment is about "
+                f"{format_vnd(down_payment)}, leaving around {format_vnd(principal)} to finance. "
+                f"With an assumed 8.5% annual rate over 60 months, estimated payment is about "
+                f"{format_vnd(payment)}/month. The bank reviews the real application, so this "
+                "is not a loan approval commitment."
+            )
+        else:
+            answer = (
+                f"Nếu tham khảo {vehicle.name} từ {format_vnd(price)}, trả trước 30% khoảng "
+                f"{format_vnd(down_payment)}, khoản vay còn lại khoảng {format_vnd(principal)}. "
+                f"Với giả định 8,5%/năm trong 60 tháng, trả góp ước tính khoảng "
+                f"{format_vnd(payment)}/tháng. "
+                "Ngân hàng sẽ xét hồ sơ thực tế, nên đây không phải cam kết duyệt vay."
+            )
         return "loan_calculator", answer
 
     return None, None
@@ -350,33 +384,58 @@ def compose_answer(
     retrieved: list[RetrievedDocument],
     risk_flags: list[str],
     tool_answer: str | None,
+    locale: str = "vi",
 ) -> tuple[str, bool, bool]:
     if tool_answer:
         return tool_answer, bool(risk_flags), False
 
+    is_english = normalize_locale(locale) == "en"
     if risk_flags:
-        answer = (
-            "Câu hỏi này cần anh Huy xác nhận trực tiếp vì liên quan đến thông tin có thể thay đổi "
-            "hoặc cần cam kết chính thức. Bạn có thể để lại số điện thoại, xe quan tâm và khu vực, "
-            "AI sẽ chuyển yêu cầu cho anh Huy gọi hoặc nhắn Zalo."
-        )
+        if is_english:
+            answer = (
+                "This question needs direct confirmation from Huy because it involves "
+                "information that can change or requires an official commitment. You can "
+                "leave your phone number, vehicle of interest and area so AI can hand the "
+                "request to Huy for a call or Zalo message."
+            )
+        else:
+            answer = (
+                "Câu hỏi này cần anh Huy xác nhận trực tiếp vì liên quan đến "
+                "thông tin có thể thay đổi hoặc cần cam kết chính thức. Bạn có "
+                "thể để lại số điện thoại, xe quan tâm và khu vực, "
+                "AI sẽ chuyển yêu cầu cho anh Huy gọi hoặc nhắn Zalo."
+            )
         return answer, True, False
 
     if not retrieved:
-        answer = (
-            "Hiện AI chưa có tài liệu đã duyệt để trả lời chắc câu này. Bạn có thể hỏi về dòng xe, "
-            "giá tham khảo, lăn bánh, trả góp hoặc để lại thông tin để anh Huy tư vấn trực tiếp."
-        )
+        if is_english:
+            answer = (
+                "AI does not yet have approved material to answer this confidently. You can "
+                "ask about Ford models, reference prices, on-road cost, financing or leave "
+                "your information for Huy to advise directly."
+            )
+        else:
+            answer = (
+                "Hiện AI chưa có tài liệu đã duyệt để trả lời chắc câu này. "
+                "Bạn có thể hỏi về dòng xe, giá tham khảo, lăn bánh, trả góp "
+                "hoặc để lại thông tin để anh Huy tư vấn trực tiếp."
+            )
         return answer, True, True
 
     source_lines = [item.document.body for item in retrieved[:2]]
     answer = " ".join(source_lines)
     if len(answer) > 720:
         answer = answer[:700].rsplit(" ", 1)[0] + "."
-    answer += (
-        " Thông tin trên là tham khảo, anh Huy sẽ xác nhận chi tiết "
-        "trước khi khách quyết định."
-    )
+    if is_english:
+        answer += (
+            " This information is for reference only. Huy will confirm details "
+            "before the customer decides."
+        )
+    else:
+        answer += (
+            " Thông tin trên là tham khảo, anh Huy sẽ xác nhận chi tiết "
+            "trước khi khách quyết định."
+        )
     return answer, False, False
 
 
@@ -424,15 +483,20 @@ def build_gemini_context(retrieved: list[RetrievedDocument]) -> str:
     return "\n\n".join(blocks)
 
 
-def build_gemini_prompt(message: str, retrieved: list[RetrievedDocument]) -> str:
+def build_gemini_prompt(
+    message: str,
+    retrieved: list[RetrievedDocument],
+    locale: str = "vi",
+) -> str:
     context = build_gemini_context(retrieved)
+    reply_language = "natural English" if normalize_locale(locale) == "en" else "natural Vietnamese"
     return (
         "Customer question:\n"
         f"{message.strip()}\n\n"
         "Approved knowledge base context:\n"
         f"{context}\n\n"
         "Answer requirements:\n"
-        "- Reply in natural Vietnamese.\n"
+        f"- Reply in {reply_language}.\n"
         "- Use only the approved context above and the system rules.\n"
         "- Keep the answer concise, practical and consultation-oriented.\n"
         "- Do not finalize price, stock, color availability, deposit, delivery or loan approval.\n"
@@ -465,7 +529,7 @@ def extract_gemini_text(data: dict[str, object]) -> str | None:
     return None
 
 
-def clean_gemini_answer(answer: str) -> str | None:
+def clean_gemini_answer(answer: str, locale: str = "vi") -> str | None:
     cleaned = re.sub(r"[ \t]+", " ", answer).strip()
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
     if not cleaned:
@@ -475,7 +539,13 @@ def clean_gemini_answer(answer: str) -> str | None:
         return None
     if len(cleaned) > 1_200:
         cleaned = cleaned[:1_180].rsplit(" ", 1)[0].rstrip(".,;:") + "."
-    if "thông tin trên là tham khảo" not in normalized:
+    if normalize_locale(locale) == "en":
+        if "reference" not in normalized:
+            cleaned += (
+                "\n\nNote: This information is for reference only; Huy will reconfirm "
+                "price, offers, stock and delivery time before the customer decides."
+            )
+    elif "thông tin trên là tham khảo" not in normalized:
         cleaned += (
             "\n\nLưu ý: Thông tin trên là tham khảo; anh Huy sẽ xác nhận lại giá, "
             "ưu đãi, tồn kho và thời gian giao xe trước khi khách quyết định."
@@ -486,6 +556,7 @@ def clean_gemini_answer(answer: str) -> str | None:
 async def generate_gemini_answer(
     message: str,
     retrieved: list[RetrievedDocument],
+    locale: str = "vi",
 ) -> str | None:
     if not gemini_enabled() or not retrieved:
         return None
@@ -496,7 +567,7 @@ async def generate_gemini_answer(
         "contents": [
             {
                 "role": "user",
-                "parts": [{"text": build_gemini_prompt(message, retrieved)}],
+                "parts": [{"text": build_gemini_prompt(message, retrieved, locale)}],
             }
         ],
         "generationConfig": {
@@ -520,10 +591,11 @@ async def generate_gemini_answer(
     raw_answer = extract_gemini_text(response.json())
     if not raw_answer:
         return None
-    return clean_gemini_answer(raw_answer)
+    return clean_gemini_answer(raw_answer, locale)
 
 
 async def answer_chat(session: AsyncSession, payload: AIChatRequest) -> AIChatResponse:
+    locale = normalize_locale(payload.locale)
     document_count = await session.scalar(select(func.count(AIDocument.id)))
     if not document_count:
         await seed_ai_documents(session)
@@ -550,14 +622,21 @@ async def answer_chat(session: AsyncSession, payload: AIChatRequest) -> AIChatRe
     quota_exceeded = bool(today_user_messages and today_user_messages > settings.ai_daily_quota)
 
     risk_flags = detect_risk_flags(payload.message)
-    tool_name, tool_answer = maybe_run_tool(payload.message, payload.vehicle_interest)
+    tool_name, tool_answer = maybe_run_tool(payload.message, payload.vehicle_interest, locale)
     retrieved = [] if quota_exceeded else await retrieve_documents(session, payload.message)
     provider_name = "internal"
     if quota_exceeded:
-        answer = (
-            "AI đã đạt giới hạn xử lý tạm thời trong ngày. Bạn có thể để lại số điện thoại, "
-            "xe quan tâm và khu vực để anh Huy gọi hoặc nhắn Zalo tư vấn trực tiếp."
-        )
+        if locale == "en":
+            answer = (
+                "AI has reached the temporary daily processing limit. You can leave your "
+                "phone number, vehicle of interest and area so Huy can call or message you "
+                "on Zalo directly."
+            )
+        else:
+            answer = (
+                "AI đã đạt giới hạn xử lý tạm thời trong ngày. Bạn có thể để lại số điện thoại, "
+                "xe quan tâm và khu vực để anh Huy gọi hoặc nhắn Zalo tư vấn trực tiếp."
+            )
         handoff_required = True
         fallback_used = True
         risk_flags = [*risk_flags, "quota_exceeded"]
@@ -568,9 +647,10 @@ async def answer_chat(session: AsyncSession, payload: AIChatRequest) -> AIChatRe
             retrieved,
             risk_flags,
             tool_answer,
+            locale,
         )
         if not tool_answer and not risk_flags and retrieved:
-            generated_answer = await generate_gemini_answer(payload.message, retrieved)
+            generated_answer = await generate_gemini_answer(payload.message, retrieved, locale)
             if generated_answer:
                 answer = generated_answer
                 handoff_required = False

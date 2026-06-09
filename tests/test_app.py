@@ -644,6 +644,15 @@ def test_ai_chat_calculator_and_guardrail() -> None:
     assert calculator_data["tool_name"] == "on_road_calculator"
     assert calculator_data["conversation_id"]
 
+    english_calculator = client.post(
+        "/api/ai/chat",
+        json={"message": "Ford Everest on-road estimate?", "locale": "en"},
+    )
+    assert english_calculator.status_code == 200
+    english_data = english_calculator.json()
+    assert english_data["tool_name"] == "on_road_calculator"
+    assert "Reference on-road estimate" in english_data["answer"]
+
     guardrail = client.post(
         "/api/ai/chat",
         json={
