@@ -1,4 +1,5 @@
 import asyncio
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -9,7 +10,7 @@ from sqlalchemy import select
 from app.core.config import Settings, settings
 from app.db.session import AsyncSessionLocal
 from app.main import app
-from app.models import AuditLog, ContentItem, Vehicle, VehiclePrice, VehicleVariant
+from app.models import AIDocument, AuditLog, ContentItem, Vehicle, VehiclePrice, VehicleVariant
 
 client = TestClient(app)
 
@@ -117,6 +118,28 @@ def vehicle_id_by_slug(slug: str) -> str | None:
             return result.scalars().first()
 
     return asyncio.run(_get())
+
+
+def upsert_stale_ai_document() -> None:
+    async def _upsert() -> None:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(
+                select(AIDocument).where(AIDocument.title == "Ford Everest tham khảo")
+            )
+            document = result.scalars().first()
+            if not document:
+                document = AIDocument(
+                    title="Ford Everest tham khảo",
+                    body="Everest Ambiente: 1.099.000.000 VNĐ",
+                )
+                session.add(document)
+            document.body = "Everest Ambiente: 1.099.000.000 VNĐ"
+            document.source_updated_at = date(2025, 1, 1)
+            document.approval_status = "approved"
+            document.freshness_status = "fresh"
+            await session.commit()
+
+    asyncio.run(_upsert())
 
 
 def test_health_endpoint() -> None:
@@ -665,6 +688,19 @@ def test_ai_chat_calculator_and_guardrail() -> None:
     assert guardrail_data["handoff_required"] is True
     assert "final_price" in guardrail_data["risk_flags"]
     assert "stock" in guardrail_data["risk_flags"]
+
+
+def test_ai_chat_reseeds_stale_price_documents() -> None:
+    upsert_stale_ai_document()
+
+    response = client.post(
+        "/api/ai/chat",
+        json={"message": "Ford Everest Sport gia bao nhieu?"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "Everest Active" in data["answer"]
+    assert "Everest Ambiente" not in data["answer"]
 
 
 def test_ai_handoff_creates_lead() -> None:

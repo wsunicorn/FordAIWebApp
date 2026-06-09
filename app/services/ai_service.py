@@ -101,6 +101,17 @@ class RetrievedDocument:
     score: int
 
 
+def seeded_ai_document_titles() -> tuple[str, ...]:
+    return (
+        "Nguyên tắc trả lời của AI",
+        "Chính sách handoff sang anh Huy",
+        "Thông tin liên hệ anh Huỳnh Đang Huy",
+        *(f"{vehicle.name} tham khảo" for vehicle in VEHICLES),
+        *(str(item["title"]) for item in PROMOTIONS),
+        *(str(item["question"]) for item in FAQS),
+    )
+
+
 def normalize_text(value: str) -> str:
     return value.lower()
 
@@ -596,8 +607,15 @@ async def generate_gemini_answer(
 
 async def answer_chat(session: AsyncSession, payload: AIChatRequest) -> AIChatResponse:
     locale = normalize_locale(payload.locale)
-    document_count = await session.scalar(select(func.count(AIDocument.id)))
-    if not document_count:
+    source_date = date.fromisoformat(SOURCE_CHECKED_AT)
+    seeded_titles = seeded_ai_document_titles()
+    current_document_count = await session.scalar(
+        select(func.count(AIDocument.id)).where(
+            AIDocument.title.in_(seeded_titles),
+            AIDocument.source_updated_at >= source_date,
+        )
+    )
+    if current_document_count != len(seeded_titles):
         await seed_ai_documents(session)
 
     conversation = await get_or_create_conversation(
